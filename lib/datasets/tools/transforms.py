@@ -78,6 +78,8 @@ class ToTensor(object):
             inputs = inputs.reshape(inputs.shape[0], inputs.shape[1], channels)
             inputs = torch.from_numpy(inputs.transpose(2, 0, 1))
         else:
+            if len(inputs.shape) == 2:
+                inputs = np.expand_dims(inputs, axis=2)
             inputs = torch.from_numpy(inputs.transpose(2, 0, 1))
 
         return inputs.float()

@@ -208,122 +208,6 @@ class RandomHFlip(_BaseTransform):
         )
 
 
-class RandomSaturation(_BaseTransform):
-    def __init__(self, lower=0.5, upper=1.5, saturation_ratio=0.5):
-        self.lower = lower
-        self.upper = upper
-        self.ratio = saturation_ratio
-        assert self.upper >= self.lower, "saturation upper must be >= lower."
-        assert self.lower >= 0, "saturation lower must be non-negative."
-
-    def _process_img(self, img):
-        img = img.astype(np.float32)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        img[:, :, 1] *= random.uniform(self.lower, self.upper)
-        img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
-        img = np.clip(img, 0, 255).astype(np.uint8)
-        return img
-
-    def __call__(self, img, **kwargs):
-        img, data_dict = super().__call__(img, **kwargs)
-
-        return self._process(
-            img, data_dict,
-            random.random() > self.ratio
-        )
-
-
-class RandomHue(_BaseTransform):
-    def __init__(self, delta=18, hue_ratio=0.5):
-        assert 0 <= delta <= 360
-        self.delta = delta
-        self.ratio = hue_ratio
-
-    def _process_img(self, img):
-        img = img.astype(np.float32)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        img[:, :, 0] += random.uniform(-self.delta, self.delta)
-        img[:, :, 0][img[:, :, 0] > 360] -= 360
-        img[:, :, 0][img[:, :, 0] < 0] += 360
-        img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
-        img = np.clip(img, 0, 255).astype(np.uint8)
-        return img
-
-    def __call__(self, img, **kwargs):
-        img, data_dict = super().__call__(img, **kwargs)
-
-        return self._process(
-            img, data_dict,
-            random.random() > self.ratio
-        )
-
-
-class RandomPerm(_BaseTransform):
-    def __init__(self, perm_ratio=0.5):
-        self.ratio = perm_ratio
-        self.perms = ((0, 1, 2), (0, 2, 1),
-                      (1, 0, 2), (1, 2, 0),
-                      (2, 0, 1), (2, 1, 0))
-
-    def _process_img(self, img):
-        swap = self.perms[random.randint(0, len(self.perms) - 1)]
-        img = img[:, :, swap].astype(np.uint8)
-        return img
-
-    def __call__(self, img, **kwargs):
-        img, data_dict = super().__call__(img, **kwargs)
-
-        return self._process(
-            img, data_dict,
-            random.random() > self.ratio
-        )
-
-
-class RandomContrast(_BaseTransform):
-    def __init__(self, lower=0.5, upper=1.5, contrast_ratio=0.5):
-        self.lower = lower
-        self.upper = upper
-        self.ratio = contrast_ratio
-        assert self.upper >= self.lower, "contrast upper must be >= lower."
-        assert self.lower >= 0, "contrast lower must be non-negative."
-
-    def _process_img(self, img):
-        img = img.astype(np.float32)
-        img *= random.uniform(self.lower, self.upper)
-        img = np.clip(img, 0, 255).astype(np.uint8)
-        return img
-
-    def __call__(self, img, **kwargs):
-        img, data_dict = super().__call__(img, **kwargs)
-
-        return self._process(
-            img, data_dict,
-            random.random() > self.ratio
-        )
-
-
-class RandomBrightness(_BaseTransform):
-    def __init__(self, shift_value=30, brightness_ratio=0.5):
-        self.shift_value = shift_value
-        self.ratio = brightness_ratio
-
-    def _process_img(self, img):
-        img = img.astype(np.float32)
-        shift = random.randint(-self.shift_value, self.shift_value)
-        img[:, :, :] += shift
-        img = np.around(img)
-        img = np.clip(img, 0, 255).astype(np.uint8)
-        return img
-
-    def __call__(self, img, **kwargs):
-        img, data_dict = super().__call__(img, **kwargs)
-
-        return self._process(
-            img, data_dict,
-            random.random() > self.ratio
-        )
-
-
 class RandomResize(_BaseTransform):
     """Resize the given numpy.ndarray to random size and aspect ratio.
 
@@ -370,7 +254,7 @@ class RandomResize(_BaseTransform):
             exit(1)
 
     def _process_img(self, img, converted_size, *args):
-        return cv2.resize(img, converted_size, interpolation=cv2.INTER_CUBIC).astype(np.uint8)
+        return cv2.resize(img, converted_size, interpolation=cv2.INTER_CUBIC)
 
     def _process_labelmap(self, x, converted_size, *args):
         return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
@@ -418,7 +302,7 @@ class RandomResize(_BaseTransform):
         """
         img, data_dict = super().__call__(img, **kwargs)
 
-        height, width, _ = img.shape
+        height, width = img.shape
         if self.scale_list is None:
             scale_ratio = self.get_scale([width, height])
         else:
@@ -461,13 +345,13 @@ class RandomRotate(_BaseTransform):
         return cv2.warpAffine(x, rotate_mat, (new_width, new_height), borderValue=border_value)
 
     def _process_img(self, x, *args):
-        return self._warp(x, self.mean, *args).astype(np.uint8)
+        return self._warp(x, self.mean, *args)
 
     def _process_labelmap(self, x, *args):
-        return self._warp(x, (255, 255, 255), *args).astype(np.uint8)
+        return self._warp(x, (255, 255, 255), *args)
 
     def _process_maskmap(self, x, *args):
-        return self._warp(x, (1, 1, 1), *args).astype(np.uint8)
+        return self._warp(x, (1, 1, 1), *args)
 
     def __call__(self, img, **kwargs):
         """
@@ -484,7 +368,7 @@ class RandomRotate(_BaseTransform):
         img, data_dict = super().__call__(img, **kwargs)
 
         rotate_degree = random.uniform(-self.max_degree, self.max_degree)
-        height, width, _ = img.shape
+        height, width = img.shape
         img_center = (width / 2.0, height / 2.0)
         rotate_mat = cv2.getRotationMatrix2D(img_center, rotate_degree, 1.0)
         cos_val = np.abs(rotate_mat[0, 0])
@@ -516,7 +400,7 @@ class RandomCrop(_BaseTransform):
 
         if isinstance(crop_size, float):
             self.size = (crop_size, crop_size)
-        elif isinstance(crop_size, collections.Iterable) and len(crop_size) == 2:
+        elif isinstance(crop_size, collections.abc.Iterable) and len(crop_size) == 2:
             self.size = crop_size
         else:
             raise TypeError('Got inappropriate size arg: {}'.format(crop_size))
@@ -591,7 +475,7 @@ class RandomCrop(_BaseTransform):
         """
         img, data_dict = super().__call__(img, **kwargs)
 
-        height, width, _ = img.shape
+        height, width = img.shape
         target_size = [min(self.size[0], width), min(self.size[1], height)]
 
         offset_left, offset_up = self.get_lefttop(target_size, [width, height])
@@ -618,7 +502,7 @@ class Resize(RandomResize):
     def __call__(self, img, **kwargs):
         img, data_dict = super(RandomResize, self).__call__(img, **kwargs)
 
-        height, width, _ = img.shape
+        height, width = img.shape
         if self.target_size is not None:
             target_size = self.target_size
             w_scale_ratio = self.target_size[0] / width
@@ -748,12 +632,7 @@ class AugCompose(object):
 
 
 TRANSFORM_MAPPING = {
-    "random_saturation": RandomSaturation,
-    "random_hue": RandomHue,
-    "random_perm": RandomPerm,
-    "random_contrast": RandomContrast,
     "padding": Padding,
-    "random_brightness": RandomBrightness,
     "random_hflip": RandomHFlip,
     "random_resize": RandomResize,
     "random_crop": RandomCrop,
@@ -767,43 +646,12 @@ TRANSFORM_SPEC = {
             "style_ratio": "ratio"
         }
     }],
-    "random_saturation": [{
-        "args": {
-            "lower": "lower",
-            "upper": "upper",
-            "saturation_ratio": "ratio"
-        }
-    }],
-    "random_hue": [{
-        "args": {
-            "delta": "delta",
-            "hue_ratio": "ratio"
-        }
-    }],
-    "ramdom_perm": [{
-        "args": {
-            "perm_ratio": "ratio"
-        }
-    }],
-    "random_contrast": [{
-        "args": {
-            "lower": "lower",
-            "upper": "upper",
-            "contrast_ratio": "ratio"
-        }
-    }],
     "padding": [{
         "args": {
             "pad": "pad",
             "pad_ratio": "ratio",
             "mean": ["normalize", "mean_value"],
             "allow_outside_center": "allow_outside_center"
-        }
-    }],
-    "random_brightness": [{
-        "args": {
-            "shift_value": "shift_value",
-            "brightness_ratio": "ratio"
         }
     }],
     "random_hflip": [{

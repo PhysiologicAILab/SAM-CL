@@ -35,7 +35,7 @@ if [ "$1"x == "train"x ]; then
                        --log_to_file n \
                        --backbone ${BACKBONE} \
                        --model_name ${MODEL_NAME} \
-                       --gpu 0 \
+                       --gpu 0 1 2 3\
                        --data_dir ${DATA_DIR} \
                        --loss_type ${LOSS_TYPE} \
                        --max_iters ${MAX_ITERS} \
@@ -59,7 +59,7 @@ elif [ "$1"x == "resume"x ]; then
                        --max_iters ${MAX_ITERS} \
                        --data_dir ${DATA_DIR} \
                        --loss_type ${LOSS_TYPE} \
-                       --gpu 0 \
+                       --gpu 0 1 2 3 \
                        --resume_continue y \
                        --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                        --checkpoints_name ${CHECKPOINTS_NAME} \

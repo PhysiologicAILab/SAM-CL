@@ -79,12 +79,12 @@ class ImageHelper(object):
 
     @staticmethod
     def npy_read_image(image_path, mode='therm'):
-        if mode in ['therm', 'vis', 'rgb']:
+        if mode in ['therm', 'vis', 'rgb', 'P']:
             if mode == 'therm':
                 return np.load(image_path)/1000.0
-            elif mode in ['P', 'vis']:
+            elif mode == 'vis':
                 return np.load(image_path)
-            elif mode == 'rgb':
+            elif mode in ['P', 'rgb']:
                 return ImageHelper.img2np(Image.open(image_path))
             
         else:

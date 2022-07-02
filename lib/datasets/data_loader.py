@@ -40,15 +40,14 @@ class DataLoader(object):
             self.aug_train_transform = therm_aug_transforms.AugCompose(self.configer, split='train')
             self.aug_val_transform = therm_aug_transforms.AugCompose(self.configer, split='val')
 
-            # self.img_transform = trans.Compose([
-            #     trans.ToTensor(),
-            #     trans.Normalize(div_value=self.configer.get('normalize', 'div_value'),
-            #                     mean=self.configer.get('normalize', 'mean'),
-            #                     std=self.configer.get('normalize', 'std')), ])
+            self.img_transform = trans.Compose([
+                trans.ToTensor(),
+                trans.Normalize(div_value=self.configer.get('normalize', 'div_value'),
+                                mean=self.configer.get('normalize', 'mean'),
+                                std=self.configer.get('normalize', 'std')), ])
 
-            # self.label_transform = trans.Compose([
-            #     trans.ToLabel(),
-            #     trans.ReLabel(255, -1), ])
+            self.label_transform = trans.Compose([
+                trans.ToLabel(), ])
 
         else:
             from lib.datasets.tools import cv2_aug_transforms
@@ -178,6 +177,11 @@ class DataLoader(object):
             """
             Log.info('use distance transform based offset loader for val ...')
             klass = DTOffsetLoader
+
+        elif self.configer.exists('train', 'loader') and \
+            self.configer.get('train', 'loader') == 'thermalFaceDB':
+            Log.info('use ThermalFaceDBLoader (diverse input shape) for val...')
+            klass = ThermalFaceDBLoader
 
         elif self.configer.get('method') == 'fcn_segmentor':
             """
