@@ -16,6 +16,7 @@ import numpy as np
 
 from lib.utils.tools.logger import Logger as Log
 from lib.datasets.tools.transforms import DeNormalize
+from scipy.ndimage import rotate
 
 
 class _BaseTransform(object):
@@ -333,16 +334,13 @@ class RandomRotate(_BaseTransform):
         degree (number): Desired rotate degree.
     """
 
-    def __init__(self, max_degree, rotate_ratio=0.5, mean=(104, 117, 123)):
-        assert isinstance(max_degree, int), '{}'.format(type(max_degree))
-        self.max_degree = max_degree
-        self.ratio = rotate_ratio
-        self.mean = mean
-        Log.warn(
-            'Currently `RandomRotate` is only implemented for `img`, `labelmap` and `maskmap`.')
+    def __init__(self, low_limit_angle=5, high_limit_angle=355):
+        self.low_limit_angle = low_limit_angle
+        self.high_limit_angle = high_limit_angle
 
-    def _warp(self, x, border_value, rotate_mat, new_width, new_height):
-        return cv2.warpAffine(x, rotate_mat, (new_width, new_height), borderValue=border_value)
+    def _rotate(self, x, angle, reshape=False, mode="nearest", order=3):
+        return rotate(x, angle, reshape, mode, order)
+    
 
     def _process_img(self, x, *args):
         return self._warp(x, self.mean, *args)
@@ -383,6 +381,8 @@ class RandomRotate(_BaseTransform):
             random.random() > self.ratio,
             rotate_mat, new_width, new_height
         )
+
+
 
 
 class RandomCrop(_BaseTransform):
