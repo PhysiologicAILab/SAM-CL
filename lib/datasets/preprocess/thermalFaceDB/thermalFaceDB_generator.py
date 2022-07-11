@@ -48,13 +48,13 @@ def main(args):
 	if not os.path.exists(save_dir_train_ann):
 		os.makedirs(save_dir_train_ann)
 
-	save_dir_valid_image = os.path.join(save_dir, "valid", "image")
+	save_dir_valid_image = os.path.join(save_dir, "val", "image")
 	if not os.path.exists(save_dir_valid_image):
 		os.makedirs(save_dir_valid_image)
-	save_dir_valid_label = os.path.join(save_dir, "valid", "label")
+	save_dir_valid_label = os.path.join(save_dir, "val", "label")
 	if not os.path.exists(save_dir_valid_label):
 		os.makedirs(save_dir_valid_label)
-	save_dir_valid_ann = os.path.join(save_dir, "valid", "ann")
+	save_dir_valid_ann = os.path.join(save_dir, "val", "ann")
 	if not os.path.exists(save_dir_valid_ann):
 		os.makedirs(save_dir_valid_ann)
 

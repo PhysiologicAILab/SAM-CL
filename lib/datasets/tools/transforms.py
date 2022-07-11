@@ -50,7 +50,7 @@ class NormalizeThermal(object):
 
     def __call__(self, inputs):
 
-        min_T = inputs.nin()
+        min_T = inputs.min()
         max_T = inputs.max()
 
         if self.norm_mode == 1:

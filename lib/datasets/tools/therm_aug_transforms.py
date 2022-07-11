@@ -17,7 +17,7 @@ from lib.utils.tools.logger import Logger as Log
 from lib.datasets.tools.transforms import DeNormalize
 from scipy.ndimage import rotate
 from scipy.ndimage.filters import gaussian_filter
-from thermal_occlusions import ThermOcclusion
+from .thermal_occlusions import ThermOcclusion
 
 class _BaseTransform(object):
     DATA_ITEMS = (
@@ -383,7 +383,7 @@ class RandomResize(_BaseTransform):
         """
         img, data_dict = super().__call__(img, **kwargs)
 
-        height, width, _ = img.shape
+        height, width = img.shape
         if self.scale_list is None:
             scale_ratio = self.get_scale([width, height])
         else:
@@ -490,7 +490,7 @@ class RandomCrop(_BaseTransform):
         """
         img, data_dict = super().__call__(img, **kwargs)
 
-        height, width, _ = img.shape
+        height, width = img.shape
         target_size = [min(self.size[0], width), min(self.size[1], height)]
 
         offset_left, offset_up = self.get_lefttop(target_size, [width, height])
@@ -506,8 +506,8 @@ class RandomThermalOcclusion(_BaseTransform):
         self.thermOccObj = ThermOcclusion()
         self.ratio = ratio
 
-    def _process_img(self, x, **args):
-        return self.thermOccObj.gen_occluded_image(x, **args)
+    def _process_img(self, x):
+        return self.thermOccObj.gen_occluded_image(x, self.low_temp, self.high_temp)
 
     def __call__(self, img, **kwargs):
         img, data_dict = super().__call__(img, **kwargs)
@@ -515,10 +515,10 @@ class RandomThermalOcclusion(_BaseTransform):
         min_temp = np.min(img)
         max_temp = np.max(img)
         diff_temp = np.abs(max_temp - min_temp)
-        low_temp = min_temp - diff_temp
-        high_temp = max_temp + diff_temp
+        self.low_temp = min_temp - diff_temp
+        self.high_temp = max_temp + diff_temp
 
-        return self._process(img, data_dict, random.random() > self.ratio, low_temp, high_temp)
+        return self._process(img, data_dict, random.random() > self.ratio)
 
 
 

@@ -111,7 +111,7 @@ class ThermOcclusion():
             numVerts=numVerts
         )
 
-        occluded_img = Image.new('L', input_img.shape, black)
+        occluded_img = Image.new('L', (img_height, img_width), black) #Note that Pillow Image takes height, width dimension, not width, height
         draw = ImageDraw.Draw(occluded_img)  # (rand_noise)  # (im)
         if numVerts > 2:
             draw.polygon(verts1, outline=white, fill=white)
@@ -145,7 +145,7 @@ class ThermOcclusion():
                 numVerts=numVerts
             )
             
-            im_arr2 = Image.new('L', input_img.shape, black)
+            im_arr2 = Image.new('L', (img_height, img_width), black)
             draw = ImageDraw.Draw(im_arr2)  # (rand_noise)  # (im)
             draw.polygon(verts2, outline=white, fill=white)
 
@@ -176,7 +176,7 @@ class ThermOcclusion():
                 numVerts=numVerts
             )
 
-            im_arr2 = Image.new('L', input_img.shape, black)
+            im_arr2 = Image.new('L', (img_height, img_width), black)
             draw = ImageDraw.Draw(im_arr2)  # (rand_noise)  # (im)
             if numVerts > 2:
                 draw.polygon(verts2, outline=white, fill=white)
