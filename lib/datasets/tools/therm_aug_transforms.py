@@ -730,18 +730,26 @@ TRANSFORM_SPEC = {
     ],
     "random_rotate": [{
         "args": {
+            "ratio": "ratio",
             "low_limit_angle": "low_limit_angle",
             "high_limit_angle": "high_limit_angle"
         }
     }],
     "gaussian_blur": [{
         "args": {
+            "ratio": "ratio",
             "blur_sigma_max": "blur_sigma_max",
         }
     }],
     "thermal_noise": [{
         "args": {
+            "ratio": "ratio",
             "max_noise_equivalent_differential_temperature": "max_noise_equivalent_differential_temperature",
+        }
+    }],
+    "random_thermal_occlusion": [{
+        "args": {
+            "ratio": "ratio",
         }
     }],
     "resize": [{
