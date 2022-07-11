@@ -37,14 +37,12 @@ class DataLoader(object):
 
         if self.configer.get('train', 'loader') == 'thermalFaceDB':
             from lib.datasets.tools import therm_aug_transforms
-            self.aug_train_transform = therm_aug_transforms.AugCompose(self.configer, split='train')
-            self.aug_val_transform = therm_aug_transforms.AugCompose(self.configer, split='val')
+            self.aug_train_transform = therm_aug_transforms.ThermAugCompose(self.configer, split='train')
+            self.aug_val_transform = therm_aug_transforms.ThermAugCompose(self.configer, split='val')
 
             self.img_transform = trans.Compose([
                 trans.ToTensor(),
-                trans.Normalize(div_value=self.configer.get('normalize', 'div_value'),
-                                mean=self.configer.get('normalize', 'mean'),
-                                std=self.configer.get('normalize', 'std')), ])
+                trans.NormalizeThermal(norm_mode=self.configer.get('normalize', 'norm_mode')), ])
 
             self.label_transform = trans.Compose([
                 trans.ToLabel(), ])

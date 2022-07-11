@@ -2,7 +2,6 @@
 # -*- coding:utf-8 -*-
 # Author: Jingyi Xie
 
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -17,14 +16,14 @@ import numpy as np
 from lib.utils.tools.logger import Logger as Log
 from lib.datasets.tools.transforms import DeNormalize
 from scipy.ndimage import rotate
-
+from scipy.ndimage.filters import gaussian_filter
+from thermal_occlusions import ThermOcclusion
 
 class _BaseTransform(object):
     DATA_ITEMS = (
         'labelmap', 'maskmap',
         'distance_map', 'angle_map', 'multi_label_direction_map',
         'boundary_map', 'offsetmap',
-        # 'offsetmap_h', 'offsetmap_w', 
         'region_indexmap'
     )
 
@@ -68,42 +67,33 @@ class Padding(_BaseTransform):
                 img: Image object.
     """
 
-    def __init__(self, pad=None, pad_ratio=0.5, mean=(104, 117, 123), allow_outside_center=True):
+    def __init__(self, pad=None, ratio=0.5, mean=25.0, allow_outside_center=True):
         self.pad = pad
-        self.ratio = pad_ratio
+        self.ratio = ratio
         self.mean = mean
         self.allow_outside_center = allow_outside_center
 
     def _pad(self, x, pad_value, height, width, target_size, offset_left, offset_up):
-        expand_x = np.zeros((
-            max(height, target_size[1]) + abs(offset_up),
-            max(width, target_size[0]) + abs(offset_left),
-            *x.shape[2:]
-        ), dtype=x.dtype)
+        expand_x = np.zeros((max(height, target_size[1]) + abs(offset_up), max(width, target_size[0]) + abs(offset_left)), dtype=x.dtype)
         expand_x[:, :] = pad_value
-        expand_x[
-        abs(min(offset_up, 0)):abs(min(offset_up, 0)) + height,
-        abs(min(offset_left, 0)):abs(min(offset_left, 0)) + width] = x
-        x = expand_x[
-            max(offset_up, 0):max(offset_up, 0) + target_size[1],
-            max(offset_left, 0):max(offset_left, 0) + target_size[0]
-            ]
+        expand_x[abs(min(offset_up, 0)):abs(min(offset_up, 0)) + height, abs(min(offset_left, 0)):abs(min(offset_left, 0)) + width] = x
+        x = expand_x[max(offset_up, 0):max(offset_up, 0) + target_size[1], max(offset_left, 0):max(offset_left, 0) + target_size[0]]
         return x
 
     def _process_img(self, img, *args):
         return self._pad(img, self.mean, *args)
 
     def _process_labelmap(self, x, *args):
-        return self._pad(x, 255, *args)
+        return self._pad(x, 0, *args)
 
     def _process_region_indexmap(self, x, *args):
         return self._pad(x, 0, *args)
 
     def _process_maskmap(self, x, *args):
-        return self._pad(x, 1, *args)
+        return self._pad(x, 0, *args)
 
     def _process_distance_map(self, x, *args):
-        return self._pad(x, 255, *args)
+        return self._pad(x, 0, *args)
 
     def _process_angle_map(self, x, *args):
         return self._pad(x, 0, *args)
@@ -114,99 +104,196 @@ class Padding(_BaseTransform):
     def _process_multi_label_direction_map(self, x, *args):
         return self._pad(x, 0, *args)
 
-    # def _process_offsetmap_h(self, x, *args):
-    #     return self._pad(x, 0, *args)
-
-    # def _process_offsetmap_w(self, x, *args):
-    #     return self._pad(x, 0, *args)
-
     def _process_offsetmap(self, x, *args):
         return self._pad(x, 0, *args)
 
     def __call__(self, img, **kwargs):
         img, data_dict = super().__call__(img, **kwargs)
 
-        height, width, channels = img.shape
+        height, width = img.shape
         left_pad, up_pad, right_pad, down_pad = self.pad
-
-        target_size = [width + left_pad +
-                       right_pad, height + up_pad + down_pad]
+        target_size = [width + left_pad + right_pad, height + up_pad + down_pad]
         offset_left = -left_pad
         offset_up = -up_pad
 
-        return self._process(
-            img, data_dict,
-            random.random() > self.ratio,
-            height, width, target_size, offset_left, offset_up
-        )
-
+        return self._process(img, data_dict, random.random() > self.ratio, height, width, target_size, offset_left, offset_up)
+        
 
 class RandomHFlip(_BaseTransform):
-    def __init__(self, swap_pair=None, flip_ratio=0.5):
-        self.swap_pair = swap_pair
-        self.ratio = flip_ratio
+    def __init__(self, ratio):
+        self.ratio = ratio
 
-    def _process_img(self, img):
-        return cv2.flip(img, 1)
+    def _process_img(self, x):
+        return np.fliplr(x)
 
-    def _process_labelmap(self, labelmap):
-        labelmap = cv2.flip(labelmap, 1)
-        # to handle datasets with left/right annatations
-        if self.swap_pair is not None:
-            assert isinstance(self.swap_pair, (tuple, list))
-            temp = labelmap.copy()
-            for pair in self.swap_pair:
-                assert isinstance(pair, (tuple, list)) and len(pair) == 2
-                labelmap[temp == pair[0]] = pair[1]
-                labelmap[temp == pair[1]] = pair[0]
+    def _process_labelmap(self, x):
+        return np.fliplr(x)
 
-        return labelmap
-
-    def _process_region_indexmap(self, labelmap):
-        return cv2.flip(labelmap, 1)
+    def _process_region_indexmap(self, x):
+        return np.fliplr(x)
 
     def _process_maskmap(self, x):
-        return cv2.flip(x, 1)
+        return np.fliplr(x)
 
     def _process_distance_map(self, x):
-        return cv2.flip(x, 1)
+        return np.fliplr(x)
 
-    def _process_angle_map(self, angle_map):
-        ret_angle_map = angle_map.copy()
-        mask = (angle_map > 0) & (angle_map < 180)
-        ret_angle_map[mask] = 180 - angle_map[mask]
-        mask = (angle_map < 0) & (angle_map > -180)
-        ret_angle_map[mask] = - (180 + angle_map[mask])
-        ret_angle_map = cv2.flip(ret_angle_map, 1)
-        return ret_angle_map
+    def _process_angle_map(self, x):
+        return np.fliplr(x)
 
     def _process_boundary_map(self, x):
-        return cv2.flip(x, 1)
+        return np.fliplr(x)
 
-    def _process_multi_label_direction_map(self, multi_label_direction_map):
-        perm = [4, 3, 2, 1, 0, 7, 6, 5]
-        multi_label_direction_map = cv2.flip(multi_label_direction_map, 1)
-        multi_label_direction_map = multi_label_direction_map[..., perm]
-        return multi_label_direction_map
-
-    # def _process_offsetmap_h(self, x):
-    #     return cv2.flip(x, 1)
-
-    # def _process_offsetmap_w(self, x):
-    #     return -cv2.flip(x, 1)
+    def _process_multi_label_direction_map(self, x):
+        return np.fliplr(x)
 
     def _process_offsetmap_w(self, x):
-        x = cv2.flip(x, 1)
-        x[..., 1] = -x[..., 1]
-        return x
+        return np.fliplr(x)
 
     def __call__(self, img, **kwargs):
         img, data_dict = super().__call__(img, **kwargs)
 
-        return self._process(
-            img, data_dict,
-            random.random() > self.ratio
-        )
+        return self._process(img, data_dict, random.random() > self.ratio)
+
+class RandomVFlip(_BaseTransform):
+    def __init__(self, ratio):
+        self.ratio = ratio
+
+    def _process_img(self, x):
+        return np.flipud(x)
+
+    def _process_labelmap(self, x):
+        return np.flipud(x)
+
+    def _process_region_indexmap(self, x):
+        return np.flipud(x)
+
+    def _process_maskmap(self, x):
+        return np.flipud(x)
+
+    def _process_distance_map(self, x):
+        return np.flipud(x)
+
+    def _process_angle_map(self, x):
+        return np.flipud(x)
+
+    def _process_boundary_map(self, x):
+        return np.flipud(x)
+
+    def _process_multi_label_direction_map(self, x):
+        return np.flipud(x)
+
+    def _process_offsetmap_w(self, x):
+        return np.flipud(x)
+
+    def __call__(self, img, **kwargs):
+        img, data_dict = super().__call__(img, **kwargs)
+
+        return self._process(img, data_dict, random.random() > self.ratio)
+
+
+class RandomRotate(_BaseTransform):
+    """Rotate the input numpy.ndarray and points to the given degree.
+
+    Args:
+        limits of angle (number): limits for degree of rotation.
+    """
+
+    def __init__(self, ratio, low_limit_angle=5, high_limit_angle=355):
+
+        self.ratio = ratio
+        self.low_limit_angle = low_limit_angle
+        self.high_limit_angle = high_limit_angle
+
+    def _rotate(self, x, rotation_angle):
+        return rotate(x, rotation_angle, reshape=False, mode="nearest", order=3)
+
+    def _rotate_map(self, x, rotation_angle):
+        rotated_x = np.zeros(x.shape)
+        x = x.astype(np.float)
+        num_classes = int(np.max(x)) + 1
+        for i in range(1, num_classes):
+            cls_mask = np.zeros(x.shape)
+            cls_mask[x == i] = 1
+            cls_mask = rotate(cls_mask, rotation_angle, reshape=False, mode="constant", cval=np.min(cls_mask), order=3)
+            rotated_x[cls_mask >= 0.33] = i
+        rotated_x = rotated_x.astype(np.uint8)
+        return rotated_x
+
+    def _process_img(self, x):
+        return self._rotate(x, self.rotation_angle)
+
+    def _process_labelmap(self, x):
+        return self._rotate_map(x, self.rotation_angle)
+
+    def _process_maskmap(self, x):
+        return self._rotate_map(x, self.rotation_angle)
+
+    def __call__(self, img, **kwargs):
+        """rotation_angle
+        Args:
+            img    (Image):     Image to be rotated.
+            maskmap   (Image):     Mask to be rotated.
+            kpt    (list):      Keypoints to be rotated.
+            center (list):      Center points to be rotated.
+
+        Returns:
+            Image:     Rotated image.
+            list:      Rotated key points.
+        """
+        img, data_dict = super().__call__(img, **kwargs)
+
+        self.rotation_angle = np.random.randint(self.low_limit_angle, self.high_limit_angle)
+
+        return self._process(img, data_dict, random.random() > self.ratio)
+
+
+class GaussianBlur(_BaseTransform):
+
+    def __init__(self, ratio, blur_sigma_max=1.2):
+        self.ratio = ratio
+        self.blur_sigma_max = blur_sigma_max
+
+    def _gaussian_blur(self, x, blur_sigma):
+        return gaussian_filter(x, sigma=blur_sigma)
+
+    def _process_img(self, x):
+        return self._gaussian_blur(x, self.blur_sigma)
+
+    def __call__(self, img, **kwargs):
+        """blur_sigma
+        Args:
+            img    (Image):     Image to be blurred.
+        Returns:
+            Image:     Blurred image.
+        """
+        img, data_dict = super().__call__(img, **kwargs)
+        self.blur_sigma = np.random.uniform(1, self.blur_sigma_max)
+        return self._process(img, data_dict, random.random() > self.ratio)
+
+
+class ThermalNoise(_BaseTransform):
+
+    def __init__(self, ratio, max_noise_equivalent_differential_temperature=0.1):
+        self.ratio = ratio
+        self.max_nedt = max_noise_equivalent_differential_temperature
+
+    def _add_noise(self, x, nedt):
+        return x + nedt * (np.random.random(x.shape) - 0.5)
+
+    def _process_img(self, x):
+        return self._add_noise(x, self.nedt)
+
+    def __call__(self, img, **kwargs):
+        """blur_sigma
+        Args:
+            img    (Image):     Image to be blurred.
+        Returns:
+            Image:     Blurred image.
+        """
+        img, data_dict = super().__call__(img, **kwargs)
+        self.nedt = np.random.uniform(0, self.max_nedt)
+        return self._process(img, data_dict, random.random() > self.ratio)
 
 
 class RandomResize(_BaseTransform):
@@ -217,15 +304,15 @@ class RandomResize(_BaseTransform):
         scale_max: the max scale to resize.
     """
 
-    def __init__(self, scale_range=(0.75, 1.25), aspect_range=(0.9, 1.1), target_size=None,
-                 resize_bound=None, method='random', max_side_bound=None, scale_list=None, resize_ratio=0.5):
+    def __init__(self, scale_range=(0.25, 2.0), aspect_range=(0.9, 1.1), target_size=None,
+                 resize_bound=None, method='random', max_side_bound=None, scale_list=None, ratio=0.5):
         self.scale_range = scale_range
         self.aspect_range = aspect_range
         self.resize_bound = resize_bound
         self.max_side_bound = max_side_bound
         self.scale_list = scale_list
         self.method = method
-        self.ratio = resize_ratio
+        self.ratio = ratio
 
         if target_size is not None:
             if isinstance(target_size, int):
@@ -240,8 +327,7 @@ class RandomResize(_BaseTransform):
 
     def get_scale(self, img_size):
         if self.method == 'random':
-            scale_ratio = random.uniform(
-                self.scale_range[0], self.scale_range[1])
+            scale_ratio = random.uniform(self.scale_range[0], self.scale_range[1])
             return scale_ratio
 
         elif self.method == 'bound':
@@ -278,12 +364,6 @@ class RandomResize(_BaseTransform):
     def _process_multi_label_direction_map(self, x, converted_size, *args):
         return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
 
-    # def _process_offsetmap_h(self, x, converted_size, h_scale_ratio, w_scale_ratio):
-    #     return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST) * h_scale_ratio
-
-    # def _process_offsetmap_w(self, x, converted_size, h_scale_ratio, w_scale_ratio):
-    #     return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST) * w_scale_ratio
-
     def _process_offsetmap(self, x, converted_size, h_scale_ratio, w_scale_ratio):
         return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
 
@@ -303,7 +383,7 @@ class RandomResize(_BaseTransform):
         """
         img, data_dict = super().__call__(img, **kwargs)
 
-        height, width = img.shape
+        height, width, _ = img.shape
         if self.scale_list is None:
             scale_ratio = self.get_scale([width, height])
         else:
@@ -318,71 +398,12 @@ class RandomResize(_BaseTransform):
             w_scale_ratio *= d_ratio
             h_scale_ratio *= d_ratio
 
-        converted_size = (int(width * w_scale_ratio),
-                          int(height * h_scale_ratio))
+        converted_size = (int(width * w_scale_ratio), int(height * h_scale_ratio))
         return self._process(
             img, data_dict,
             random.random() > self.ratio,
             converted_size, h_scale_ratio, w_scale_ratio
         )
-
-
-class RandomRotate(_BaseTransform):
-    """Rotate the input numpy.ndarray and points to the given degree.
-
-    Args:
-        degree (number): Desired rotate degree.
-    """
-
-    def __init__(self, low_limit_angle=5, high_limit_angle=355):
-        self.low_limit_angle = low_limit_angle
-        self.high_limit_angle = high_limit_angle
-
-    def _rotate(self, x, angle, reshape=False, mode="nearest", order=3):
-        return rotate(x, angle, reshape, mode, order)
-    
-
-    def _process_img(self, x, *args):
-        return self._warp(x, self.mean, *args)
-
-    def _process_labelmap(self, x, *args):
-        return self._warp(x, (255, 255, 255), *args)
-
-    def _process_maskmap(self, x, *args):
-        return self._warp(x, (1, 1, 1), *args)
-
-    def __call__(self, img, **kwargs):
-        """
-        Args:
-            img    (Image):     Image to be rotated.
-            maskmap   (Image):     Mask to be rotated.
-            kpt    (list):      Keypoints to be rotated.
-            center (list):      Center points to be rotated.
-
-        Returns:
-            Image:     Rotated image.
-            list:      Rotated key points.
-        """
-        img, data_dict = super().__call__(img, **kwargs)
-
-        rotate_degree = random.uniform(-self.max_degree, self.max_degree)
-        height, width = img.shape
-        img_center = (width / 2.0, height / 2.0)
-        rotate_mat = cv2.getRotationMatrix2D(img_center, rotate_degree, 1.0)
-        cos_val = np.abs(rotate_mat[0, 0])
-        sin_val = np.abs(rotate_mat[0, 1])
-        new_width = int(height * sin_val + width * cos_val)
-        new_height = int(height * cos_val + width * sin_val)
-        rotate_mat[0, 2] += (new_width / 2.) - img_center[0]
-        rotate_mat[1, 2] += (new_height / 2.) - img_center[1]
-
-        return self._process(
-            img, data_dict,
-            random.random() > self.ratio,
-            rotate_mat, new_width, new_height
-        )
-
-
 
 
 class RandomCrop(_BaseTransform):
@@ -392,8 +413,8 @@ class RandomCrop(_BaseTransform):
         size (int or tuple): Desired output size of the crop.(w, h)
     """
 
-    def __init__(self, crop_size, crop_ratio=0.5, method='random', grid=None, allow_outside_center=True):
-        self.ratio = crop_ratio
+    def __init__(self, crop_size, ratio=0.5, method='random', grid=None, allow_outside_center=True):
+        self.ratio = ratio
         self.method = method
         self.grid = grid
         self.allow_outside_center = allow_outside_center
@@ -452,12 +473,6 @@ class RandomCrop(_BaseTransform):
     def _process_multi_label_direction_map(self, x, *args):
         return self._crop(x, *args)
 
-    # def _process_offsetmap_h(self, x, *args):
-    #     return self._crop(x, *args)
-
-    # def _process_offsetmap_w(self, x, *args):
-    #     return self._crop(x, *args)
-
     def _process_offsetmap(self, x, *args):
         return self._crop(x, *args)
 
@@ -475,7 +490,7 @@ class RandomCrop(_BaseTransform):
         """
         img, data_dict = super().__call__(img, **kwargs)
 
-        height, width = img.shape
+        height, width, _ = img.shape
         target_size = [min(self.size[0], width), min(self.size[1], height)]
 
         offset_left, offset_up = self.get_lefttop(target_size, [width, height])
@@ -486,63 +501,35 @@ class RandomCrop(_BaseTransform):
         )
 
 
-class Resize(RandomResize):
-    """Resize the given numpy.ndarray to random size and aspect ratio.
-    Args:
-        scale_min: the min scale to resize.
-        scale_max: the max scale to resize.
-    """
+class RandomThermalOcclusion(_BaseTransform):
+    def __init__(self, ratio):
+        self.thermOccObj = ThermOcclusion()
+        self.ratio = ratio
 
-    def __init__(self, target_size=None, min_side_length=None, max_side_length=None, max_side_bound=None):
-        self.target_size = target_size
-        self.min_side_length = min_side_length
-        self.max_side_length = max_side_length
-        self.max_side_bound = max_side_bound
+    def _process_img(self, x, **args):
+        return self.thermOccObj.gen_occluded_image(x, **args)
 
     def __call__(self, img, **kwargs):
-        img, data_dict = super(RandomResize, self).__call__(img, **kwargs)
+        img, data_dict = super().__call__(img, **kwargs)
+        
+        min_temp = np.min(img)
+        max_temp = np.max(img)
+        diff_temp = np.abs(max_temp - min_temp)
+        low_temp = min_temp - diff_temp
+        high_temp = max_temp + diff_temp
 
-        height, width = img.shape
-        if self.target_size is not None:
-            target_size = self.target_size
-            w_scale_ratio = self.target_size[0] / width
-            h_scale_ratio = self.target_size[1] / height
-
-        elif self.min_side_length is not None:
-            scale_ratio = self.min_side_length / min(width, height)
-            w_scale_ratio, h_scale_ratio = scale_ratio, scale_ratio
-            target_size = [int(round(width * w_scale_ratio)),
-                           int(round(height * h_scale_ratio))]
-
-        else:
-            scale_ratio = self.max_side_length / max(width, height)
-            w_scale_ratio, h_scale_ratio = scale_ratio, scale_ratio
-            target_size = [int(round(width * w_scale_ratio)),
-                           int(round(height * h_scale_ratio))]
-
-        if self.max_side_bound is not None and max(target_size) > self.max_side_bound:
-            d_ratio = self.max_side_bound / max(target_size)
-            w_scale_ratio = d_ratio * w_scale_ratio
-            h_scale_ratio = d_ratio * h_scale_ratio
-            target_size = [int(round(width * w_scale_ratio)),
-                           int(round(height * h_scale_ratio))]
-
-        target_size = tuple(target_size)
-        return self._process(
-            img, data_dict,
-            False,
-            target_size, h_scale_ratio, w_scale_ratio
-        )
+        return self._process(img, data_dict, random.random() > self.ratio, low_temp, high_temp)
 
 
-class AugCompose(object):
+
+class ThermAugCompose(object):
     """Composes several transforms together.
 
     Args:
         transforms (list of ``Transform`` objects): list of transforms to compose.
 
     Example:
-        >>> AugCompose([
+        >>> ThermAugCompose([
         >>>     RandomCrop(),
         >>> ])
     """
@@ -628,36 +615,44 @@ class AugCompose(object):
 
     def __repr__(self):
         import pprint
-        return 'AugCompose({})'.format(pprint.pformat(self.trans_config))
+        return 'ThermAugCompose({})'.format(pprint.pformat(self.trans_config))
 
 
 TRANSFORM_MAPPING = {
     "padding": Padding,
     "random_hflip": RandomHFlip,
+    "random_vflip": RandomVFlip,
+    "gaussian_blur": GaussianBlur,
     "random_resize": RandomResize,
     "random_crop": RandomCrop,
     "random_rotate": RandomRotate,
-    "resize": Resize,
+    "thermal_noise": ThermalNoise,
+    "random_thermal_occlusion": RandomThermalOcclusion,
 }
 
 TRANSFORM_SPEC = {
-    "random_style": [{
+    "random_thermal_contrast": [{
         "args": {
-            "style_ratio": "ratio"
+            "lower_temperature_limit": "lower_temperature_limit",
+            "higher_temperature_limit": "higher_temperature_limit"
         }
     }],
     "padding": [{
         "args": {
             "pad": "pad",
-            "pad_ratio": "ratio",
+            "ratio": "ratio",
             "mean": ["normalize", "mean_value"],
             "allow_outside_center": "allow_outside_center"
         }
     }],
     "random_hflip": [{
         "args": {
-            "swap_pair": "swap_pair",
-            "flip_ratio": "ratio"
+            "ratio": "ratio"
+        }
+    }],
+    "random_vflip": [{
+        "args": {
+            "ratio": "ratio"
         }
     }],
     "random_resize": [
@@ -667,7 +662,7 @@ TRANSFORM_SPEC = {
                 "scale_range": "scale_range",
                 "aspect_range": "aspect_range",
                 "max_side_bound": "max_side_bound",
-                "resize_ratio": "ratio"
+                "ratio": "ratio"
             },
             "when": {
                 "method": "random"
@@ -679,7 +674,7 @@ TRANSFORM_SPEC = {
                 "scale_range": "scale_range",
                 "aspect_range": "aspect_range",
                 "target_size": "target_size",
-                "resize_ratio": "ratio"
+                "ratio": "ratio"
             },
             "when": {
                 "method": "focus"
@@ -690,7 +685,7 @@ TRANSFORM_SPEC = {
                 "method": "method",
                 "aspect_range": "aspect_range",
                 "resize_bound": "resize_bound",
-                "resize_ratio": "ratio"
+                "ratio": "ratio"
             },
             "when": {
                 "method": "bound"
@@ -702,7 +697,7 @@ TRANSFORM_SPEC = {
             "args": {
                 "crop_size": "crop_size",
                 "method": "method",
-                "crop_ratio": "ratio",
+                "ratio": "ratio",
                 "allow_outside_center": "allow_outside_center"
             },
             "when": {
@@ -713,7 +708,7 @@ TRANSFORM_SPEC = {
             "args": {
                 "crop_size": "crop_size",
                 "method": "method",
-                "crop_ratio": "ratio",
+                "ratio": "ratio",
                 "allow_outside_center": "allow_outside_center"
             },
             "when": {
@@ -724,7 +719,7 @@ TRANSFORM_SPEC = {
             "args": {
                 "crop_size": "crop_size",
                 "method": "method",
-                "crop_ratio": "ratio",
+                "ratio": "ratio",
                 "grid": "grid",
                 "allow_outside_center": "allow_outside_center"
             },
@@ -735,9 +730,18 @@ TRANSFORM_SPEC = {
     ],
     "random_rotate": [{
         "args": {
-            "max_degree": "rotate_degree",
-            "rotate_ratio": "ratio",
-            "mean": ["normalize", "mean_value"]
+            "low_limit_angle": "low_limit_angle",
+            "high_limit_angle": "high_limit_angle"
+        }
+    }],
+    "gaussian_blur": [{
+        "args": {
+            "blur_sigma_max": "blur_sigma_max",
+        }
+    }],
+    "thermal_noise": [{
+        "args": {
+            "max_noise_equivalent_differential_temperature": "max_noise_equivalent_differential_temperature",
         }
     }],
     "resize": [{

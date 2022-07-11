@@ -35,6 +35,43 @@ class Normalize(object):
 
         return inputs
 
+class NormalizeThermal(object):
+    """Normalize a ``torch.tensor``
+
+    Args:
+        inputs (torch.tensor): tensor to be normalized.
+        norm_mode: (int): 1: normalize image with 0->1 range; 2: normalize image with -1->1 range 
+
+    Returns:
+        Tensor: Normalized tensor.
+    """
+    def __init__(self, norm_mode=1):
+        self.norm_mode = norm_mode
+
+    def __call__(self, inputs):
+
+        min_T = inputs.nin()
+        max_T = inputs.max()
+
+        if self.norm_mode == 1:
+            if (max_T - min_T) != 0:
+                inputs = (inputs - min_T) / (max_T - min_T)
+            elif max_T != 0:
+                inputs = inputs / max_T
+            else:
+                pass
+        elif self.norm_mode == 2:
+            if (max_T - min_T) != 0:
+                inputs = 2*((inputs - min_T) / (max_T - min_T)) - 1
+            elif max_T != 0:
+                inputs = 2*(inputs / max_T) - 1
+            else:
+                pass
+        else:
+            print("Incorrect normalization mode found, images not normalized... Consider re-running with correct parameters...")
+
+        return inputs
+
 
 class DeNormalize(object):
     """DeNormalize a ``torch.tensor``
