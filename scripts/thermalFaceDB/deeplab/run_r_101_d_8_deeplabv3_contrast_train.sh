@@ -7,24 +7,24 @@ DATA_ROOT=$3
 SCRATCH_ROOT=$4
 ASSET_ROOT=${DATA_ROOT}
 
-DATA_DIR="${DATA_ROOT}/Cityscapes"
-SAVE_DIR="${SCRATCH_ROOT}/seg_results/cityscapes"
+DATA_DIR="${DATA_ROOT}/Processed"
+SAVE_DIR="${SCRATCH_ROOT}/seg_results/thermalFaceDB"
 BACKBONE="deepbase_resnet101_dilated8"
 
-CONFIGS="configs/cityscapes/R_101_D_8.json"
-CONFIGS_TEST="configs/cityscapes/R_101_D_8_TEST.json"
+CONFIGS="configs/thermalFaceDB/R_101_D_8.json"
+CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
 MODEL_NAME="deeplab_v3_contrast"
 LOSS_TYPE="contrast_auxce_loss"
-CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Cityscapes/"
+CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed/"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
-LOG_FILE="${SCRATCH_ROOT}/logs/Cityscapes/${CHECKPOINTS_NAME}.log"
+LOG_FILE="${SCRATCH_ROOT}/logs/Processed/${CHECKPOINTS_NAME}.log"
 echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
-PRETRAINED_MODEL="${ASSET_ROOT}/resnet101-imagenet.pth"
+PRETRAINED_MODEL="${ASSET_ROOT}/Processed/checkpoints/thermalFaceDB_CE_Pretraining/deeplab_v3_deepbase_resnet101_dilated8_chk4gpu_max_performance.pth"
 MAX_ITERS=40000
-BATCH_SIZE=8
+BATCH_SIZE=16
 BASE_LR=0.01
 
 if [ "$1"x == "train"x ]; then
@@ -36,7 +36,7 @@ if [ "$1"x == "train"x ]; then
                        --log_to_file n \
                        --backbone ${BACKBONE} \
                        --model_name ${MODEL_NAME} \
-                       --gpu 0 1 2 3 \
+                       --gpu 0 1 2 3\
                        --data_dir ${DATA_DIR} \
                        --loss_type ${LOSS_TYPE} \
                        --max_iters ${MAX_ITERS} \
@@ -63,37 +63,37 @@ elif [ "$1"x == "resume"x ]; then
                        --loss_type ${LOSS_TYPE} \
                        --gpu 0 1 2 3 \
                        --resume_continue y \
-                       --resume ./checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
+                       --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                        --checkpoints_name ${CHECKPOINTS_NAME} \
                         2>&1 | tee -a ${LOG_FILE}
 
 elif [ "$1"x == "val"x ]; then
   python -u main.py --configs ${CONFIGS} --drop_last y \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                       --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
+                       --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                        --loss_type ${LOSS_TYPE} --test_dir ${DATA_DIR}/val/image \
                        --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val --data_dir ${DATA_DIR}
 
 
   cd lib/metrics
-  python -u cityscapes_evaluator.py --pred_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val/label  \
+  python -u thermalFaceDB_evaluator.py --pred_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val/label  \
                                        --gt_dir ${DATA_DIR}/val/label
 
 elif [ "$1"x == "segfix"x ]; then
   if [ "$3"x == "test"x ]; then
     DIR=${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss/label
     echo "Applying SegFix for $DIR"
-    ${PYTHON} scripts/cityscapes/segfix.py \
+    ${PYTHON} scripts/thermalFaceDB/segfix.py \
       --input $DIR \
       --split test \
-      --offset ${DATA_ROOT}/cityscapes/test_offset/semantic/offset_hrnext/
+      --offset ${DATA_ROOT}/thermalFaceDB/test_offset/semantic/offset_hrnext/
   elif [ "$3"x == "val"x ]; then
     DIR=${SAVE_DIR}${CHECKPOINTS_NAME}_val/label
     echo "Applying SegFix for $DIR"
-    ${PYTHON} scripts/cityscapes/segfix.py \
+    ${PYTHON} scripts/thermalFaceDB/segfix.py \
       --input $DIR \
       --split val \
-      --offset ${DATA_ROOT}/cityscapes/val/offset_pred/semantic/offset_hrnext/
+      --offset ${DATA_ROOT}/thermalFaceDB/val/offset_pred/semantic/offset_hrnext/
   fi
 
 elif [ "$1"x == "test"x ]; then
@@ -101,14 +101,14 @@ elif [ "$1"x == "test"x ]; then
     echo "[single scale] test"
     python -u main.py --configs ${CONFIGS} --drop_last y --data_dir ${DATA_DIR} \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                         --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
+                         --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss
   else
     echo "[multiple scale + flip] test"
     python -u main.py --configs ${CONFIGS_TEST} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                         --phase test --gpu 0 1 2 3 --resume ./checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
+                         --phase test --gpu 0 1 2 3 --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ms
   fi
