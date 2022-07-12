@@ -22,7 +22,7 @@ LOG_FILE="${SCRATCH_ROOT}/logs/Processed/${CHECKPOINTS_NAME}.log"
 echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
-MAX_ITERS=10000 #40000
+MAX_ITERS=40000 #40000
 BATCH_SIZE=16  #8
 BASE_LR=0.01
 
