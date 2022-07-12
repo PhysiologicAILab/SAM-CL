@@ -75,12 +75,10 @@ class ThermOcclusion():
         self.verts_high_1 = 10
         self.verts_low_2 = 2
         self.verts_high_2 = 100
-        self.rand_noise_low = 10    # milli-kelvin
-        self.rand_noise_high = 150  # milli-kelvin
         self.population_3 = [1, 2, 3]
         self.weights_3 = [0.34, 0.33, 0.33]
 
-    def gen_occluded_image(self, input_img, low_temp, high_temp):
+    def gen_occluded_image(self, input_img, low_temp, high_temp, rand_noise_magnitude_1, rand_noise_magnitude_2):
 
         img_width, img_height = input_img.shape
         min_dimension = min(img_width, img_height)
@@ -100,7 +98,6 @@ class ThermOcclusion():
         irregularity = np.random.uniform(self.irreg_low, self.irreg_high)
         spikeyness = np.random.uniform(self.spikeyness_low, self.spikeyness_high)
         numVerts = np.random.randint(self.verts_low_1, self.verts_high_1)
-        rand_noise_magnitude = np.random.randint(self.rand_noise_low, self.rand_noise_high)/1000.0
 
         verts1 = generatePolygon(
             ctrX=crtX,
@@ -120,7 +117,7 @@ class ThermOcclusion():
             draw.line(verts1, fill=white, width=line_width)
         occluded_img = np.float64(occluded_img)
 
-        rand_noise1 = (np.random.uniform(low_temp, high_temp)) + (rand_noise_magnitude * (np.random.random(input_img.shape) - 0.5))
+        rand_noise1 = (np.random.uniform(low_temp, high_temp)) + (rand_noise_magnitude_1 * (np.random.random(input_img.shape) - 0.5))
         occluded_img = rand_noise1 * occluded_img
         occluded_img[(occluded_img == 0)] = input_img[(occluded_img == 0)]
 
@@ -150,7 +147,7 @@ class ThermOcclusion():
             draw.polygon(verts2, outline=white, fill=white)
 
             draw.line([(crtX, crtY), (crtX1, crtY1)], fill=white, width=line_width)
-            rand_noise2 = (np.random.uniform(low_temp, high_temp)) + (rand_noise_magnitude * (np.random.random(input_img.shape) - 0.5))
+            rand_noise2 = (np.random.uniform(low_temp, high_temp)) + (rand_noise_magnitude_2 * (np.random.random(input_img.shape) - 0.5))
 
             im_arr2 = np.float64(im_arr2)
             im_arr2 = rand_noise2 * im_arr2
@@ -165,7 +162,6 @@ class ThermOcclusion():
             irregularity = np.random.uniform(self.irreg_low, self.irreg_high)
             spikeyness = np.random.uniform(self.spikeyness_low, self.spikeyness_high)
             numVerts = np.random.randint(self.verts_low_2, self.verts_high_2)
-            rand_noise_magnitude = np.random.randint(self.rand_noise_low, self.rand_noise_high)/1000.0
 
             verts2 = generatePolygon(
                 ctrX=crtX,
@@ -185,7 +181,7 @@ class ThermOcclusion():
                 draw.line(verts2, fill=white, width=line_width)
             im_arr2 = np.float64(im_arr2)
 
-            rand_noise2 = (np.random.uniform(low_temp, high_temp)) + (rand_noise_magnitude * (np.random.random(input_img.shape) - 0.5))
+            rand_noise2 = (np.random.uniform(low_temp, high_temp)) + (rand_noise_magnitude_2 * (np.random.random(input_img.shape) - 0.5))
 
             im_arr2 = rand_noise2 * im_arr2
             occluded_img[im_arr2 != 0] = im_arr2[im_arr2 != 0]

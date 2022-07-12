@@ -212,6 +212,54 @@ class FSCELoss(nn.Module):
         return targets.squeeze(1).long()
 
 
+# Dice Loss
+class DiceLoss(nn.Module):
+    def __init__(self, configer=None):
+        super(DiceLoss, self).__init__()
+        self.configer = configer
+        weight = None
+        if self.configer.exists('loss', 'params') and 'dice' in self.configer.get('loss', 'params'):
+            weight = self.configer.get('loss', 'params')['dice']
+            weight = torch.FloatTensor(weight).cuda()
+
+        reduction = 'elementwise_mean'
+        if self.configer.exists('loss', 'params') and 'ce_reduction' in self.configer.get('loss', 'params'):
+            reduction = self.configer.get('loss', 'params')['ce_reduction']
+
+        ignore_index = -1
+        if self.configer.exists('loss', 'params') and 'ce_ignore_index' in self.configer.get('loss', 'params'):
+            ignore_index = self.configer.get('loss', 'params')['ce_ignore_index']
+
+        self.ce_loss = nn.CrossEntropyLoss(weight=weight, ignore_index=ignore_index, reduction=reduction)
+
+    def forward(self, inputs, *targets, weights=None, **kwargs):
+        loss = 0.0
+        if isinstance(inputs, tuple) or isinstance(inputs, list):
+            if weights is None:
+                weights = [1.0] * len(inputs)
+
+            for i in range(len(inputs)):
+                if len(targets) > 1:
+                    target = self._scale_target(targets[i], (inputs[i].size(2), inputs[i].size(3)))
+                    loss += weights[i] * self.ce_loss(inputs[i], target)
+                else:
+                    target = self._scale_target(targets[0], (inputs[i].size(2), inputs[i].size(3)))
+                    loss += weights[i] * self.ce_loss(inputs[i], target)
+
+        else:
+            target = self._scale_target(targets[0], (inputs.size(2), inputs.size(3)))
+            loss = self.ce_loss(inputs, target)
+
+        return loss
+
+    @staticmethod
+    def _scale_target(targets_, scaled_size):
+        targets = targets_.clone().unsqueeze(1).float()
+        targets = F.interpolate(targets, size=scaled_size, mode='nearest')
+        return targets.squeeze(1).long()
+
+
+
 class FSOhemCELoss(nn.Module):
     def __init__(self, configer):
         super(FSOhemCELoss, self).__init__()

@@ -502,12 +502,13 @@ class RandomCrop(_BaseTransform):
 
 
 class RandomThermalOcclusion(_BaseTransform):
-    def __init__(self, ratio):
+    def __init__(self, ratio, max_noise_equivalent_differential_temperature=0.1):
         self.thermOccObj = ThermOcclusion()
+        self.max_nedt = max_noise_equivalent_differential_temperature
         self.ratio = ratio
 
     def _process_img(self, x):
-        return self.thermOccObj.gen_occluded_image(x, self.low_temp, self.high_temp)
+        return self.thermOccObj.gen_occluded_image(x, self.low_temp, self.high_temp, self.nedt_1, self.nedt_2)
 
     def __call__(self, img, **kwargs):
         img, data_dict = super().__call__(img, **kwargs)
@@ -517,7 +518,10 @@ class RandomThermalOcclusion(_BaseTransform):
         diff_temp = np.abs(max_temp - min_temp)
         self.low_temp = min_temp - diff_temp
         self.high_temp = max_temp + diff_temp
-
+        
+        self.nedt_1 = np.random.uniform(0, self.max_nedt)
+        self.nedt_2 = np.random.uniform(0, self.max_nedt)
+        
         return self._process(img, data_dict, random.random() > self.ratio)
 
 
@@ -750,6 +754,7 @@ TRANSFORM_SPEC = {
     "random_thermal_occlusion": [{
         "args": {
             "ratio": "ratio",
+            "max_noise_equivalent_differential_temperature": "max_noise_equivalent_differential_temperature",
         }
     }],
     "resize": [{

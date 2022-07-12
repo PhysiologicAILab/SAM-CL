@@ -215,3 +215,21 @@ def get_pascal_voc_colors():
             [0, 64, 128],
         ]
     )
+
+
+def get_thermalFaceDB_colors():
+    """Load the mapping that associates thermakFaceDB classes with label colors
+        Returns:
+            np.ndarray with dimensions (6, 3)
+        For classes: [background, chin & cheek, mouth, eyes, eyebrows, nose]
+        """
+    return np.asarray(
+        [
+            [0, 0, 0],
+            [128, 128, 0],
+            [0, 128, 128],
+            [192, 0, 0],
+            [64, 128, 128],
+            [128, 64, 0],
+        ]
+    )
