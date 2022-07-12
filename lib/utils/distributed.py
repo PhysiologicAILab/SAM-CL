@@ -9,24 +9,28 @@ from lib.utils.tools.logger import Logger as Log
 def is_distributed():
     return torch.distributed.is_initialized()
 
+
 def get_world_size():
     if not torch.distributed.is_initialized():
         return 1
     return torch.distributed.get_world_size()
+
 
 def get_rank():
     if not torch.distributed.is_initialized():
         return 0
     return torch.distributed.get_rank()
 
+
 def all_reduce_numpy(array):
     tensor = torch.from_numpy(array).cuda()
     torch.distributed.all_reduce(tensor)
     return tensor.cpu().numpy()
 
+
 def handle_distributed(args, main_file):
     if not args.distributed:
-        os.environ['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, args.gpu))        
+        os.environ['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, args.gpu))
         return
 
     if args.local_rank >= 0:
@@ -65,28 +69,16 @@ def handle_distributed(args, main_file):
     process.wait()
     if process.returncode != 0:
         raise subprocess.CalledProcessError(returncode=process.returncode,
-                                            cmd=command_args)    
+                                            cmd=command_args)
     sys.exit(process.returncode)
-
-
-# def _setup_process_group(args):
-#     local_rank = args.local_rank
-
-#     torch.cuda.set_device(local_rank)
-#     torch.distributed.init_process_group(
-#         'nccl',
-#         init_method='env://',
-#         # rank=local_rank
-#     )
 
 
 def _setup_process_group(args):
     local_rank = args.local_rank
 
-    # torch.cuda.set_device(local_rank)
+    torch.cuda.set_device(local_rank)
     torch.distributed.init_process_group(
         'nccl',
-        init_method='file:///tmp/somefile',
-        rank=local_rank,
-        world_size=1
+        init_method='env://',
+        # rank=local_rank
     )

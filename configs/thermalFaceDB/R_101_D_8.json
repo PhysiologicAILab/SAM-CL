@@ -7,7 +7,7 @@
       "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
       "num_classes": 6,
       "data_dir": "~/dev/data/thermal/Thermal_FaceDB",
-      "workers": 8
+      "workers": 0
     },
    "train": {
       "batch_size": 16,

@@ -23,7 +23,7 @@ echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
 MAX_ITERS=10000 #40000
-BATCH_SIZE=2  #8
+BATCH_SIZE=4  #8
 BASE_LR=0.01
 
 if [ "$1"x == "train"x ]; then

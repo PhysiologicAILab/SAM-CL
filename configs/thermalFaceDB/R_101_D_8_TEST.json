@@ -7,7 +7,7 @@
       "num_classes": 19,
       "label_list": [7, 8, 11, 12, 13, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33],
       "data_dir": "/msravcshare/dataset/cityscapes",
-      "workers": 8
+      "workers": 0
     },
    "train": {
       "batch_size": 8,
