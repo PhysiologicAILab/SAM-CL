@@ -22,9 +22,8 @@ LOG_FILE="${SCRATCH_ROOT}/logs/Processed/${CHECKPOINTS_NAME}.log"
 echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
-PRETRAINED_MODEL="${ASSET_ROOT}/Processed/checkpoints/thermalFaceDB_CE_Pretraining/deeplab_v3_deepbase_resnet101_dilated8_chk4gpu_latest.pth"
 MAX_ITERS=40000
-BATCH_SIZE=16
+BATCH_SIZE=8
 BASE_LR=0.01
 
 if [ "$1"x == "train"x ]; then
@@ -42,7 +41,6 @@ if [ "$1"x == "train"x ]; then
                        --max_iters ${MAX_ITERS} \
                        --checkpoints_root ${CHECKPOINTS_ROOT} \
                        --checkpoints_name ${CHECKPOINTS_NAME} \
-                       --pretrained ${PRETRAINED_MODEL} \
                        --distributed \
                        --train_batch_size ${BATCH_SIZE} \
                        --base_lr ${BASE_LR} \

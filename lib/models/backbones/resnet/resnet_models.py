@@ -123,7 +123,7 @@ class ResNet(nn.Module):
             ))
         else:
             self.resinit = nn.Sequential(OrderedDict([
-                ('conv1', nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)),
+                ('conv1', nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)),
                 ('bn1', ModuleHelper.BatchNorm2d(bn_type=bn_type)(self.inplanes)),
                 ('relu1', nn.ReLU(inplace=False))]
             ))

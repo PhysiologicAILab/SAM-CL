@@ -14,7 +14,7 @@ BACKBONE="deepbase_resnet101_dilated8"
 CONFIGS="configs/thermalFaceDB/R_101_D_8.json"
 CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="deeplab_v3"
+MODEL_NAME="deeplab_v3_contrast"
 LOSS_TYPE="fs_auxce_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed/"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
