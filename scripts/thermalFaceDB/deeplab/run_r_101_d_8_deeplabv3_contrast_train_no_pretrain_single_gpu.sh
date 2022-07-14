@@ -23,7 +23,7 @@ echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
 MAX_ITERS=40000
-BATCH_SIZE=8
+BATCH_SIZE=2
 BASE_LR=0.01
 
 if [ "$1"x == "train"x ]; then
@@ -35,7 +35,7 @@ if [ "$1"x == "train"x ]; then
                        --log_to_file n \
                        --backbone ${BACKBONE} \
                        --model_name ${MODEL_NAME} \
-                       --gpu 0 1 2 3\
+                       --gpu 0\
                        --data_dir ${DATA_DIR} \
                        --loss_type ${LOSS_TYPE} \
                        --max_iters ${MAX_ITERS} \
@@ -59,22 +59,22 @@ elif [ "$1"x == "resume"x ]; then
                        --max_iters ${MAX_ITERS} \
                        --data_dir ${DATA_DIR} \
                        --loss_type ${LOSS_TYPE} \
-                       --gpu 0 1 2 3 \
+                       --gpu 0 \
                        --resume_continue y \
                        --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                        --checkpoints_name ${CHECKPOINTS_NAME} \
                         2>&1 | tee -a ${LOG_FILE}
 
 elif [ "$1"x == "val"x ]; then
-  python -u main.py --configs ${CONFIGS} --drop_last y \
+  python -m main --configs ${CONFIGS} --drop_last y \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                       --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
+                       --phase test --gpu 0 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                        --loss_type ${LOSS_TYPE} --test_dir ${DATA_DIR}/val/image \
                        --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val --data_dir ${DATA_DIR}
 
 
-  cd lib/metrics
-  python -u thermalFaceDB_evaluator.py --pred_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val/label  \
+  # cd lib/metrics
+  python -m lib.metrics.thermalFaceDB_evaluator --configs ${CONFIGS} --pred_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val/label  \
                                        --gt_dir ${DATA_DIR}/val/label
 
 elif [ "$1"x == "segfix"x ]; then
@@ -99,14 +99,14 @@ elif [ "$1"x == "test"x ]; then
     echo "[single scale] test"
     python -u main.py --configs ${CONFIGS} --drop_last y --data_dir ${DATA_DIR} \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                         --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
+                         --phase test --gpu 0 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss
   else
     echo "[multiple scale + flip] test"
     python -u main.py --configs ${CONFIGS_TEST} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                         --phase test --gpu 0 1 2 3 --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
+                         --phase test --gpu 0 --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ms
   fi

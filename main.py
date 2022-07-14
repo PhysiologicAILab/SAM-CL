@@ -215,8 +215,12 @@ if __name__ == "__main__":
             from segmentor.trainer import Trainer
             model = Trainer(configer)
         elif configer.get('phase') == 'test':
-            from segmentor.tester import Tester 
+            if configer.get('dataset') == 'themalFaceDB':
+                from segmentor.tester_thermalFaceDB import Tester
+            else:
+                from segmentor.tester import Tester 
             model = Tester(configer)    
+
         elif configer.get('phase') == 'test_offset':
             from segmentor.tester_offset import Tester
             model = Tester(configer)

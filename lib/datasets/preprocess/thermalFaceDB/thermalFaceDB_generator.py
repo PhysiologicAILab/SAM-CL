@@ -28,15 +28,15 @@ def main(args):
 		os.makedirs(save_dir)
 		print("Creating directories at:", save_dir)
 
-	crop_res = int(args.crop_res)
-	if crop_res <= 0:
-		crop_res = None
+	image_height = int(args.image_height)
+	if image_height <= 0:
+		image_height = None
 
 	target_res = tuple(args.target_res)
 	if target_res[0] <= 0:
 		target_res = None
 
-	genMaskObj = GenerateMask(crop_res=crop_res, target_res=target_res)
+	genMaskObj = GenerateMask(image_height=image_height, target_res=target_res)
 
 	save_dir_train_image = os.path.join(save_dir, "train", "image")
 	if not os.path.exists(save_dir_train_image):
@@ -96,7 +96,7 @@ def main(args):
 
 		dst_label_fname = os.path.join(save_dir, label_dir, target_base_name_generic + label_ext)
 		
-		if (crop_res != None) or (target_res != None):
+		if (image_height != None) or (target_res != None):
 			label, img = genMaskObj.generate_roi_mask(src_img_fname, src_ann_fname)
 			np.save(dst_img_fname, img)
 		else:
@@ -113,7 +113,7 @@ def parse_args():
 	parser = argparse.ArgumentParser(description='Preprocess Thermal Face Database')
 	parser.add_argument('--ori_root_dir', type=str)
 	parser.add_argument('--save_dir', type=str)
-	parser.add_argument('--crop_res', type=int, default=-1)
+	parser.add_argument('--image_height', type=int, default=-1)
 	parser.add_argument('--target_res', type=tuple_type, default=(-1, -1))
 
 	args = parser.parse_args()

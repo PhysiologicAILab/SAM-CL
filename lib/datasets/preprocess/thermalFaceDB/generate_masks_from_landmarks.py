@@ -4,21 +4,18 @@ import cv2
 from skimage.transform import resize
 
 class GenerateMask():
-	def __init__(self, crop_res=None, target_res=None) -> None:
+	def __init__(self, image_height=None, target_res=None) -> None:
 		# self.labels = ['nose', 'mouth', 'eye', 'eyebrow']
 		# self.class_val = [1, 2, 3, 3, 4, 4, 5]
 		self.labels = ['chin', 'mouth', 'leye', 'reye', 'leyebrow', 'reyebrow', 'nose']
 		self.class_val = [1, 2, 3, 4, 5, 6, 7]
-		self.crop_res = crop_res
+		self.crop_res = int(float(image_height)/2.0)
 		self.target_res = target_res
 
 	def crop_resize_mask(self, img, mask, landmarks_dict):
-		n_classes = mask.max() + 1
+		n_classes = int(mask.max() + 1)
 		height, width = img.shape
-		res = np.min([height, width])
-		crop_res = int(res/2)
-		target_res = (256, 256)
-
+		
 		# print(len(landmarks_dict['landmarks']['points']))
 		pt_arr = np.array(landmarks_dict['landmarks']['points'])
 		# print(pt_arr.shape)
