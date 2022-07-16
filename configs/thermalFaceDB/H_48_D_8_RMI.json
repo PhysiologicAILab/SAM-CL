@@ -138,7 +138,7 @@
       }
     },
     "loss": {
-      "loss_type": "fs_aux_rmi_loss",
+      "loss_type": "fs_rmi_loss",
       "params": {
         "num_classes": 6,
         "rmi_radius": 3,

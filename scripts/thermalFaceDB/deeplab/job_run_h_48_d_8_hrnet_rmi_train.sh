@@ -15,7 +15,7 @@
 #$ -l tmpfs=10G
 
 # Set the name of the job.
-#$ -N H_RMI
+#$ -N H48d_RMI
 
 module -f unload compilers mpi gcc-libs
 module load beta-modules
@@ -26,5 +26,4 @@ module load cudnn/8.2.1.32/cuda-11.3
 module load pytorch/1.11.0/gpu
 source ~/sw/python/seg/bin/activate
 cd ~/dev/repo/GenCL/
-bash run_h_48_d_8_hrnet_rmi_train.sh train 
 bash scripts/thermalFaceDB/deeplab/run_h_48_d_8_hrnet_rmi_train.sh train hrnet_rmi ~/dev/data/ThermalFaceDBx340 ~/dev/data/ThermalFaceDBx340

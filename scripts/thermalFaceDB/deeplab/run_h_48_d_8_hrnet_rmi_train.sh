@@ -28,7 +28,7 @@ BATCH_SIZE=16
 BASE_LR=0.01
 
 if [ "$1"x == "train"x ]; then
-  python -u main_contrastive.py --configs ${CONFIGS} \
+  python -u main.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered n \
@@ -49,7 +49,7 @@ if [ "$1"x == "train"x ]; then
                        
 
 elif [ "$1"x == "resume"x ]; then
-  python -u main_contrastive.py --configs ${CONFIGS} \
+  python -u main.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered y \
