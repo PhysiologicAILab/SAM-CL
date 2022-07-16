@@ -187,10 +187,13 @@ if __name__ == "__main__":
     model = None
     if configer.get('method') == 'fcn_segmentor':
         if configer.get('phase') == 'train':
-            from segmentor.trainer import Trainer
+            from segmentor.trainer_gcl import Trainer
             model = Trainer(configer)
         elif configer.get('phase') == 'test':
-            from segmentor.tester import Tester 
+            if configer.get('dataset') == 'thermalFaceDB':
+                from segmentor.tester_thermalFaceDB import Tester
+            else:
+                from segmentor.tester import Tester
             model = Tester(configer)    
         elif configer.get('phase') == 'test_offset':
             from segmentor.tester_offset import Tester

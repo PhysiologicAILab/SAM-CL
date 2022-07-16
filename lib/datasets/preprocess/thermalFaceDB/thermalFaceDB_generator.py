@@ -114,7 +114,7 @@ def parse_args():
 	parser.add_argument('--ori_root_dir', type=str)
 	parser.add_argument('--save_dir', type=str)
 	parser.add_argument('--image_height', type=int, default=-1)
-	parser.add_argument('--target_res', type=tuple_type, default=(-1, -1))
+	parser.add_argument('--target_res', type=tuple_type, default=(340, 256))
 
 	args = parser.parse_args()
 	return args

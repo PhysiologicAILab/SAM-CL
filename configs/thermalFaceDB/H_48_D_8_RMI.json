@@ -6,7 +6,7 @@
       "input_mode": "therm",
       "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
       "num_classes": 6,
-      "data_dir": "~/dev/data/thermal/Thermal_FaceDB",
+      "data_dir": "~/dev/data/ThermalFaceDBx340",
       "workers": 0
     },
    "train": {
@@ -93,7 +93,7 @@
     "network":{
       "backbone": "deepbase_resnet101_dilated8",
       "multi_grid": [1, 1, 1],
-      "model_name": "hrnet_w48_mem",
+      "model_name": "hrnet_w48",
       "bn_type": "torchsyncbn",
       "stride": 8,
       "factors": [[8, 8]],
@@ -106,7 +106,7 @@
     "logging": {
       "logfile_level": "info",
       "stdout_level": "info",
-      "log_file": "./log/thermalFaceDB/fs_baseocnet_thermalFaceDB_seg.log",
+      "log_file": "./log/thermalFaceDB/hrnet_w48_deepbase_resnet101_dilated8_rmi.log",
       "log_format": "%(asctime)s %(levelname)-7s %(message)s",
       "rewrite": true
     },
@@ -150,20 +150,5 @@
         "lambda_way": 1,
         "use_sigmoid": false
       }
-    },
-    "contrast": {
-      "proj_dim": 256,
-      "temperature": 0.07,
-      "base_temperature": 0.07,
-      "max_samples": 1024,
-      "max_views": 1,
-      "stride": 8,
-      "warmup_iters": 5000,
-      "loss_weight": 1,
-      "use_rmi": true,
-      "use_lovasz": false,
-      "with_memory": true,
-      "memory_size": 5000,
-      "pixel_update_freq": 10
     }
   }
