@@ -11,10 +11,10 @@ DATA_DIR="${DATA_ROOT}/Processed"
 SAVE_DIR="${SCRATCH_ROOT}/seg_results/thermalFaceDB"
 BACKBONE="deepbase_resnet101_dilated8"
 
-CONFIGS="configs/thermalFaceDB/R_101_D_8.json"
+CONFIGS="configs/thermalFaceDB/R_101_D_8_occ.json"
 # CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="deeplab_v3_contrast"
+MODEL_NAME="hrnet_w48_mem"
 LOSS_TYPE="contrast_auxce_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2

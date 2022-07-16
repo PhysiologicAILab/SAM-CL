@@ -9,13 +9,14 @@ ASSET_ROOT=${DATA_ROOT}
 
 DATA_DIR="${DATA_ROOT}/Processed"
 SAVE_DIR="${SCRATCH_ROOT}/seg_results/thermalFaceDB"
+# BACKBONE="hrnet48"
 BACKBONE="deepbase_resnet101_dilated8"
 
-CONFIGS="configs/thermalFaceDB/R_101_D_8.json"
+CONFIGS="configs/thermalFaceDB/H_48_D_8_MEM_RMI.json"
 # CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="deeplab_v3_contrast"
-LOSS_TYPE="contrast_auxce_loss"
+MODEL_NAME="hrnet_w48_mem"
+LOSS_TYPE="mem_contrast_ce_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
 LOG_FILE="${SCRATCH_ROOT}/logs/Processed/${CHECKPOINTS_NAME}.log"
@@ -61,8 +62,11 @@ elif [ "$1"x == "resume"x ]; then
                        --loss_type ${LOSS_TYPE} \
                        --gpu 0 1 2 3 \
                        --resume_continue y \
-                       --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
+                       --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
+                       --checkpoints_root ${CHECKPOINTS_ROOT} \
                        --checkpoints_name ${CHECKPOINTS_NAME} \
+                       --distributed \
+                       --train_batch_size ${BATCH_SIZE} \
                         2>&1 | tee -a ${LOG_FILE}
 
 elif [ "$1"x == "val"x ]; then

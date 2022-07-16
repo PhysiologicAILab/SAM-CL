@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from lib.loss.loss_helper import FSAuxCELoss, FSRMILoss, FSCELoss, FSCELOVASZLoss
+from lib.loss.loss_helper import FSAuxCELoss, FSRMILoss, FSCELoss, FSCELOVASZLoss, FSAuxRMILoss
 from lib.utils.tools.logger import Logger as Log
 
 

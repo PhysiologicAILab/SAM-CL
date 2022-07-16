@@ -9,7 +9,10 @@ class GenerateMask():
 		# self.class_val = [1, 2, 3, 3, 4, 4, 5]
 		self.labels = ['chin', 'mouth', 'leye', 'reye', 'leyebrow', 'reyebrow', 'nose']
 		self.class_val = [1, 2, 3, 4, 5, 6, 7]
-		self.crop_res = int(float(image_height)/2.0)
+		if image_height != None:
+			self.crop_res = int(float(image_height)/2.0)
+		else:
+			self.crop_res = None
 		self.target_res = target_res
 
 	def crop_resize_mask(self, img, mask, landmarks_dict):
@@ -26,19 +29,21 @@ class GenerateMask():
 		mid_x = int((xmax + xmin)/2.0)
 		# mid_y = int((ymax + ymin)/2.0)
 
-		if mid_x - self.crop_res >= 0:
-			if mid_x + self.crop_res < width:
-				crop_xmin = mid_x - self.crop_res
-				crop_xmax = mid_x + self.crop_res
+		if self.crop_res != None:
+			if mid_x - self.crop_res >= 0:
+				if mid_x + self.crop_res < width:
+					crop_xmin = mid_x - self.crop_res
+					crop_xmax = mid_x + self.crop_res
+				else:
+					crop_xmin = mid_x - self.crop_res - ((mid_x + self.crop_res) - width)
+					crop_xmax = width
 			else:
-				crop_xmin = mid_x - self.crop_res - ((mid_x + self.crop_res) - width)
-				crop_xmax = width
-		else:
-			crop_xmin = 0
-			crop_xmax = mid_x + self.crop_res + (self.crop_res - mid_x)
+				crop_xmin = 0
+				crop_xmax = mid_x + self.crop_res + (self.crop_res - mid_x)
 
-		img = img[:, crop_xmin:crop_xmax]
-		mask = mask[:, crop_xmin:crop_xmax]
+			img = img[:, crop_xmin:crop_xmax]
+			mask = mask[:, crop_xmin:crop_xmax]
+
 		mask_canvas = np.zeros(shape=self.target_res)
 
 		# To avoid misclassification at the boundaries

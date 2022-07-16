@@ -218,7 +218,8 @@ class Tester(object):
                         FileHelper.make_dirs(vis_path, is_file=True)
                         ImageHelper.save(color_img_, save_path=vis_path)
                     else:
-                        color_img_ = Image.fromarray(label_img)
+                        # label_img = np.asarray(label_img * , dtype=np.uint8)
+                        color_img_ = Image.fromarray(label_img, mode='P')
                         color_img_.putpalette(colors)
                         vis_path = os.path.join(self.save_dir, "vis/", '{}.png'.format(names[k]))
                         FileHelper.make_dirs(vis_path, is_file=True)

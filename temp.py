@@ -47,25 +47,56 @@ for fn in flist:
     break
 '''
 
+from logging import root
 import matplotlib.pyplot as plt
 import os
 import cv2
 import numpy as np
 
-root_pth = "/home/uclic/dev/data/ThermalFaceDB"
+# root_pth = "/home/uclic/dev/data/ThermalFaceDB"
 # root_pth = "/home/uclic/dev/data/ThermalFaceDBx256"
+root_pth = "/home/jitesh/dev/data/ThermalFaceDBx340"
 
-pth_label = os.path.join(root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_chk_cl_4gpu_val", "label")
-pth_vis = os.path.join(root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_chk_cl_4gpu_val", "vis")
+# pth_label = os.path.join(
+#     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_"+ "chk_cl_4gpu" + "_val", "label")
+# pth_vis = os.path.join(
+#     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_"+ "chk_cl_4gpu" + "_val" , "vis")
+
+# pth_label = os.path.join(
+#     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_" + "cl_no_occ" + "_val", "label")
+# pth_vis = os.path.join(
+#     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_" + "cl_no_occ" + "_val", "vis")
+
+# pth_label = os.path.join(
+#     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_" + "cl_occ" + "_val", "label")
+# pth_vis = os.path.join(
+#     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_" + "cl_occ" + "_val", "vis")
+
+pth_label = os.path.join(
+    root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48_mem" + "_" + "deepbase_resnet101_dilated8_" + "cl_hrnet_mem_rmi_no_occ" + "_val", "label")
+pth_vis = os.path.join(
+    root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48_mem" + "_" + "deepbase_resnet101_dilated8_" + "cl_hrnet_mem_rmi_no_occ" + "_val", "vis")
+
+
 pth_gt_label = os.path.join(root_pth, "Processed", "val", "label")
 pth_image = os.path.join(root_pth, "Processed", "val", "image")
 
 print("Path exists:", pth_label, os.path.exists(pth_label))
 
-lsdir = os.listdir(pth_label)
+# lsdir = os.listdir(pth_label)
+lsdir = os.listdir(pth_gt_label)
+
 for i in range(len(lsdir)):
-    pred_mask = cv2.imread(os.path.join(pth_label, lsdir[i]), 0)
     img = np.load(os.path.join(pth_image, lsdir[i].replace(".png", ".npy")))
-    plt.imshow(img, cmap='gray')
-    plt.imshow(pred_mask, cmap='seismic', alpha=0.65)
+    pred_mask = cv2.imread(os.path.join(pth_label, lsdir[i]), 0)
+    gt_mask = cv2.imread(os.path.join(pth_gt_label, lsdir[i]), 0)
+
+    fig, ax = plt.subplots(1, 2)
+
+    ax[0].imshow(img, cmap='gray')
+    ax[0].imshow(pred_mask, cmap='seismic', alpha=0.65)
+
+    ax[1].imshow(img, cmap='gray')
+    ax[1].imshow(gt_mask, cmap='seismic', alpha=0.65)
+
     plt.show()

@@ -33,7 +33,7 @@
       "batch_size": 16,
       "loader": "thermalFaceDB",
       "mode": "ss_test",
-      "out_dir": "ckpts/thermalFaceDB/DeepLab",
+      "out_dir": "ckpts/thermalFaceDB/HRNET",
       "data_transformer": {
         "size_mode": "fix_size",
         "input_size": [340, 256],
@@ -42,7 +42,7 @@
     },
     "train_trans": {
       "trans_seq": ["random_hflip", "random_vflip", "random_rotate", "gaussian_blur", 
-      "random_resize", "random_crop"],
+      "thermal_noise", "random_thermal_occlusion", "random_resize", "random_crop"],
       "random_hflip": {
         "ratio": 0.5
       },
@@ -86,14 +86,14 @@
       "norm_mode": 2
     },
     "checkpoints": {
-      "checkpoints_name": "deeplab_thermalFaceDB_seg",
+      "checkpoints_name": "hrnet_thermalFaceDB_seg",
       "checkpoints_dir": "./checkpoints/thermalFaceDB",
       "save_iters": 1000
     },
     "network":{
-      "backbone": "deepbase_resnet101_dilated8",
+      "backbone": "hrnet48",
       "multi_grid": [1, 1, 1],
-      "model_name": "base_ocnet",
+      "model_name": "hrnet_w48_mem",
       "bn_type": "torchsyncbn",
       "stride": 8,
       "factors": [[8, 8]],
@@ -138,24 +138,32 @@
       }
     },
     "loss": {
-      "loss_type": "fs_auxce_loss",
+      "loss_type": "fs_aux_rmi_loss",
       "params": {
-        "ce_weight": [0.5, 0.75, 1.0, 1.0, 1.0, 1.0],
-        "ce_reduction": "mean",
-        "ce_ignore_index": -1,
-        "ohem_minkeep": 100000,
-        "ohem_thresh": 0.7
+        "num_classes": 6,
+        "rmi_radius": 3,
+        "rmi_pool_way": 0,
+        "rmi_pool_size": 3,
+        "rmi_pool_stride": 3,
+        "loss_weight_lambda": 0.5,
+        "loss_weight": 1.0,
+        "lambda_way": 1,
+        "use_sigmoid": false
       }
     },
     "contrast": {
       "proj_dim": 256,
-      "temperature": 0.1,
+      "temperature": 0.07,
       "base_temperature": 0.07,
       "max_samples": 1024,
-      "max_views": 100,
+      "max_views": 1,
       "stride": 8,
       "warmup_iters": 5000,
-      "loss_weight": 0.1,
-      "use_rmi": false
+      "loss_weight": 1,
+      "use_rmi": true,
+      "use_lovasz": false,
+      "with_memory": true,
+      "memory_size": 5000,
+      "pixel_update_freq": 10
     }
-}
+  }

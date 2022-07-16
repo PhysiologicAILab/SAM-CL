@@ -12,22 +12,22 @@ SAVE_DIR="${SCRATCH_ROOT}/seg_results/thermalFaceDB"
 BACKBONE="deepbase_resnet101_dilated8"
 
 CONFIGS="configs/thermalFaceDB/R_101_D_8.json"
-# CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
+CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="deeplab_v3_contrast"
-LOSS_TYPE="contrast_auxce_loss"
-CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
+MODEL_NAME="deeplab_v3"
+LOSS_TYPE="fs_auxce_loss"
+CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed/"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
 LOG_FILE="${SCRATCH_ROOT}/logs/Processed/${CHECKPOINTS_NAME}.log"
 echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
-MAX_ITERS=40000
-BATCH_SIZE=16
+MAX_ITERS=10000 #40000
+BATCH_SIZE=8  #8
 BASE_LR=0.01
 
 if [ "$1"x == "train"x ]; then
-  python -u main_contrastive.py --configs ${CONFIGS} \
+  python -u main.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered n \
@@ -35,7 +35,7 @@ if [ "$1"x == "train"x ]; then
                        --log_to_file n \
                        --backbone ${BACKBONE} \
                        --model_name ${MODEL_NAME} \
-                       --gpu 0 1 2 3\
+                       --gpu 0 1\
                        --data_dir ${DATA_DIR} \
                        --loss_type ${LOSS_TYPE} \
                        --max_iters ${MAX_ITERS} \
@@ -59,7 +59,7 @@ elif [ "$1"x == "resume"x ]; then
                        --max_iters ${MAX_ITERS} \
                        --data_dir ${DATA_DIR} \
                        --loss_type ${LOSS_TYPE} \
-                       --gpu 0 1 2 3 \
+                       --gpu 0 1 \
                        --resume_continue y \
                        --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                        --checkpoints_name ${CHECKPOINTS_NAME} \
@@ -68,13 +68,13 @@ elif [ "$1"x == "resume"x ]; then
 elif [ "$1"x == "val"x ]; then
   python -u main.py --configs ${CONFIGS} --drop_last y \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                       --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_max_performance.pth \
+                       --phase test --gpu 0 1 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                        --loss_type ${LOSS_TYPE} --test_dir ${DATA_DIR}/val/image \
                        --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val --data_dir ${DATA_DIR}
 
 
-  # cd lib/metrics
-  python -m lib.metrics.thermalFaceDB_evaluator --configs ${CONFIGS} --pred_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val/label  \
+  cd lib/metrics
+  python -u thermalFaceDB_evaluator.py --pred_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val/label  \
                                        --gt_dir ${DATA_DIR}/val/label
 
 elif [ "$1"x == "segfix"x ]; then
@@ -99,14 +99,14 @@ elif [ "$1"x == "test"x ]; then
     echo "[single scale] test"
     python -u main.py --configs ${CONFIGS} --drop_last y --data_dir ${DATA_DIR} \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                         --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
+                         --phase test --gpu 0 1 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss
   else
     echo "[multiple scale + flip] test"
     python -u main.py --configs ${CONFIGS_TEST} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                         --phase test --gpu 0 1 2 3 --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
+                         --phase test --gpu 0 1 --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ms
   fi

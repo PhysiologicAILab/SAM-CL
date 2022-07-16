@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# Author: RainbowSecret(yuyua@microsoft.com)
+# Author: Jitesh Joshi(jitesh.joshi.20@ucl.ac.uk)
 
 
 import argparse
@@ -8,11 +8,13 @@ import os
 import pdb
 
 import numpy as np
+from copy import deepcopy
 
 from lib.utils.helpers.image_helper import ImageHelper
 from lib.utils.tools.logger import Logger as Log
 from lib.utils.tools.configer import Configer
 from lib.metrics.running_score import RunningScore
+# import matplotlib.pyplot as plt
 
 
 class ThermalFaceDBEvaluator(object):
@@ -21,7 +23,17 @@ class ThermalFaceDBEvaluator(object):
         self.seg_running_score = RunningScore(configer)
 
     def relabel(self, labelmap):
-        return (labelmap - 1).astype(np.uint8)
+        if self.configer.exists('data', 'remap_classes'):
+            labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
+
+        return labelmap
+
+    def _remap_classes(self, labelmap, remap_classes):
+        max_cls_val = np.max(labelmap)
+        remapped_labelmap = deepcopy(labelmap)
+        for cls_val in range(max_cls_val+1):
+            remapped_labelmap[labelmap == cls_val] = remap_classes[cls_val]
+        return remapped_labelmap
 
     def evaluate(self, pred_dir, gt_dir):
         img_cnt = 0
@@ -33,8 +45,15 @@ class ThermalFaceDBEvaluator(object):
             predmap = ImageHelper.img2np(ImageHelper.read_image(pred_path, tool='pil', mode='P'))
             gtmap = ImageHelper.img2np(ImageHelper.read_image(gt_path, tool='pil', mode='P'))
 
-            predmap = self.relabel(predmap)
+            # predmap = self.relabel(predmap)
             gtmap = self.relabel(gtmap)
+
+            # fig, ax = plt.subplots(1, 2)
+            # # ax[0].imshow(img, cmap='gray')
+            # ax[0].imshow(predmap, cmap='seismic', alpha=0.65)
+            # # ax[1].imshow(img, cmap='gray')
+            # ax[1].imshow(gtmap, cmap='seismic', alpha=0.65)
+            # plt.show()
 
             self.seg_running_score.update(predmap[np.newaxis, :, :], gtmap[np.newaxis, :, :])
             img_cnt += 1
