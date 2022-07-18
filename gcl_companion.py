@@ -184,10 +184,11 @@ if __name__ == '__main__':
 
     model = GCL_Critic(configer)
     model = module_runner.load_net(model)
+    
+    batch_size = int(configer.get('train', 'batch_size'))
 
-
-    input_img = torch.rand((8, 1, 256, 340), dtype=torch.float)
-    seg_map = torch.rand((8, 6, 256, 340), dtype=torch.float)
+    input_img = torch.rand((batch_size, 1, 256, 340), dtype=torch.float)
+    seg_map = torch.rand((batch_size, 6, 256, 340), dtype=torch.float)
 
     out = model(input_img, seg_map)
 
