@@ -126,6 +126,8 @@ if __name__ == '__main__':
                         dest='phase', help='The phase of module.')
     parser.add_argument('--gpu', default=[0, 1, 2, 3], nargs='+', type=int,
                         dest='gpu', help='The gpu list used.')
+    parser.add_argument('--distributed', action='store_true',
+                        dest='distributed', help='Use multi-processing training.')
 
     args_parser = parser.parse_args()
 
