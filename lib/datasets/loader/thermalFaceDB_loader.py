@@ -71,7 +71,7 @@ class ThermalFaceDBLoader(data.Dataset):
             border_size=border_size,
             ori_target=ori_target
         )
-        Log.info('Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
+        Log.info_once('Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
         
         return_dict = dict(
             img=DataContainer(img, stack=self.is_stack),
