@@ -107,3 +107,46 @@ class GCL_Models(object):
         model = GCL_Critic(self.configer)
         model = ModuleHelper.load_model(model)
         return model
+
+if __name__ == '__main__':
+    import argparse
+    from lib.utils.tools.configer import Configer
+    import sys
+    import random
+    import torch
+    import torch.backends.cudnn as cudnn
+    import os
+    
+    print(sys.argv)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--configs', default=None, type=str,
+                        dest='configs', help='The file of the hyper parameters.')
+    parser.add_argument('--phase', default='train', type=str,
+                        dest='phase', help='The phase of module.')
+    parser.add_argument('--gpu', default=[0, 1, 2, 3], nargs='+', type=int,
+                        dest='gpu', help='The gpu list used.')
+
+    args_parser = parser.parse_args()
+
+    from lib.utils.distributed import handle_distributed
+    handle_distributed(args_parser, os.path.expanduser(os.path.abspath(__file__)))
+
+    if args_parser.seed is not None:
+        random.seed(args_parser.seed)
+        torch.manual_seed(args_parser.seed)
+
+    cudnn.enabled = True
+    cudnn.benchmark = args_parser.cudnn
+
+    configer = Configer(args_parser=args_parser)
+
+    models = GCL_Models(configer=configer)
+    gcl_critic = models.gcl_critic_model()
+
+    input_img = torch.rand((8, 1, 256, 340), dtype=torch.float)
+    seg_map = torch.rand((8, 6, 256, 340), dtype=torch.float)
+
+    out = gcl_critic(input_img, seg_map)
+
+    print(out.shape)
