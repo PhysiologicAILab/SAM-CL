@@ -54,9 +54,13 @@ class ThermalFaceDBLoader(data.Dataset):
             labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
 
         ori_target = ImageHelper.tonp(labelmap)
+        print("ori_target - min, max, shape:", ori_target.min(), ori_target.max(), ori_target.shape)
 
         if self.aug_transform is not None:
             img, labelmap = self.aug_transform(img, labelmap=labelmap)
+
+        print("labelmap - min, max, shape:", labelmap.min(), labelmap.max(), labelmap.shape)
+
 
         border_size = ImageHelper.get_size(img)
 
