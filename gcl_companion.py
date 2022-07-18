@@ -13,6 +13,8 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.utils.spectral_norm as spectral_norm
 
+from lib.utils.distributed import get_rank, is_distributed
+
 
 def str2bool(v):
     """ Usage:
@@ -96,7 +98,14 @@ class GCL_Critic(nn.Module):
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm)
         width, height = img_dim
-        self.x0 = torch.zeros(self.batch_size, self.nf, height, width).cuda()
+
+        if is_distributed():
+            device = torch.device('cuda:{}'.format(get_rank()))
+        else:
+            device = torch.device(
+                'cpu' if self.configer.get('gpu') is None else 'cuda')
+
+        self.x0 = torch.zeros(self.batch_size, self.nf, height, width).cuda(device=device)
 
     def forward(self, input_img, seg_map):
         cnt = 0
