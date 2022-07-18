@@ -1,7 +1,18 @@
+import argparse
+from lib.utils.tools.configer import Configer
+import sys
+import random
+import torch
+import torch.backends.cudnn as cudnn
+import os
+from segmentor.tools.module_runner import ModuleRunner
+
+
 from lib.models.tools.module_helper import ModuleHelper
 import torch.nn as nn
 import numpy as np
 import torch.nn.utils.spectral_norm as spectral_norm
+
 
 
 class DownConv(nn.Module):
@@ -98,24 +109,17 @@ class GCL_Critic(nn.Module):
         return [x0, x1, x2, x3, x4]
 
 
-class GCL_Models(object):
+# class GCL_Models(object):
 
-    def __init__(self, configer):
-        self.configer = configer
+#     def __init__(self, configer):
+#         self.configer = configer
 
-    def gcl_critic_model(self, **kwargs):
-        model = GCL_Critic(self.configer)
-        model = ModuleHelper.load_model(model)
-        return model
+#     def gcl_critic_model(self, **kwargs):
+#         model = GCL_Critic(self.configer)
+#         model = ModuleHelper.load_model(model)
+#         return model
 
 if __name__ == '__main__':
-    import argparse
-    from lib.utils.tools.configer import Configer
-    import sys
-    import random
-    import torch
-    import torch.backends.cudnn as cudnn
-    import os
     
     print(sys.argv)
 
@@ -146,15 +150,17 @@ if __name__ == '__main__':
 
     cudnn.enabled = True
     cudnn.benchmark = args_parser.cudnn
-
     configer = Configer(args_parser=args_parser)
 
-    models = GCL_Models(configer=configer)
-    gcl_critic = models.gcl_critic_model()
+    module_runner = ModuleRunner(configer)
+
+    model = GCL_Critic(configer)
+    model = module_runner.load_net(model)
+
 
     input_img = torch.rand((8, 1, 256, 340), dtype=torch.float)
     seg_map = torch.rand((8, 6, 256, 340), dtype=torch.float)
 
-    out = gcl_critic(input_img, seg_map)
+    out = model(input_img, seg_map)
 
     print(out.shape)
