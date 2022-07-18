@@ -105,6 +105,7 @@ class GCL_RMI_Loss(nn.Module, ABC):
             assert "gcl_fake_seg" in preds
             assert "gcl_pred_seg" in preds
 
+        loss_gcl = 0
         pred_seg = preds['pred_seg']
         pred_seg = F.interpolate(input=pred_seg, size=(h, w), mode='bilinear', align_corners=True)
         loss = self.seg_criterion(pred_seg, target)
