@@ -73,7 +73,8 @@ class GCL_Critic(nn.Module):
         self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=self.apply_spectral_norm)
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm)
-        width, height = img_dim
+        
+        # width, height = img_dim
 
         # if is_distributed():
         #     device = torch.device('cuda:{}'.format(get_rank()))
@@ -95,6 +96,8 @@ class GCL_Critic(nn.Module):
 
         if self.n_channels == 1:
             x0 = input_img * seg_map
+            print('x0.shape', x0.shape)
+            exit()
 
         elif self.n_channels == 3:
             x0_0 = input_img[:, 0, :, :] * seg_map
