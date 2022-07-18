@@ -75,22 +75,38 @@ class GCL_Critic(nn.Module):
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm)
         width, height = img_dim
 
-        if is_distributed():
-            device = torch.device('cuda:{}'.format(get_rank()))
-        else:
-            device = torch.device(
-                'cpu' if self.configer.get('gpu') is None else 'cuda')
+        # if is_distributed():
+        #     device = torch.device('cuda:{}'.format(get_rank()))
+        # else:
+        #     device = torch.device(
+        #         'cpu' if self.configer.get('gpu') is None else 'cuda')
 
-        self.x0 = torch.zeros(self.batch_size, self.nf, height, width).cuda(device=device)
+        # n = torch.cuda.device_count() #local_world_size
+        # device_ids = list(range(4 * n, (4 + 1) * n))
+
+        # self.x0 = torch.zeros(self.batch_size, self.nf, height, width).cuda(device=device)
 
     def forward(self, input_img, seg_map):
-        cnt = 0
-        for cls in range(self.num_classes):
-            for ch in range(self.n_channels):
-                self.x0[:, cnt, :, :] = input_img[:, ch, :, :] * seg_map[:, cls, :, :]
-                cnt += 1
-        x1 = self.conv_down_1(self.x0)
+        # cnt = 0
+        # for cls in range(self.num_classes):
+        #     for ch in range(self.n_channels):
+        #         self.x0[:, cnt, :, :] = input_img[:, ch, :, :] * seg_map[:, cls, :, :]
+        #         cnt += 1
+
+        if self.n_channels == 1:
+            x0 = input_img * seg_map
+
+        elif self.n_channels == 3:
+            x0_0 = input_img[:, 0, :, :] * seg_map
+            x0_1 = input_img[:, 1, :, :] * seg_map
+            x0_2 = input_img[:, 2, :, :] * seg_map
+            x0 = torch.cat([x0_0, x0_1, x0_2], dim=1)
+
+        else:
+            print("Unsupported image type..")
+
+        x1 = self.conv_down_1(x0)
         x2 = self.conv_down_2(x1)
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
-        return [self.x0, x1, x2, x3, x4]
+        return [x0, x1, x2, x3, x4]
