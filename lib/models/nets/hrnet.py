@@ -21,6 +21,9 @@ from lib.utils.tools.logger import Logger as Log
 from lib.models.modules.hanet_attention import HANet_Conv
 from lib.models.modules.gcl_companion import GCL_Critic
 
+from segmentor.tools.module_runner import ModuleRunner
+
+
 class HRNet_W48(nn.Module):
     """
     deep high-resolution representation learning for human pose estimation, CVPR2019
@@ -376,6 +379,8 @@ class HRNet_W48_GCL(nn.Module):
         self.num_classes = self.configer.get('data', 'num_classes')
         self.backbone = BackboneSelector(configer).get_backbone()
 
+        self.module_runner = ModuleRunner(configer)
+
         # extra added layers
         in_channels = 1024  # 720  # 48 + 96 + 192 + 384
         self.cls_head = nn.Sequential(
@@ -388,7 +393,8 @@ class HRNet_W48_GCL(nn.Module):
                       stride=1, padding=0, bias=False)
         )
 
-        self.gcl_critic = GCL_Critic(self.configer)
+        self.gcl_critic = self.module_runner.load_net(GCL_Critic(self.configer))
+        
         self.seg_act = nn.LogSoftmax(dim=1)
 
     def forward(self, x_, targets=None, with_pred_seg=False, is_eval=False):
