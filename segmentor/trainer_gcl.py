@@ -182,6 +182,7 @@ class Trainer(object):
 
             (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
             print("In trainer_gcl, targets.shape, min, max", targets.shape, targets.min(), targets.max())
+
             self.data_time.update(time.time() - start_time)
 
             foward_start_time = time.time()
