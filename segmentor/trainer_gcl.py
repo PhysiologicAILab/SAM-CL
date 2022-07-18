@@ -213,7 +213,7 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs, targets, with_pred_seg=with_pred_seg)
+                    loss = self.pixel_loss(outputs, targets, with_pred_seg=with_pred_seg, is_eval=False)
                     backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
             else:

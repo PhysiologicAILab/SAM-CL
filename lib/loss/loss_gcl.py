@@ -95,20 +95,21 @@ class GCL_RMI_Loss(nn.Module, ABC):
 
         self.gcl_criterion = GCL_Loss(configer=configer)
 
-    def forward(self, preds, target, with_pred_seg=False):
+    def forward(self, preds, target, with_pred_seg=False, is_eval=True):
         h, w = target.size(1), target.size(2)
 
         assert "pred_seg" in preds
-        assert "gcl_real_seg" in preds
-        assert "gcl_fake_seg" in preds
-        assert "gcl_pred_seg" in preds
+
+        if not is_eval:
+            assert "gcl_real_seg" in preds
+            assert "gcl_fake_seg" in preds
+            assert "gcl_pred_seg" in preds
 
         pred_seg = preds['pred_seg']
-
         pred_seg = F.interpolate(input=pred_seg, size=(h, w), mode='bilinear', align_corners=True)
         loss = self.seg_criterion(pred_seg, target)
 
-        if with_pred_seg:
+        if with_pred_seg and not is_eval:
             gcl_real_seg = preds['gcl_real_seg']
             gcl_fake_seg = preds['gcl_fake_seg']
             gcl_pred_seg = preds['gcl_pred_seg']
