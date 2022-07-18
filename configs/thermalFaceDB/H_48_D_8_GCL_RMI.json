@@ -153,7 +153,7 @@
       }
     },
     "gcl": {
-      "apply_spectral_norm": true,
+      "apply_spectral_norm": false,
       "warmup_iters": 5000,
       "gcl_loss": "SSIM",
       "use_rmi": true,
