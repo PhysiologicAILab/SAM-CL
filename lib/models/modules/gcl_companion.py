@@ -94,6 +94,10 @@ class GCL_Critic(nn.Module):
         #         cnt += 1
         # x1 = self.conv_down_1(self.x0)
 
+        print("input_img.shape", input_img.shape)
+        print("seg_map.shape", seg_map.shape)
+        exit()
+        
         x0 = input_img * seg_map
         x1 = self.conv_down_1(x0)
         x2 = self.conv_down_2(x1)
