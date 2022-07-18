@@ -19,9 +19,7 @@ from lib.models.tools.module_helper import ModuleHelper
 from lib.models.modules.projection import ProjectionHead
 from lib.utils.tools.logger import Logger as Log
 from lib.models.modules.hanet_attention import HANet_Conv
-from lib.models.modules.gcl_companion import GCL_Critic
-
-from segmentor.tools.module_runner import ModuleRunner
+from lib.models.modules.gcl_companion import GCL_Models
 
 
 class HRNet_W48(nn.Module):
@@ -392,7 +390,8 @@ class HRNet_W48_GCL(nn.Module):
         )
 
         self.seg_act = nn.LogSoftmax(dim=1)
-        self.gcl_critic = GCL_Critic(configer)
+        self.gcl_models = GCL_Models(configer)
+        self.gcl_critic = self.gcl_models.gcl_critic_model()
 
     def forward(self, x_, targets=None, with_pred_seg=False, is_eval=False):
         x = self.backbone(x_)

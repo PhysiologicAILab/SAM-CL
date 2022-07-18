@@ -96,3 +96,14 @@ class GCL_Critic(nn.Module):
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
         return [x0, x1, x2, x3, x4]
+
+
+class GCL_Models(object):
+
+    def __init__(self, configer):
+        self.configer = configer
+
+    def gcl_critic_model(self, **kwargs):
+        model = GCL_Critic(self.configer)
+        model = ModuleHelper.load_model(model)
+        return model
