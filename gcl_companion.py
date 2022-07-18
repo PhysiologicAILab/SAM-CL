@@ -14,6 +14,19 @@ import numpy as np
 import torch.nn.utils.spectral_norm as spectral_norm
 
 
+def str2bool(v):
+    """ Usage:
+    parser.add_argument('--pretrained', type=str2bool, nargs='?', const=True,
+                        dest='pretrained', help='Whether to use pretrained models.')
+    """
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Unsupported value encountered.')
+
+
 
 class DownConv(nn.Module):
     def __init__(self, in_channels, out_channels, apply_spectral_norm = False, bn_type = 'torchsyncbn'):
@@ -136,6 +149,11 @@ if __name__ == '__main__':
                         dest='distributed', help='Use multi-processing training.')
     parser.add_argument('--use_ground_truth', action='store_true',
                         dest='use_ground_truth', help='Use ground truth for training.')
+
+    # ***********  Params for env.  **********
+    parser.add_argument('--seed', default=304, type=int, help='manual seed')
+    parser.add_argument('--cudnn', type=str2bool, nargs='?',
+                        default=True, help='Use CUDNN.')
 
     parser.add_argument('REMAIN', nargs='*')
 
