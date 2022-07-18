@@ -410,11 +410,13 @@ class HRNet_W48_GCL(nn.Module):
         gcl_dict['pred_seg'] = F.interpolate(out, size=(x_.size(2), x_.size(3)),
                             mode="bilinear", align_corners=True)
         if not is_eval:
-            print('out.shape', out.shape)
+            print('pred_seg.shape', gcl_dict['pred_seg'].shape)
             print('targets.shape', targets.shape)
-            one_hot_target_mask = F.one_hot(torch.argmax(
-                targets, dim=1), num_classes=self.num_classes).unsqueeze(1).permute(0, 3, 1, 2).to(dtype=torch.float32)
-            
+            one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).unsqueeze(1)
+            print('one_hot_target_mask.shape', one_hot_target_mask.shape)
+            one_hot_target_mask = one_hot_target_mask.permute(0, 3, 1, 2).to(dtype=torch.float32)
+            print('one_hot_target_mask.shape', one_hot_target_mask.shape)
+
             one_hot_target_mask_fake = 1 - one_hot_target_mask
 
             gcl_dict['gcl_real_seg'] = self.gcl_critic(x_, one_hot_target_mask)
@@ -423,7 +425,7 @@ class HRNet_W48_GCL(nn.Module):
             # fake_x0, fake_x1, fake_x2, fake_x3, fake_x4 = gcl_dict['fake']
             
             if with_pred_seg:
-                pred_seg_map = self.seg_act(out).exp()
+                pred_seg_map = self.seg_act(gcl_dict['pred_seg']).exp()
                 one_hot_pred_seg_map = F.one_hot(torch.argmax(
                     pred_seg_map, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
                 
