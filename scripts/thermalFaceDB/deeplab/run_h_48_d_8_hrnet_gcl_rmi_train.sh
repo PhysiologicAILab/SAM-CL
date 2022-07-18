@@ -15,7 +15,7 @@ BACKBONE="deepbase_resnet101_dilated8"
 CONFIGS="configs/thermalFaceDB/H_48_D_8_GCL_RMI.json"
 # CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="hrnet_w48"
+MODEL_NAME="hrnet_w48_gcl"
 LOSS_TYPE="gcl_rmi_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
