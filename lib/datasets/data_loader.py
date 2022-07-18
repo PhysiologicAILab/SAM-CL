@@ -37,6 +37,7 @@ class DataLoader(object):
 
         if self.configer.get('train', 'loader') == 'thermalFaceDB':
             from lib.datasets.tools import therm_aug_transforms
+            Log.info('using thermalFaceDB_loader')
             self.aug_train_transform = therm_aug_transforms.ThermAugCompose(self.configer, split='train')
             self.aug_val_transform = therm_aug_transforms.ThermAugCompose(self.configer, split='val')
 
@@ -49,6 +50,7 @@ class DataLoader(object):
 
         else:
             from lib.datasets.tools import cv2_aug_transforms
+            Log.info('using cv2 loader')
             self.aug_train_transform = cv2_aug_transforms.CV2AugCompose(self.configer, split='train')
             self.aug_val_transform = cv2_aug_transforms.CV2AugCompose(self.configer, split='val')
 
