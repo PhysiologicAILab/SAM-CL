@@ -126,8 +126,14 @@ if __name__ == '__main__':
                         dest='phase', help='The phase of module.')
     parser.add_argument('--gpu', default=[0, 1, 2, 3], nargs='+', type=int,
                         dest='gpu', help='The gpu list used.')
+    parser.add_argument('--local_rank', type=int, default=-1,
+                        dest='local_rank', help='local rank of current process')
     parser.add_argument('--distributed', action='store_true',
                         dest='distributed', help='Use multi-processing training.')
+    parser.add_argument('--use_ground_truth', action='store_true',
+                        dest='use_ground_truth', help='Use ground truth for training.')
+
+    parser.add_argument('REMAIN', nargs='*')
 
     args_parser = parser.parse_args()
 
