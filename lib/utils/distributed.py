@@ -52,9 +52,12 @@ def handle_distributed(args, main_file):
     command_args = sys.argv
     Log.info('{}'.format(command_args))
     try:
-        main_index = command_args.index('main_contrastive.py')
+        main_index = command_args.index('main_GCL.py')
     except:
-        main_index = command_args.index('main.py')
+        try:
+            main_index = command_args.index('main_contrastive.py')
+        except:
+            main_index = command_args.index('main.py')
 
     command_args = command_args[main_index+1:]
     print(command_args)
