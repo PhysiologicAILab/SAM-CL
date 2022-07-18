@@ -180,8 +180,12 @@ class Trainer(object):
                     self.scheduler, self.optimizer, backbone_list=[0, ]
                 )
 
+            Log.info('Before prepare data: data_dict.labelmap.shape, min, max:{}, {}, {}'.format(
+                data_dict['labelmap'].shape, data_dict['labelmap'].min(), data_dict['labelmap'].max()))
+            
             (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
-            print("In trainer_gcl, targets.shape, min, max", targets.shape, targets.min(), targets.max())
+            
+            Log.info('targets.shape, min, max:{}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
 
             self.data_time.update(time.time() - start_time)
 
