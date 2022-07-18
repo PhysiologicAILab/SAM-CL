@@ -91,10 +91,10 @@ class StandardEvaluator(_BaseEvaluator):
                         tuple(x // 2 for x in ori_img_size), interpolation=cv2.INTER_CUBIC
                     )
                 else:
-                    item = cv2.resize(
-                        item[i, :border_size[1], :border_size[0]].cpu().numpy(),
-                        tuple(ori_img_size), interpolation=cv2.INTER_CUBIC
-                    )
+                    numpy_array = item[i, :border_size[1], :border_size[0]].cpu().numpy()
+                    Log.info('numpy_array_shape: {}'.format(numpy_array.shape))
+                    item = cv2.resize(numpy_array, tuple(ori_img_size), interpolation=cv2.INTER_CUBIC)
+
                 outputs_numpy[name] = item
 
             for name in outputs_numpy:
