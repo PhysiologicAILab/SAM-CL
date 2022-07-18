@@ -80,8 +80,8 @@ class ThermalFaceDBLoader(data.Dataset):
             name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
         )
 
-        Log.info('return_dict: Labelmap Min Max: {} {}'.format(
-            return_dict['labelmap'].min(), return_dict['labelmap'].max()))
+        # Log.info('return_dict: Labelmap Min Max: {} {}'.format(
+        #     return_dict['labelmap'].min(), return_dict['labelmap'].max()))
 
         return return_dict
 
