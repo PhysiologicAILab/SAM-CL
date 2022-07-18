@@ -71,13 +71,19 @@ class ThermalFaceDBLoader(data.Dataset):
             border_size=border_size,
             ori_target=ori_target
         )
-        Log.info('In thermalFaceDB_loader: Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
-        return dict(
+        Log.info('Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
+        
+        return_dict = dict(
             img=DataContainer(img, stack=self.is_stack),
             labelmap=DataContainer(labelmap, stack=self.is_stack),
             meta=DataContainer(meta, stack=False, cpu_only=True),
             name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
         )
+
+        Log.info('return_dict: Labelmap Min Max: {} {}'.format(
+            return_dict['labelmap'].min(), return_dict['labelmap'].max()))
+
+        return return_dict
 
     def _remap_classes(self, labelmap, remap_classes):
         max_cls_val = np.max(labelmap)
