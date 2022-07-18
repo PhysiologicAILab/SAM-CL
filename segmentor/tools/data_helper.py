@@ -130,8 +130,8 @@ class DataHelper:
         batch_size = len(inputs[0])
         targets = [data_dict[k] for k in target_keys]
 
-        Log.info_once('Min of Targets: {}'.format(targets.min()))
-        Log.info_once('Max of Targets: {}'.format(targets.max()))
+        Log.info_once('Min of Targets: {}'.format(targets[0].min()))
+        Log.info_once('Max of Targets: {}'.format(targets[0].max()))
 
         sequences = [
             self._prepare_sequence(inputs, force_list=True),
