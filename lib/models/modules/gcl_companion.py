@@ -1,61 +1,49 @@
-import torch
+from lib.models.tools.module_helper import ModuleHelper
 import torch.nn as nn
 import numpy as np
 import torch.nn.utils.spectral_norm as spectral_norm
 
-relu_slope = 0.01       #Default value 0.01
-norm_layer = nn.BatchNorm2d
-
 
 class DownConv(nn.Module):
-    def __init__(self, in_channels, out_channels, apply_spectral_norm=False, apply_attention=False):
+    def __init__(self, in_channels, out_channels, apply_spectral_norm = False, bn_type = 'torchsyncbn'):
         super(DownConv, self).__init__()
         n_ch1 = in_channels
         n_ch2 = in_channels # in_channels // 2
         n_ch3 = out_channels #out_channels // 3
-        self.apply_attention = apply_attention
 
         if apply_spectral_norm:
             self.conv = nn.Sequential(
                 spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, dilation=1, padding=1, padding_mode='reflect', bias=False)),
-                norm_layer(n_ch2),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
                 spectral_norm(nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, dilation=1, padding=1, padding_mode='reflect', bias=False)),
-                norm_layer(n_ch3),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch3, bn_type=bn_type),
             )
         else:
             self.conv = nn.Sequential(
                 nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, dilation=1, padding=1, padding_mode='reflect', bias=False),
-                norm_layer(n_ch2),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
                 nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, dilation=1, padding=1, padding_mode='reflect', bias=False),
-                norm_layer(n_ch3),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch3, bn_type=bn_type),
             )
 
     def forward(self, x):
         x = self.conv(x)
-        if self.apply_attention:
-            x = self.cbam(x)
         return x
 
 
 class ConvFinal(nn.Module):
-    def __init__(self, n_ch1, n_ch2, apply_spectral_norm=False):
+    def __init__(self, n_ch1, n_ch2, apply_spectral_norm=False, bn_type='torchsyncbn'):
         super(ConvFinal, self).__init__()
 
         if apply_spectral_norm:
             self.conv_final = nn.Sequential(
                 spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, dilation=1, padding=1, bias=False, padding_mode='reflect')),
-                norm_layer(n_ch2),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
             )
         else:
             self.conv_final = nn.Sequential(
                 nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, dilation=1, padding=1, bias=False, padding_mode='reflect'),
-                norm_layer(n_ch2),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
             )
 
     def forward(self, x):
@@ -96,10 +84,14 @@ class GCL_Critic(nn.Module):
 
         print("input_img.shape", input_img.shape)
         print("seg_map.shape", seg_map.shape)
-        exit()
-        
+        # exit()
+
         x0 = input_img * seg_map
+        print("x0.shape", x0.shape)
+
         x1 = self.conv_down_1(x0)
+        print("x1.shape", x1.shape)
+
         x2 = self.conv_down_2(x1)
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
