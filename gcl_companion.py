@@ -150,6 +150,15 @@ if __name__ == '__main__':
     parser.add_argument('--use_ground_truth', action='store_true',
                         dest='use_ground_truth', help='Use ground truth for training.')
 
+    parser.add_argument('--resume', default=None, type=str,
+                        dest='network:resume', help='The path of checkpoints.')
+    parser.add_argument('--resume_strict', type=str2bool, nargs='?', default=True,
+                        dest='network:resume_strict', help='Fully match keys or not.')
+    parser.add_argument('--resume_continue', type=str2bool, nargs='?', default=False,
+                        dest='network:resume_continue', help='Whether to continue training.')
+    parser.add_argument('--resume_eval_train', type=str2bool, nargs='?', default=True,
+                        dest='network:resume_train', help='Whether to validate the training set  during resume.')
+
     # ***********  Params for env.  **********
     parser.add_argument('--seed', default=304, type=int, help='manual seed')
     parser.add_argument('--cudnn', type=str2bool, nargs='?',
