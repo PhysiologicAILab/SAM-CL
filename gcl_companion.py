@@ -113,14 +113,8 @@ class GCL_Critic(nn.Module):
             for ch in range(self.n_channels):
                 self.x0[:, cnt, :, :] = input_img[:, ch, :, :] * seg_map[:, cls, :, :]
                 cnt += 1
-        
-        print("input_img.shape", input_img.shape)
-        print("seg_map.shape", seg_map.shape)
-        print("self.x0.shape", self.x0.shape)
-
+      
         x1 = self.conv_down_1(self.x0)
-        print("x1.shape", x1.shape)
-
         x2 = self.conv_down_2(x1)
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
