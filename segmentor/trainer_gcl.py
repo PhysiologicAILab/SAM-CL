@@ -101,7 +101,6 @@ class Trainer(object):
         if is_distributed():
             self.pixel_loss = self.module_runner.to_device(self.pixel_loss)
 
-        self.num_classes = self.configer.get('data', 'num_classes')
         self.with_gcl = True if self.configer.exists("gcl") else False
         if self.configer.exists("gcl", "warmup_iters"):
             self.gcl_warmup_iters = self.configer.get("gcl", "warmup_iters")
@@ -182,6 +181,7 @@ class Trainer(object):
                 )
 
             (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
+            print("In trainer_gcl, targets.shape, min, max", targets.shape, targets.min(), targets.max())
             self.data_time.update(time.time() - start_time)
 
             foward_start_time = time.time()
@@ -336,7 +336,7 @@ class Trainer(object):
                         self.evaluator.update_score(outputs_i, data_dict['meta'][i:i + 1])
 
                 else:
-                    outputs = self.seg_net(*inputs, is_eval=True)
+                    outputs = self.seg_net(*inputs)
 
                     try:
                         loss = self.pixel_loss(
