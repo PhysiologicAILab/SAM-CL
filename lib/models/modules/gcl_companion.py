@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-import torch.nn.utils.spectral_norm as spectral_norm
+# import torch.nn.utils.spectral_norm as spectral_norm
 from lib.models.tools.module_helper import ModuleHelper
 
 
@@ -12,10 +12,16 @@ class DownConv(nn.Module):
         n_ch2 = in_channels # in_channels // 2
         n_ch3 = out_channels #out_channels // 3
 
+        # self.conv = nn.Sequential(
+        #     spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, padding=1)),
+        #     ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
+        #     spectral_norm(nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, padding=1)),
+        #     ModuleHelper.BNReLU(n_ch3, bn_type=bn_type),
+        # )
         self.conv = nn.Sequential(
-            spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, padding=1)),
+            nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, padding=1),
             ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
-            spectral_norm(nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, padding=1)),
+            nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, padding=1),
             ModuleHelper.BNReLU(n_ch3, bn_type=bn_type),
         )
 
@@ -28,10 +34,16 @@ class ConvFinal(nn.Module):
     def __init__(self, n_ch1, n_ch2, bn_type='torchsyncbn'):
         super(ConvFinal, self).__init__()
 
+        # self.conv_final = nn.Sequential(
+        #     spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1)),
+        #     ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
+        # )
+
         self.conv_final = nn.Sequential(
-            spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1)),
+            nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1),
             ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
         )
+
 
     def forward(self, x):
         x = self.conv_final(x)
