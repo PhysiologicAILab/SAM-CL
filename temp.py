@@ -47,7 +47,6 @@ for fn in flist:
     break
 '''
 
-'''
 from logging import root
 import matplotlib.pyplot as plt
 import os
@@ -101,17 +100,3 @@ for i in range(len(lsdir)):
     ax[1].imshow(gt_mask, cmap='seismic', alpha=0.65)
 
     plt.show()
-'''
-
-import torch
-torch.backends.cuda.matmul.allow_tf32 = False
-torch.backends.cudnn.benchmark = True
-torch.backends.cudnn.deterministic = False
-torch.backends.cudnn.allow_tf32 = True
-data = torch.randn([8, 6, 258, 342], dtype=torch.half, device='cuda', requires_grad=True)
-net = torch.nn.Conv2d(6, 6, kernel_size=[3, 3], padding=[0, 0], stride=[1, 1], dilation=[1, 1], groups=1)
-net = net.cuda().half()
-out = net(data)
-out.backward(torch.randn_like(out))
-torch.cuda.synchronize()
-

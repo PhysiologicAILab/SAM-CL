@@ -29,6 +29,7 @@ from lib.utils.tools.average_meter import AverageMeter
 from lib.datasets.data_loader import DataLoader
 from lib.loss.loss_manager import LossManager
 from lib.models.model_manager import ModelManager
+from lib.models.modules.gcl_companion import GCL_Critic
 from lib.utils.tools.logger import Logger as Log
 from lib.vis.seg_visualizer import SegVisualizer
 from segmentor.tools.module_runner import ModuleRunner
@@ -69,10 +70,14 @@ class Trainer(object):
         self.scheduler = None
         self.running_score = None
 
+        self.seg_act = nn.LogSoftmax(dim=1)
+        
         self._init_model()
 
     def _init_model(self):
         self.seg_net = self.model_manager.semantic_segmentor()
+        self.gcl_critic = GCL_Critic(self.configer)
+
 
         # try:
         #     flops, params = get_model_complexity_info(self.seg_net, (3, 512, 512))
@@ -86,6 +91,7 @@ class Trainer(object):
         #     pass
 
         self.seg_net = self.module_runner.load_net(self.seg_net)
+        self.gcl_critic = self.module_runner.load_net(self.gcl_critic)
 
         Log.info('Params Group Method: {}'.format(self.configer.get('optim', 'group_method')))
         if self.configer.get('optim', 'group_method') == 'decay':
@@ -185,17 +191,28 @@ class Trainer(object):
             self.data_time.update(time.time() - start_time)
 
             foward_start_time = time.time()
-            # with torch.cuda.amp.autocast():
-            #     outputs = self.seg_net(*inputs)
+
+            gcl_dict = {'pred_seg':None, 'gcl_real_seg':[], 'gcl_fake_seg':[], 'gcl_pred_seg':[]}
 
             with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
             if self.with_gcl is True:
                 with torch.cuda.amp.autocast():
-                    outputs = self.seg_net(*inputs, targets, with_pred_seg=with_pred_seg)
+                    gcl_dict['pred_seg'] = self.seg_net(*inputs)
+
+                    one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+                    one_hot_target_mask_fake = 1 - one_hot_target_mask
+
+                    gcl_dict['gcl_real_seg'] = self.gcl_critic(*inputs, one_hot_target_mask)
+                    gcl_dict['gcl_fake_seg'] = self.gcl_critic(*inputs, one_hot_target_mask_fake)
+                    
+                    if with_pred_seg:
+                        pred_seg_map = self.seg_act(gcl_dict['pred_seg']).exp()
+                        one_hot_pred_seg_map = F.one_hot(torch.argmax(pred_seg_map, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+                        gcl_dict['gcl_pred_seg'] = self.gcl_critic(*inputs, one_hot_pred_seg_map)
 
             else:
                 with torch.cuda.amp.autocast():
-                    outputs = self.seg_net(*inputs)
+                    gcl_dict['pred_seg'] = self.seg_net(*inputs)
 
             self.foward_time.update(time.time() - foward_start_time)
 
@@ -216,11 +233,11 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs, targets, with_pred_seg=with_pred_seg)
+                    loss = self.pixel_loss(gcl_dict, targets, with_pred_seg=with_pred_seg)
                     backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
             else:
-                backward_loss = display_loss = self.pixel_loss(outputs, targets,
+                backward_loss = display_loss = self.pixel_loss(gcl_dict, targets,
                                                                gathered=self.configer.get('network', 'gathered'))
 
             self.train_losses.update(display_loss.item(), batch_size)
