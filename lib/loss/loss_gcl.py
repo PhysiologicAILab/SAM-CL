@@ -99,10 +99,10 @@ class GCL_RMI_Loss(nn.Module, ABC):
     def forward(self, preds, target, with_pred_seg=False, is_eval=True, **kwargs):
         h, w = target.size(1), target.size(2)
 
-        assert "pred" in preds
+        assert "seg" in preds
 
         loss_gcl = 0
-        pred_seg = preds['pred']
+        pred_seg = preds['seg']
         pred_seg = F.interpolate(input=pred_seg, size=(h, w), mode='bilinear', align_corners=True)
         loss = self.seg_criterion(pred_seg, target)
 

@@ -402,7 +402,7 @@ class HRNet_W48_GCL(nn.Module):
         out = F.interpolate(out, size=(x_.size(2), x_.size(3)), mode="bilinear", align_corners=True)
 
         gcl_dict = {}
-        gcl_dict['pred'] = out
+        gcl_dict['seg'] = out
 
         if not is_eval:
             targets[targets < 0] = 0
@@ -413,7 +413,7 @@ class HRNet_W48_GCL(nn.Module):
             gcl_dict['gcl_fake_seg'] = self.gcl_critic(x_, one_hot_target_mask_fake)
             
             if with_pred_seg:
-                pred_seg_map = self.seg_act(gcl_dict['pred']).exp()
+                pred_seg_map = self.seg_act(gcl_dict['seg']).exp()
                 one_hot_pred_seg_map = F.one_hot(torch.argmax(pred_seg_map, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
                 gcl_dict['gcl_pred_seg'] = self.gcl_critic(x_, one_hot_pred_seg_map)
 

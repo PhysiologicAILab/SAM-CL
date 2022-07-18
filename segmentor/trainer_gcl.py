@@ -362,11 +362,11 @@ class Trainer(object):
                     self.val_losses.update(loss.item(), batch_size)
                     if isinstance(outputs, dict):
                         try:
-                            outputs = outputs['pred']
-                        except:
                             outputs = outputs['seg']
+                        except:
+                            outputs = outputs['pred']
                     
-                    Log.info('Type of outputs: {}'.format(type(outputs)))
+                    Log.info('Type of outputs, shape: {}, {}'.format(type(outputs), outputs.shape))
                     self.evaluator.update_score(outputs, data_dict['meta'])
 
             self.batch_time.update(time.time() - start_time)
