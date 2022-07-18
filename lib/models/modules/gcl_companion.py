@@ -87,16 +87,19 @@ class GCL_Critic(nn.Module):
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm)
         width, height = img_dim
-        self.x0 = torch.zeros(4, self.nf, height, width)
+        # self.x0 = torch.zeros(self.batch_size, self.nf, height, width)
 
     def forward(self, input_img, seg_map):
-        cnt = 0
-        for cls in range(self.num_classes):
-            for ch in range(self.n_channels):
-                self.x0[:, cnt, :, :] = input_img[:, ch, :, :] * seg_map[:, cls, :, :]
-                cnt += 1
-        x1 = self.conv_down_1(self.x0)
+        # cnt = 0
+        # for cls in range(self.num_classes):
+        #     for ch in range(self.n_channels):
+        #         self.x0[:, cnt, :, :] = input_img[:, ch, :, :] * seg_map[:, cls, :, :]
+        #         cnt += 1
+        # x1 = self.conv_down_1(self.x0)
+
+        x0 = input_img * seg_map
+        x1 = self.conv_down_1(x0)
         x2 = self.conv_down_2(x1)
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
-        return [self.x0, x1, x2, x3, x4]
+        return [x0, x1, x2, x3, x4]
