@@ -341,7 +341,14 @@ class Trainer(object):
                         self.evaluator.update_score(outputs_i, data_dict['meta'][i:i + 1])
 
                 else:
-                    outputs = self.seg_net(*inputs)
+
+                    with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
+                    if self.with_gcl is True:
+                        with torch.cuda.amp.autocast():
+                            outputs = self.seg_net(*inputs, targets, with_pred_seg=with_pred_seg, is_eval=True)
+                    else:
+                        with torch.cuda.amp.autocast():
+                            outputs = self.seg_net(*inputs)
 
                     try:
                         loss = self.pixel_loss(

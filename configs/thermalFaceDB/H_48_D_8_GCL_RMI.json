@@ -89,7 +89,7 @@
     "checkpoints": {
       "checkpoints_name": "hrnet_gcl_thermalFaceDB_seg",
       "checkpoints_dir": "./checkpoints/thermalFaceDB",
-      "save_iters": 1000
+      "save_iters": 20
     },
     "network":{
       "backbone": "deepbase_resnet101_dilated8",
