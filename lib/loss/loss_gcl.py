@@ -95,7 +95,7 @@ class GCL_RMI_Loss(nn.Module, ABC):
 
         self.gcl_criterion = GCL_Loss(configer=configer)
 
-    def forward(self, preds, target, with_pred_seg=False, is_eval=True):
+    def forward(self, preds, target, with_pred_seg=False, is_eval=True, **kwargs):
         h, w = target.size(1), target.size(2)
 
         assert "pred_seg" in preds
