@@ -363,7 +363,7 @@ class Trainer(object):
                     self.val_losses.update(loss.item(), batch_size)
                     if isinstance(outputs, dict):
                         try:
-                            outputs = outputs['pred']
+                            outputs = outputs['pred_seg']
                         except:
                             outputs = outputs['seg']
                     self.evaluator.update_score(outputs, data_dict['meta'])
