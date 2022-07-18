@@ -405,7 +405,6 @@ class HRNet_W48_GCL(nn.Module):
 
         if not is_eval:
             targets[targets < 0] = 0
-            print("target_min,max,shape:", targets.min(), targets.max(), targets.shape)
             one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
             one_hot_target_mask_fake = 1 - one_hot_target_mask
 
