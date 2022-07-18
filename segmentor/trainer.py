@@ -338,6 +338,8 @@ class Trainer(object):
                             outputs = outputs['pred']
                         except:
                             outputs = outputs['seg']
+                    
+                    Log.info('Type of outputs, shape: {}, {}'.format(type(outputs), outputs.shape))
                     self.evaluator.update_score(outputs, data_dict['meta'])
 
             self.batch_time.update(time.time() - start_time)
