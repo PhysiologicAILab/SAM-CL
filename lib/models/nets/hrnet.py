@@ -371,7 +371,7 @@ class HRNet_W48_GCL(nn.Module):
     """
 
     def __init__(self, configer):
-        super(HRNet_W48, self).__init__()
+        super(HRNet_W48_GCL, self).__init__()
         self.configer = configer
         self.num_classes = self.configer.get('data', 'num_classes')
         self.backbone = BackboneSelector(configer).get_backbone()
