@@ -19,7 +19,7 @@ from lib.models.tools.module_helper import ModuleHelper
 from lib.models.modules.projection import ProjectionHead
 from lib.utils.tools.logger import Logger as Log
 from lib.models.modules.hanet_attention import HANet_Conv
-
+from lib.models.modules.gcl_companion import GCL_Critic
 
 class HRNet_W48(nn.Module):
     """
@@ -363,3 +363,78 @@ class HRNet_W48_OCR_B_HA(nn.Module):
         out_aux = F.interpolate(out_aux, size=(x_.size(2), x_.size(3)), mode="bilinear", align_corners=True)
         out = F.interpolate(out, size=(x_.size(2), x_.size(3)), mode="bilinear", align_corners=True)
         return out_aux, out
+
+
+class HRNet_W48_GCL(nn.Module):
+    """
+    deep high-resolution representation learning for human pose estimation, CVPR2019
+    """
+
+    def __init__(self, configer):
+        super(HRNet_W48, self).__init__()
+        self.configer = configer
+        self.num_classes = self.configer.get('data', 'num_classes')
+        self.backbone = BackboneSelector(configer).get_backbone()
+
+        # extra added layers
+        in_channels = 1024  # 720  # 48 + 96 + 192 + 384
+        self.cls_head = nn.Sequential(
+            nn.Conv2d(in_channels, in_channels,
+                      kernel_size=3, stride=1, padding=1),
+            ModuleHelper.BNReLU(
+                in_channels, bn_type=self.configer.get('network', 'bn_type')),
+            nn.Dropout2d(0.10),
+            nn.Conv2d(in_channels, self.num_classes, kernel_size=1,
+                      stride=1, padding=0, bias=False)
+        )
+
+        if self.configer.exists('train_trans', 'random_crop'):
+            img_dim = self.configer.get('train_trans', 'random_crop')['crop_size']
+        else:
+            img_dim = self.configer.get('train', 'data_transformer')['input_size']
+        
+        self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
+        self.n_channels = self.configer.get('data', 'num_channels')
+        
+        self.gcl_critic = GCL_Critic(n_channels=self.n_channels, n_classes=self.num_classes, img_dim=img_dim,
+        apply_spectral_norm=self.apply_spectral_norm)
+        self.seg_act = nn.LogSoftmax(dim=1)
+
+    def forward(self, x_, targets=None, with_pred_seg=False, is_eval=False):
+        x = self.backbone(x_)
+        _, _, h, w = x[0].size()
+
+        gcl_dict = {'pred_seg':None, 'gcl_real_seg':[], 'gcl_fake_seg':[], 'gcl_pred_seg':[]}
+
+        feat1 = x[0]
+        feat2 = F.interpolate(x[1], size=(
+            h, w), mode="bilinear", align_corners=True)
+        feat3 = F.interpolate(x[2], size=(
+            h, w), mode="bilinear", align_corners=True)
+        feat4 = F.interpolate(x[3], size=(
+            h, w), mode="bilinear", align_corners=True)
+
+        feats = torch.cat([feat1, feat2, feat3, feat4], 1)
+        out = self.cls_head(feats)
+        gcl_dict['pred_seg'] = F.interpolate(out, size=(x_.size(2), x_.size(3)),
+                            mode="bilinear", align_corners=True)
+        if not is_eval:
+            one_hot_target_mask = F.one_hot(torch.argmax(
+                targets, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+            
+            one_hot_target_mask_fake = 1 - one_hot_target_mask
+
+            gcl_dict['gcl_real_seg'] = self.gcl_critic(x_, one_hot_target_mask)
+            # real_x0, real_x1, real_x2, real_x3, real_x4 = gcl_dict['real']
+            gcl_dict['gcl_fake_seg'] = self.gcl_critic(x_, one_hot_target_mask_fake)
+            # fake_x0, fake_x1, fake_x2, fake_x3, fake_x4 = gcl_dict['fake']
+            
+            if with_pred_seg:
+                pred_seg_map = self.seg_act(out).exp()
+                one_hot_pred_seg_map = F.one_hot(torch.argmax(
+                    pred_seg_map, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+                
+                gcl_dict['gcl_pred_seg'] = self.gcl_critic(x_, one_hot_pred_seg_map)
+                # pred_x0, pred_x1, pred_x2, pred_x3, pred_x4 = gcl_dict['pred']
+
+        return gcl_dict

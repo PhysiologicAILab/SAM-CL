@@ -1,0 +1,127 @@
+import torch
+import torch.nn as nn
+import numpy as np
+import torch.nn.utils.spectral_norm as spectral_norm
+from segmentor.tools.module_runner import ModuleRunner
+
+
+relu_slope = 0.01       #Default value 0.01
+norm_layer = nn.BatchNorm2d
+
+
+class DownConv(nn.Module):
+    def __init__(self, in_channels, out_channels, apply_spectral_norm=False, apply_attention=False):
+        super(DownConv, self).__init__()
+        n_ch1 = in_channels
+        n_ch2 = in_channels # in_channels // 2
+        n_ch3 = out_channels #out_channels // 3
+        self.apply_attention = apply_attention
+
+        if apply_spectral_norm:
+            self.conv = nn.Sequential(
+                spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, dilation=1, padding=1, padding_mode='reflect', bias=False)),
+                norm_layer(n_ch2),
+                nn.LeakyReLU(negative_slope=relu_slope),
+                spectral_norm(nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, dilation=1, padding=1, padding_mode='reflect', bias=False)),
+                norm_layer(n_ch3),
+                nn.LeakyReLU(negative_slope=relu_slope),
+            )
+        else:
+            self.conv = nn.Sequential(
+                nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, dilation=1, padding=1, padding_mode='reflect', bias=False),
+                norm_layer(n_ch2),
+                nn.LeakyReLU(negative_slope=relu_slope),
+                nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, dilation=1, padding=1, padding_mode='reflect', bias=False),
+                norm_layer(n_ch3),
+                nn.LeakyReLU(negative_slope=relu_slope),
+            )
+
+    def forward(self, x):
+        x = self.conv(x)
+        if self.apply_attention:
+            x = self.cbam(x)
+        return x
+
+
+class ConvFinal(nn.Module):
+    def __init__(self, n_ch1, n_ch2, apply_spectral_norm=False):
+        super(ConvFinal, self).__init__()
+
+        if apply_spectral_norm:
+            self.conv_final = nn.Sequential(
+                spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, dilation=1, padding=1, bias=False, padding_mode='reflect')),
+                norm_layer(n_ch2),
+                nn.LeakyReLU(negative_slope=relu_slope),
+            )
+        else:
+            self.conv_final = nn.Sequential(
+                nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, dilation=1, padding=1, bias=False, padding_mode='reflect'),
+                norm_layer(n_ch2),
+                nn.LeakyReLU(negative_slope=relu_slope),
+            )
+
+    def forward(self, x):
+        x = self.conv_final(x)
+        return x
+
+
+class GCL_Critic(nn.Module):
+    def __init__(self, n_channels, n_classes, img_dim, apply_spectral_norm=False):
+        super(GCL_Critic, self).__init__()
+        
+        self.n_channels = n_channels
+        self.n_classes = n_classes
+        self.nf = self.n_classes * self.n_channels
+        self.n_filters = np.array([1*self.nf, 2*self.nf, 4*self.nf, 8*self.nf, self.n_classes])
+        self.conv_down_1 = DownConv(self.n_filters[0] , self.n_filters[1], apply_spectral_norm=apply_spectral_norm)
+        self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=apply_spectral_norm)
+        self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=apply_spectral_norm)
+        self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=apply_spectral_norm)
+        width, height = img_dim
+        self.x0 = torch.zeros(batch_size, self.nf, height, width)
+
+    def forward(self, input_img, seg_map):
+        cnt = 0
+        for cls in range(self.n_classes):
+            for ch in range(self.n_channels):
+                self.x0[:, cnt, :, :] = input_img[:, ch, :, :] * seg_map[:, cls, :, :]
+                cnt += 1
+        x1 = self.conv_down_1(self.x0)
+        x2 = self.conv_down_2(x1)
+        x3 = self.conv_down_3(x2)
+        x4 = self.conv_final(x3)
+        return [self.x0, x1, x2, x3, x4]
+
+if __name__ == '__main__':
+
+    import os
+    from torch.utils.tensorboard import SummaryWriter
+    from pytorch_model_summary import summary
+
+    n_channels = 1
+    n_classes = 6
+    batch_size = 8
+    sim_ht = 256
+    sim_wt = 256
+    sim_img = torch.zeros((batch_size, n_channels, int(sim_wt), int(sim_ht)))
+    seg_map = torch.zeros((batch_size, n_classes, int(sim_wt), int(sim_ht)))
+
+    logdir = r'runs/tmp/GCL_Critic_MSA'
+    if not os.path.exists(logdir):
+        os.makedirs(logdir)
+
+    disc = GCL_Critic(n_classes)
+    out = disc(sim_img, seg_map)
+    # print("pred.size():", pred.size())
+    # exit()
+    pth = os.path.join(logdir, "disc")
+    print(summary(disc, sim_img, seg_map, show_input=True))
+
+    tb_writer = SummaryWriter(logdir)
+
+    with torch.no_grad():
+        tb_writer.add_graph(disc, (sim_img, seg_map))
+        tb_writer.add_scalar("tmp", 1, 1)
+        tb_writer.flush()
+
+    tb_writer.close()

@@ -21,6 +21,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from lib.utils.tools.logger import Logger as Log
 from lib.loss.rmi_loss import RMILoss
+from lib.loss.dice_loss import DiceLoss
 
 from lib.loss.lovasz_loss import lovasz_softmax_flat, flatten_probas
 
@@ -212,44 +213,38 @@ class FSCELoss(nn.Module):
         return targets.squeeze(1).long()
 
 
-# Dice Loss
-class DiceLoss(nn.Module):
+# Dice Loss - To be implemented correctly
+class FSDiceLoss(nn.Module):
     def __init__(self, configer=None):
-        super(DiceLoss, self).__init__()
+        super(FSDiceLoss, self).__init__()
         self.configer = configer
-        weight = None
-        if self.configer.exists('loss', 'params') and 'dice' in self.configer.get('loss', 'params'):
-            weight = self.configer.get('loss', 'params')['dice']
-            weight = torch.FloatTensor(weight).cuda()
 
-        reduction = 'mean'
-        if self.configer.exists('loss', 'params') and 'ce_reduction' in self.configer.get('loss', 'params'):
-            reduction = self.configer.get('loss', 'params')['ce_reduction']
+        n_classes = self.configer.get('data', 'num_classes')
+ 
+        class_mode = 'multilabel'
+        if self.configer.exists('loss', 'params') and 'class_mode' in self.configer.get('loss', 'params'):
+            class_mode = self.configer.get('loss', 'params')['class_mode']
+        log_loss = True
 
-        ignore_index = -1
-        if self.configer.exists('loss', 'params') and 'ce_ignore_index' in self.configer.get('loss', 'params'):
-            ignore_index = self.configer.get('loss', 'params')['ce_ignore_index']
+        if self.configer.exists('loss', 'params') and 'log_loss' in self.configer.get('loss', 'params'):
+            log_loss = bool(self.configer.get('loss', 'params')['log_loss'])
 
-        self.ce_loss = nn.CrossEntropyLoss(weight=weight, ignore_index=ignore_index, reduction=reduction)
+        self.dice_loss = DiceLoss(mode=class_mode, classes=n_classes, log_loss=log_loss)
 
-    def forward(self, inputs, *targets, weights=None, **kwargs):
+
+    def forward(self, inputs, *targets, **kwargs):
         loss = 0.0
         if isinstance(inputs, tuple) or isinstance(inputs, list):
-            if weights is None:
-                weights = [1.0] * len(inputs)
-
             for i in range(len(inputs)):
                 if len(targets) > 1:
                     target = self._scale_target(targets[i], (inputs[i].size(2), inputs[i].size(3)))
-                    loss += weights[i] * self.ce_loss(inputs[i], target)
+                    loss += self.dice_loss(inputs[i], target)
                 else:
                     target = self._scale_target(targets[0], (inputs[i].size(2), inputs[i].size(3)))
-                    loss += weights[i] * self.ce_loss(inputs[i], target)
-
+                    loss += self.dice_loss(inputs[i], target)
         else:
             target = self._scale_target(targets[0], (inputs.size(2), inputs.size(3)))
-            loss = self.ce_loss(inputs, target)
-
+            loss = self.dice_loss(inputs, target)
         return loss
 
     @staticmethod

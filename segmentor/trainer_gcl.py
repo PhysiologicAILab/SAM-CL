@@ -102,6 +102,15 @@ class Trainer(object):
         if is_distributed():
             self.pixel_loss = self.module_runner.to_device(self.pixel_loss)
 
+        self.with_gcl = True if self.configer.exists("gcl") else False
+        if self.configer.exists("gcl", "warmup_iters"):
+            self.gcl_warmup_iters = self.configer.get("gcl", "warmup_iters")
+        else:
+            self.gcl_warmup_iters = 0
+
+        Log.info("with_gcl: {}, warmup_iters: {}".format(self.with_gcl, self.gcl_warmup_iters))
+
+
     @staticmethod
     def group_weight(module):
         group_decay = []
@@ -176,8 +185,18 @@ class Trainer(object):
             self.data_time.update(time.time() - start_time)
 
             foward_start_time = time.time()
-            with torch.cuda.amp.autocast():
-                outputs = self.seg_net(*inputs)
+            # with torch.cuda.amp.autocast():
+            #     outputs = self.seg_net(*inputs)
+
+            with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
+            if self.with_gcl is True:
+                with torch.cuda.amp.autocast():
+                    outputs = self.seg_net(*inputs, targets, with_pred_seg=with_pred_seg)
+
+            else:
+                with torch.cuda.amp.autocast():
+                    outputs = self.seg_net(*inputs)
+
             self.foward_time.update(time.time() - foward_start_time)
 
             loss_start_time = time.time()
@@ -197,7 +216,7 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs, targets)
+                    loss = self.pixel_loss(outputs, targets, with_pred_seg=with_pred_seg)
                     backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
             else:
@@ -320,7 +339,7 @@ class Trainer(object):
                         self.evaluator.update_score(outputs_i, data_dict['meta'][i:i + 1])
 
                 else:
-                    outputs = self.seg_net(*inputs)
+                    outputs = self.seg_net(*inputs, is_eval=True)
 
                     try:
                         loss = self.pixel_loss(
