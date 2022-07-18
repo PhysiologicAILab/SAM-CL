@@ -48,10 +48,10 @@ class GCL_Loss(nn.Module, ABC):
             self.lossObj3 = nn.SmoothL1Loss()
             self.lossObj4 = nn.SmoothL1Loss()
 
-    def forward(self, gcl_real_seg, gcl_fake_seg, gcl_pred_seg, with_pred_seg=False):
+    def forward(self, preds, with_pred_seg=False):
 
-        real_seg_x0, real_seg_x1, real_seg_x2, real_seg_x3, real_seg_x4 = gcl_real_seg
-        fake_seg_x0, fake_seg_x1, fake_seg_x2, fake_seg_x3, fake_seg_x4 = gcl_fake_seg
+        real_seg_x0, real_seg_x1, real_seg_x2, real_seg_x3, real_seg_x4 = preds['gcl_real_seg']
+        fake_seg_x0, fake_seg_x1, fake_seg_x2, fake_seg_x3, fake_seg_x4 = preds['gcl_fake_seg']
 
         loss = 0.33 * (self.feature_loss_fn_direction) * (
             0.25 * self.lossObj0(real_seg_x0, fake_seg_x0) +
@@ -61,7 +61,8 @@ class GCL_Loss(nn.Module, ABC):
             1.00 * self.lossObj4(real_seg_x4, fake_seg_x4))
 
         if with_pred_seg:
-            pred_seg_x0, pred_seg_x1, pred_seg_x2, pred_seg_x3, pred_seg_x4 = gcl_pred_seg
+            assert "gcl_pred_seg" in preds
+            pred_seg_x0, pred_seg_x1, pred_seg_x2, pred_seg_x3, pred_seg_x4 = preds['gcl_pred_seg']
 
             loss = loss + 0.5 * (
                 0.25 * self.lossObj0(pred_seg_x0, fake_seg_x0) +
@@ -100,21 +101,16 @@ class GCL_RMI_Loss(nn.Module, ABC):
 
         assert "pred" in preds
 
-        if not is_eval:
-            assert "gcl_real_seg" in preds
-            assert "gcl_fake_seg" in preds
-            assert "gcl_pred_seg" in preds
-
         loss_gcl = 0
         pred_seg = preds['pred']
         pred_seg = F.interpolate(input=pred_seg, size=(h, w), mode='bilinear', align_corners=True)
         loss = self.seg_criterion(pred_seg, target)
 
-        if with_pred_seg and not is_eval:
-            gcl_real_seg = preds['gcl_real_seg']
-            gcl_fake_seg = preds['gcl_fake_seg']
-            gcl_pred_seg = preds['gcl_pred_seg']
-            loss_gcl = self.gcl_criterion(gcl_real_seg, gcl_fake_seg, gcl_pred_seg, with_pred_seg)
+        if not is_eval:
+            assert "gcl_real_seg" in preds
+            assert "gcl_fake_seg" in preds
+
+            loss_gcl = self.gcl_criterion(preds, with_pred_seg)
             return loss + self.loss_weight * loss_gcl
 
         else:
