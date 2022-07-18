@@ -62,8 +62,8 @@ class GCL_Critic(nn.Module):
             img_dim = self.configer.get('train', 'data_transformer')['input_size']
         
         self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
-        self.n_channels = self.configer.get('data', 'num_channels')
-        self.batch_size = self.configer.get('train', 'batch_size')
+        self.n_channels = int(self.configer.get('data', 'num_channels'))
+        self.batch_size = int(self.configer.get('train', 'batch_size'))
 
         self.nf = self.num_classes * self.n_channels
         self.n_filters = np.array([1*self.nf, 2*self.nf, 4*self.nf, 8*self.nf, self.num_classes])
