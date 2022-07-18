@@ -190,4 +190,4 @@ if __name__ == '__main__':
 
     out = model(input_img, seg_map)
 
-    print(out.shape)
+    print(len(out))
