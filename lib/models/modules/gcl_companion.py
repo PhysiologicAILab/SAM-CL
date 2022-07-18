@@ -3,7 +3,6 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.utils.spectral_norm as spectral_norm
 from lib.models.tools.module_helper import ModuleHelper
-from lib.utils.distributed import get_rank, is_distributed
 
 
 class DownConv(nn.Module):
@@ -58,11 +57,7 @@ class GCL_Critic(nn.Module):
         super(GCL_Critic, self).__init__()
         self.configer = configer
         self.num_classes = self.configer.get('data', 'num_classes')
-        if self.configer.exists('train_trans', 'random_crop'):
-            img_dim = self.configer.get('train_trans', 'random_crop')['crop_size']
-        else:
-            img_dim = self.configer.get('train', 'data_transformer')['input_size']
-        
+
         self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
         self.n_channels = int(self.configer.get('data', 'num_channels'))
         self.batch_size = int(self.configer.get('train', 'batch_size'))
@@ -73,31 +68,11 @@ class GCL_Critic(nn.Module):
         self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=self.apply_spectral_norm)
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm)
-        
-        # width, height = img_dim
-
-        # if is_distributed():
-        #     device = torch.device('cuda:{}'.format(get_rank()))
-        # else:
-        #     device = torch.device(
-        #         'cpu' if self.configer.get('gpu') is None else 'cuda')
-
-        # n = torch.cuda.device_count() #local_world_size
-        # device_ids = list(range(4 * n, (4 + 1) * n))
-
-        # self.x0 = torch.zeros(self.batch_size, self.nf, height, width).cuda(device=device)
 
     def forward(self, input_img, seg_map):
-        # cnt = 0
-        # for cls in range(self.num_classes):
-        #     for ch in range(self.n_channels):
-        #         self.x0[:, cnt, :, :] = input_img[:, ch, :, :] * seg_map[:, cls, :, :]
-        #         cnt += 1
 
         if self.n_channels == 1:
             x0 = input_img * seg_map
-            print('x0.shape', x0.shape)
-            exit()
 
         elif self.n_channels == 3:
             x0_0 = input_img[:, 0, :, :] * seg_map
