@@ -66,23 +66,32 @@ class ConvFinal(nn.Module):
 
 
 class GCL_Critic(nn.Module):
-    def __init__(self, n_channels, n_classes, img_dim, apply_spectral_norm=False):
+    def __init__(self, configer):
         super(GCL_Critic, self).__init__()
+
+        self.configer = configer
+        self.num_classes = self.configer.get('data', 'num_classes')
+        if self.configer.exists('train_trans', 'random_crop'):
+            img_dim = self.configer.get('train_trans', 'random_crop')['crop_size']
+        else:
+            img_dim = self.configer.get('train', 'data_transformer')['input_size']
         
-        self.n_channels = n_channels
-        self.n_classes = n_classes
-        self.nf = self.n_classes * self.n_channels
-        self.n_filters = np.array([1*self.nf, 2*self.nf, 4*self.nf, 8*self.nf, self.n_classes])
-        self.conv_down_1 = DownConv(self.n_filters[0] , self.n_filters[1], apply_spectral_norm=apply_spectral_norm)
-        self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=apply_spectral_norm)
-        self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=apply_spectral_norm)
-        self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=apply_spectral_norm)
+        self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
+        self.n_channels = self.configer.get('data', 'num_channels')
+        self.batch_size = self.configer.get('train', 'batch_size')
+
+        self.nf = self.num_classes * self.n_channels
+        self.n_filters = np.array([1*self.nf, 2*self.nf, 4*self.nf, 8*self.nf, self.num_classes])
+        self.conv_down_1 = DownConv(self.n_filters[0] , self.n_filters[1], apply_spectral_norm=self.apply_spectral_norm)
+        self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=self.apply_spectral_norm)
+        self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm)
+        self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm)
         width, height = img_dim
-        self.x0 = torch.zeros(batch_size, self.nf, height, width)
+        self.x0 = torch.zeros(self.batch_size, self.nf, height, width)
 
     def forward(self, input_img, seg_map):
         cnt = 0
-        for cls in range(self.n_classes):
+        for cls in range(self.num_classes):
             for ch in range(self.n_channels):
                 self.x0[:, cnt, :, :] = input_img[:, ch, :, :] * seg_map[:, cls, :, :]
                 cnt += 1
@@ -91,37 +100,3 @@ class GCL_Critic(nn.Module):
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
         return [self.x0, x1, x2, x3, x4]
-
-if __name__ == '__main__':
-
-    import os
-    from torch.utils.tensorboard import SummaryWriter
-    from pytorch_model_summary import summary
-
-    n_channels = 1
-    n_classes = 6
-    batch_size = 8
-    sim_ht = 256
-    sim_wt = 256
-    sim_img = torch.zeros((batch_size, n_channels, int(sim_wt), int(sim_ht)))
-    seg_map = torch.zeros((batch_size, n_classes, int(sim_wt), int(sim_ht)))
-
-    logdir = r'runs/tmp/GCL_Critic_MSA'
-    if not os.path.exists(logdir):
-        os.makedirs(logdir)
-
-    disc = GCL_Critic(n_classes)
-    out = disc(sim_img, seg_map)
-    # print("pred.size():", pred.size())
-    # exit()
-    pth = os.path.join(logdir, "disc")
-    print(summary(disc, sim_img, seg_map, show_input=True))
-
-    tb_writer = SummaryWriter(logdir)
-
-    with torch.no_grad():
-        tb_writer.add_graph(disc, (sim_img, seg_map))
-        tb_writer.add_scalar("tmp", 1, 1)
-        tb_writer.flush()
-
-    tb_writer.close()

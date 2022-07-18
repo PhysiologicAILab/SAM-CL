@@ -388,16 +388,7 @@ class HRNet_W48_GCL(nn.Module):
                       stride=1, padding=0, bias=False)
         )
 
-        if self.configer.exists('train_trans', 'random_crop'):
-            img_dim = self.configer.get('train_trans', 'random_crop')['crop_size']
-        else:
-            img_dim = self.configer.get('train', 'data_transformer')['input_size']
-        
-        self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
-        self.n_channels = self.configer.get('data', 'num_channels')
-        
-        self.gcl_critic = GCL_Critic(n_channels=self.n_channels, n_classes=self.num_classes, img_dim=img_dim,
-        apply_spectral_norm=self.apply_spectral_norm)
+        self.gcl_critic = GCL_Critic(self.configer)
         self.seg_act = nn.LogSoftmax(dim=1)
 
     def forward(self, x_, targets=None, with_pred_seg=False, is_eval=False):
