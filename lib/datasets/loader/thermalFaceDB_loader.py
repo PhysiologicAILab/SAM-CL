@@ -70,6 +70,9 @@ class ThermalFaceDBLoader(data.Dataset):
         if self.label_transform is not None:
             labelmap = self.label_transform(labelmap)
 
+        print("labelmap after label transform - min, max, shape:", labelmap.min(), labelmap.max(), labelmap.shape)
+
+
         meta = dict(
             ori_img_size=img_size,
             border_size=border_size,
