@@ -7,7 +7,7 @@
       "input_mode": "therm",
       "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
       "num_classes": 6,
-      "data_dir": "~/dev/data/thermal/Thermal_FaceDB",
+      "data_dir": "~/dev/data/thermal/Thermal_FaceDBx340",
       "workers": 0
     },
    "train": {
@@ -34,7 +34,7 @@
       "batch_size": 16,
       "loader": "thermalFaceDB",
       "mode": "ss_test",
-      "out_dir": "ckpts/thermalFaceDB/HRNET",
+      "out_dir": "ckpts/thermalFaceDB/HRNET_GCL",
       "data_transformer": {
         "size_mode": "fix_size",
         "input_size": [340, 256],
@@ -87,7 +87,7 @@
       "norm_mode": 2
     },
     "checkpoints": {
-      "checkpoints_name": "hrnet_thermalFaceDB_seg",
+      "checkpoints_name": "hrnet_gcl_thermalFaceDB_seg",
       "checkpoints_dir": "./checkpoints/thermalFaceDB",
       "save_iters": 1000
     },
