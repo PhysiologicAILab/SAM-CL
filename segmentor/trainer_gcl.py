@@ -341,7 +341,6 @@ class Trainer(object):
                         self.evaluator.update_score(outputs_i, data_dict['meta'][i:i + 1])
 
                 else:
-
                     with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
                     if self.with_gcl is True:
                         with torch.cuda.amp.autocast():
@@ -363,9 +362,11 @@ class Trainer(object):
                     self.val_losses.update(loss.item(), batch_size)
                     if isinstance(outputs, dict):
                         try:
-                            outputs = outputs['pred_seg']
+                            outputs = outputs['pred']
                         except:
                             outputs = outputs['seg']
+                    
+                    Log.info('Type of outputs: {}'.format(type(outputs)))
                     self.evaluator.update_score(outputs, data_dict['meta'])
 
             self.batch_time.update(time.time() - start_time)
