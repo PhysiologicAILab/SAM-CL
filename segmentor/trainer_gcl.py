@@ -108,6 +108,7 @@ class Trainer(object):
         if is_distributed():
             self.pixel_loss = self.module_runner.to_device(self.pixel_loss)
 
+        self.num_classes = self.configer.get('data', 'num_classes')
         self.with_gcl = True if self.configer.exists("gcl") else False
         if self.configer.exists("gcl", "warmup_iters"):
             self.gcl_warmup_iters = self.configer.get("gcl", "warmup_iters")
