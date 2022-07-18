@@ -93,6 +93,7 @@ class StandardEvaluator(_BaseEvaluator):
                 else:
                     numpy_array = item[i, :border_size[1], :border_size[0]].cpu().numpy()
                     Log.info('numpy_array_shape: {}'.format(numpy_array.shape))
+                    Log.info('numpy_array_min_max:{}, {}'.format(numpy_array.min(), numpy_array.max()))
                     item = cv2.resize(numpy_array, tuple(ori_img_size), interpolation=cv2.INTER_CUBIC)
 
                 outputs_numpy[name] = item
