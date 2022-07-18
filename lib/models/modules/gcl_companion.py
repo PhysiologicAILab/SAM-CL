@@ -87,7 +87,7 @@ class GCL_Critic(nn.Module):
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm)
         width, height = img_dim
-        self.x0 = torch.zeros(self.batch_size, self.nf, height, width)
+        self.x0 = torch.zeros(4, self.nf, height, width)
 
     def forward(self, input_img, seg_map):
         cnt = 0
