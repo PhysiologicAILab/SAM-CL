@@ -74,14 +74,11 @@ class GCL_Critic(nn.Module):
         if self.n_channels == 1:
             x0 = input_img * seg_map
 
-        elif self.n_channels == 3:
+        else:
             x0_0 = input_img[:, 0, :, :] * seg_map
             x0_1 = input_img[:, 1, :, :] * seg_map
             x0_2 = input_img[:, 2, :, :] * seg_map
             x0 = torch.cat([x0_0, x0_1, x0_2], dim=1)
-
-        else:
-            print("Unsupported image type..")
 
         x1 = self.conv_down_1(x0)
         x2 = self.conv_down_2(x1)
