@@ -412,9 +412,7 @@ class HRNet_W48_GCL(nn.Module):
         if not is_eval:
             print('pred_seg.shape', gcl_dict['pred_seg'].shape)
             print('targets.shape', targets.shape)
-            one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).unsqueeze(1)
-            print('one_hot_target_mask.shape', one_hot_target_mask.shape)
-            one_hot_target_mask = one_hot_target_mask.permute(0, 3, 1, 2).to(dtype=torch.float32)
+            one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
             print('one_hot_target_mask.shape', one_hot_target_mask.shape)
 
             one_hot_target_mask_fake = 1 - one_hot_target_mask
