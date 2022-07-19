@@ -405,7 +405,7 @@ class HRNet_W48_GCL(nn.Module):
         gcl_dict['seg'] = out
 
         if not is_eval:
-            Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
+            # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
             targets[targets < 0] = 0
             one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
             one_hot_target_mask_fake = 1 - one_hot_target_mask
