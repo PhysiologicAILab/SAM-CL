@@ -218,10 +218,11 @@ class Trainer(object):
             scaler.step(self.optimizer)
             scaler.update()
 
-            if self.configer.get('lr', 'metric') == 'iters':
-                self.scheduler.step(self.configer.get('iters'))
-            else:
-                self.scheduler.step(self.configer.get('epoch'))
+            # if self.configer.get('lr', 'metric') == 'iters':
+            #     self.scheduler.step(self.configer.get('iters'))
+            # else:
+            #     self.scheduler.step(self.configer.get('epoch'))
+            self.scheduler.step()
 
             self.backward_time.update(time.time() - backward_start_time)
 
