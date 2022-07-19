@@ -39,11 +39,11 @@ class GCL_Loss(nn.Module, ABC):
                 self.lossObj_pf_2 = SSIM(window_size=7)
                 self.lossObj_pf_3 = SSIM(window_size=5)
                 self.lossObj_pf_4 = SSIM(window_size=3)
-                self.lossObj_p4_0 = SSIM(window_size=11)
-                self.lossObj_p4_1 = SSIM(window_size=9)
-                self.lossObj_p4_2 = SSIM(window_size=7)
-                self.lossObj_p4_3 = SSIM(window_size=5)
-                self.lossObj_p4_4 = SSIM(window_size=3)
+                self.lossObj_pr_0 = SSIM(window_size=11)
+                self.lossObj_pr_1 = SSIM(window_size=9)
+                self.lossObj_pr_2 = SSIM(window_size=7)
+                self.lossObj_pr_3 = SSIM(window_size=5)
+                self.lossObj_pr_4 = SSIM(window_size=3)
 
             else:
                 default_loss = True
