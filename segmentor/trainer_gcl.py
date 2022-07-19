@@ -219,6 +219,7 @@ class Trainer(object):
             # backward_loss.backward()
             # self.optimizer.step()
             scaler.scale(backward_loss).backward()
+            nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
             scaler.step(self.optimizer)
             scaler.update()
 

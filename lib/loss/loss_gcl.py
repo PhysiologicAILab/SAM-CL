@@ -75,7 +75,7 @@ class GCL_Loss(nn.Module, ABC):
         fake_seg_x0, fake_seg_x1, fake_seg_x2, fake_seg_x3, fake_seg_x4 = preds['gcl_fake_seg']
         pred_seg_x0, pred_seg_x1, pred_seg_x2, pred_seg_x3, pred_seg_x4 = preds['gcl_pred_seg']
 
-        loss = 0.33 * (self.feature_loss_fn_direction) * (
+        loss = (self.feature_loss_fn_direction) * (
             0.25 * self.lossObj_rf_0(real_seg_x0, fake_seg_x0) +
             0.50 * self.lossObj_rf_1(real_seg_x1, fake_seg_x1) +
             0.50 * self.lossObj_rf_2(real_seg_x2, fake_seg_x2) +
@@ -86,11 +86,11 @@ class GCL_Loss(nn.Module, ABC):
             0.50 * self.lossObj_pf_2(pred_seg_x2, fake_seg_x2) +
             0.50 * self.lossObj_pf_3(pred_seg_x3, fake_seg_x3) +
             1.00 * self.lossObj_pf_4(pred_seg_x4, fake_seg_x4) -
-            0.25 * self.lossObj_pr_0(pred_seg_x0, real_seg_x0) -
-            0.50 * self.lossObj_pr_1(pred_seg_x1, real_seg_x1) -
-            0.50 * self.lossObj_pr_2(pred_seg_x2, real_seg_x2) -
-            0.50 * self.lossObj_pr_3(pred_seg_x3, real_seg_x3) -
-            1.00 * self.lossObj_pr_4(pred_seg_x4, real_seg_x4))
+            0.50 * self.lossObj_pr_0(pred_seg_x0, real_seg_x0) -
+            1.00 * self.lossObj_pr_1(pred_seg_x1, real_seg_x1) -
+            1.00 * self.lossObj_pr_2(pred_seg_x2, real_seg_x2) -
+            1.00 * self.lossObj_pr_3(pred_seg_x3, real_seg_x3) -
+            2.00 * self.lossObj_pr_4(pred_seg_x4, real_seg_x4))
 
         return loss
 
