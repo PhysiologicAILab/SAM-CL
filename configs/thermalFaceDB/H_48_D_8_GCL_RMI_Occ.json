@@ -155,7 +155,7 @@
     "gcl": {
       "apply_spectral_norm": true,
       "warmup_iters": 5000,
-      "gcl_loss": "L1",
+      "gcl_loss": "SSIM",
       "use_rmi": true,
       "use_lovasz": false,
       "loss_weight": 0.05
