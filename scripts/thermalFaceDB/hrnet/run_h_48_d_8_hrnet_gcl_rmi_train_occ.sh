@@ -24,8 +24,8 @@ echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
 MAX_ITERS=40000
-BATCH_SIZE=16
-BASE_LR=0.01
+BATCH_SIZE=8
+BASE_LR=0.001
 
 if [ "$1"x == "train"x ]; then
   python -u main_GCL.py --configs ${CONFIGS} \

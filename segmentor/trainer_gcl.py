@@ -163,10 +163,6 @@ class Trainer(object):
 
         for i, data_dict in enumerate(self.train_loader):
             self.optimizer.zero_grad()
-            if self.configer.get('lr', 'metric') == 'iters':
-                self.scheduler.step(self.configer.get('iters'))
-            else:
-                self.scheduler.step(self.configer.get('epoch'))
 
             if self.configer.get('lr', 'is_warm'):
                 self.module_runner.warm_lr(
@@ -181,7 +177,7 @@ class Trainer(object):
             foward_start_time = time.time()
 
             if self.with_gcl is True:
-                outputs = self.seg_net(*inputs, targets, is_eval=False)
+                outputs = self.seg_net(*inputs, targets=targets, is_eval=False)
             else:
                 outputs = self.seg_net(*inputs, is_eval=False)
 
@@ -221,6 +217,11 @@ class Trainer(object):
             scaler.scale(backward_loss).backward()
             scaler.step(self.optimizer)
             scaler.update()
+
+            if self.configer.get('lr', 'metric') == 'iters':
+                self.scheduler.step(self.configer.get('iters'))
+            else:
+                self.scheduler.step(self.configer.get('epoch'))
 
             self.backward_time.update(time.time() - backward_start_time)
 
