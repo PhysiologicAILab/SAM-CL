@@ -4,7 +4,6 @@
     "data": {
       "num_channels": 1,
       "image_tool": "npy",
-      "label_tool": "cv2",
       "input_mode": "therm",
       "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
       "num_classes": 6,
