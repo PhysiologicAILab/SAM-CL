@@ -158,6 +158,6 @@
       "gcl_loss": "L1",
       "use_rmi": true,
       "use_lovasz": false,
-      "loss_weight": 0.1
+      "loss_weight": 0.05
     }
   }
