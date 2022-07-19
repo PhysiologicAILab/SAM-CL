@@ -388,7 +388,7 @@ class HRNet_W48_GCL(nn.Module):
         self.seg_act = nn.LogSoftmax(dim=1)
         self.gcl_critic = GCL_Critic(self.configer)
 
-    def forward(self, x_, targets, with_pred_seg=False, is_eval=True):
+    def forward(self, x_, targets, is_eval=True):
         x = self.backbone(x_)
         _, _, h, w = x[0].size()
 
@@ -412,9 +412,8 @@ class HRNet_W48_GCL(nn.Module):
             gcl_dict['gcl_real_seg'] = self.gcl_critic(x_, one_hot_target_mask)
             gcl_dict['gcl_fake_seg'] = self.gcl_critic(x_, one_hot_target_mask_fake)
             
-            if with_pred_seg:
-                pred_seg_map = self.seg_act(gcl_dict['seg']).exp()
-                one_hot_pred_seg_map = F.one_hot(torch.argmax(pred_seg_map, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-                gcl_dict['gcl_pred_seg'] = self.gcl_critic(x_, one_hot_pred_seg_map)
+            pred_seg_map = self.seg_act(gcl_dict['seg']).exp()
+            one_hot_pred_seg_map = F.one_hot(torch.argmax(pred_seg_map, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+            gcl_dict['gcl_pred_seg'] = self.gcl_critic(x_, one_hot_pred_seg_map)
 
         return gcl_dict

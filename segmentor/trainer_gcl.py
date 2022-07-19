@@ -102,12 +102,6 @@ class Trainer(object):
             self.pixel_loss = self.module_runner.to_device(self.pixel_loss)
 
         self.with_gcl = True if self.configer.exists("gcl") else False
-        if self.configer.exists("gcl", "warmup_iters"):
-            self.gcl_warmup_iters = self.configer.get("gcl", "warmup_iters")
-        else:
-            self.gcl_warmup_iters = 0
-
-        Log.info("with_gcl: {}, warmup_iters: {}".format(self.with_gcl, self.gcl_warmup_iters))
 
 
     @staticmethod
@@ -180,21 +174,15 @@ class Trainer(object):
                     self.scheduler, self.optimizer, backbone_list=[0, ]
                 )
 
-            # Log.info('Before prepare data: data_dict.labelmap.shape, min, max:{}, {}, {}'.format(
-            #     data_dict['labelmap'].shape, data_dict['labelmap'].min(), data_dict['labelmap'].max()))
-            
             (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
-            
-            # Log.info('targets.shape, min, max:{}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
 
             self.data_time.update(time.time() - start_time)
 
             foward_start_time = time.time()
 
-            with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
             if self.with_gcl is True:
                 with torch.cuda.amp.autocast():
-                    outputs = self.seg_net(*inputs, targets, with_pred_seg=with_pred_seg, is_eval=False)
+                    outputs = self.seg_net(*inputs, targets, is_eval=False)
             else:
                 with torch.cuda.amp.autocast():
                     outputs = self.seg_net(*inputs)
@@ -218,7 +206,7 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs, targets, with_pred_seg=with_pred_seg, is_eval=False)
+                    loss = self.pixel_loss(outputs, targets, is_eval=False)
                     backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
             else:
@@ -342,8 +330,7 @@ class Trainer(object):
 
                 else:
                     if self.with_gcl is True:
-                        with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
-                        outputs = self.seg_net(*inputs, targets, with_pred_seg=with_pred_seg, is_eval=True)
+                        outputs = self.seg_net(*inputs, targets, is_eval=True)
                     else:
                         outputs = self.seg_net(*inputs)
 
