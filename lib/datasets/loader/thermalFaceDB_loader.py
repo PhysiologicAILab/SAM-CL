@@ -48,10 +48,12 @@ class ThermalFaceDBLoader(data.Dataset):
         # Log.info('{}'.format(self.img_list[index]))
         img_size = ImageHelper.get_size(img)
         labelmap = ImageHelper.read_image(self.label_list[index],
-                                          tool=self.configer.get('data', 'image_tool'), mode='P')
+                                          tool=self.configer.get('data', 'label_tool'), mode='P')
 
         if self.configer.exists('data', 'remap_classes'):
             labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
+
+        Log.info_once('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
 
         ori_target = ImageHelper.tonp(labelmap)
 
@@ -71,7 +73,7 @@ class ThermalFaceDBLoader(data.Dataset):
             border_size=border_size,
             ori_target=ori_target
         )
-        Log.info_once('Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
+        Log.info_once('After Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
         
         return_dict = dict(
             img=DataContainer(img, stack=self.is_stack),
