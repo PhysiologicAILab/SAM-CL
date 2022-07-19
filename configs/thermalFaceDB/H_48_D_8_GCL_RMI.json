@@ -11,7 +11,7 @@
       "workers": 0
     },
    "train": {
-      "batch_size": 16,
+      "batch_size": 4,
       "loader": "thermalFaceDB",
       "data_transformer": {
         "size_mode": "fix_size",
@@ -21,7 +21,7 @@
       }
     },
     "val": {
-      "batch_size": 16,
+      "batch_size": 4,
       "loader": "thermalFaceDB",
       "mode": "ss_test",
       "data_transformer": {
@@ -31,7 +31,7 @@
       }
     },
     "test": {
-      "batch_size": 16,
+      "batch_size": 4,
       "loader": "thermalFaceDB",
       "mode": "ss_test",
       "out_dir": "ckpts/thermalFaceDB/HRNET_GCL",
@@ -155,7 +155,7 @@
     "gcl": {
       "apply_spectral_norm": true,
       "warmup_iters": 5000,
-      "gcl_loss": "L1",
+      "gcl_loss": "SSIM",
       "use_rmi": true,
       "use_lovasz": false,
       "loss_weight": 0.05
