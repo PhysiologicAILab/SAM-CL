@@ -181,11 +181,9 @@ class Trainer(object):
             foward_start_time = time.time()
 
             if self.with_gcl is True:
-                with torch.cuda.amp.autocast():
-                    outputs = self.seg_net(*inputs, targets, is_eval=False)
+                outputs = self.seg_net(*inputs, targets, is_eval=False)
             else:
-                with torch.cuda.amp.autocast():
-                    outputs = self.seg_net(*inputs)
+                outputs = self.seg_net(*inputs, is_eval=False)
 
             self.foward_time.update(time.time() - foward_start_time)
 
@@ -329,10 +327,7 @@ class Trainer(object):
                         self.evaluator.update_score(outputs_i, data_dict['meta'][i:i + 1])
 
                 else:
-                    if self.with_gcl is True:
-                        outputs = self.seg_net(*inputs, targets, is_eval=True)
-                    else:
-                        outputs = self.seg_net(*inputs)
+                    outputs = self.seg_net(*inputs)
 
                     try:
                         loss = self.pixel_loss(
@@ -350,7 +345,6 @@ class Trainer(object):
                             outputs = outputs['seg']
                         except:
                             outputs = outputs['pred']
-                    
                     self.evaluator.update_score(outputs, data_dict['meta'])
 
             self.batch_time.update(time.time() - start_time)

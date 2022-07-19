@@ -388,7 +388,7 @@ class HRNet_W48_GCL(nn.Module):
         self.seg_act = nn.LogSoftmax(dim=1)
         self.gcl_critic = GCL_Critic(self.configer)
 
-    def forward(self, x_, targets, is_eval=True):
+    def forward(self, x_, targets=None, is_eval=True):
         x = self.backbone(x_)
         _, _, h, w = x[0].size()
 
