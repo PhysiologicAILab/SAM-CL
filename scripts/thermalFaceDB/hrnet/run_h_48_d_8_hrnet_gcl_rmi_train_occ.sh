@@ -23,8 +23,8 @@ LOG_FILE="${SCRATCH_ROOT}/logs/Processed/${CHECKPOINTS_NAME}.log"
 echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
-MAX_ITERS=40000
-BATCH_SIZE=4
+MAX_ITERS=50000
+BATCH_SIZE=16
 BASE_LR=0.001
 
 if [ "$1"x == "train"x ]; then
