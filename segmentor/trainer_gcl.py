@@ -282,7 +282,7 @@ class Trainer(object):
             # backward_loss.backward()
             # self.optimizer.step()
             if self.with_gcl:
-                scaler.scale(critic_loss).backward(retain_graph=True)
+                scaler.scale(critic_loss).backward()
                 scaler.step(self.optimizer_critic)
                 scaler.update()
 
