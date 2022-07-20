@@ -66,6 +66,7 @@ class ThermalFaceDBLoader(data.Dataset):
 
         if self.img_transform is not None:
             img = self.img_transform(img)
+            gcl_input = self.img_transform(gcl_input)
 
         if self.label_transform is not None:
             labelmap = self.label_transform(labelmap)
