@@ -27,7 +27,7 @@ from lib.models.nets.ocrnet import SpatialOCRNet, ASPOCRNet
 from lib.models.nets.ideal_ocrnet import IdealSpatialOCRNet, IdealSpatialOCRNetB, IdealSpatialOCRNetC, IdealGatherOCRNet, IdealDistributeOCRNet
 
 # HRNet
-from lib.models.nets.hrnet import HRNet_W48, HRNet_W48_CONTRAST, HRNet_W48_GCL
+from lib.models.nets.hrnet import HRNet_W48, HRNet_W48_CONTRAST
 from lib.models.nets.hrnet import HRNet_W48_OCR, HRNet_W48_OCR_B, HRNet_W48_OCR_B_HA, HRNet_W48_OCR_CONTRAST, HRNet_W48_MEM
 
 # OCNet
@@ -47,6 +47,8 @@ from lib.utils.tools.logger import Logger as Log
 from lib.models.nets.deeplab import DeepLabV3, DeepLabV3Contrast
 
 from lib.models.nets.ms_ocrnet import MscaleOCR
+
+from lib.models.modules.gcl_companion import GCL_Companion
 
 SEG_MODEL_DICT = {
     # SegFix
@@ -82,15 +84,11 @@ SEG_MODEL_DICT = {
     'deeplab_v3_contrast': DeepLabV3Contrast,
     'ms_ocr': MscaleOCR,
     'hrnet_w48_ocr_b_ha': HRNet_W48_OCR_B_HA,
-    'hrnet_w48_gcl': HRNet_W48_GCL,
 }
 
 
 CRITIC_MODEL_DICT = {
-    'gcl_companion': gcl_companion,
-    # OCNet series
-    'base_ocnet': BaseOCNet,
-    'asp_ocnet': AspOCNet,
+    'gcl_companion': GCL_Companion,
 }
 
 class ModelManager(object):
