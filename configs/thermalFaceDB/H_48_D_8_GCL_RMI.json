@@ -104,6 +104,9 @@
         "seg_loss": 1.0
       }
     },
+    "critic":{
+      "model_name": "gcl_companion"
+    },
     "logging": {
       "logfile_level": "info",
       "stdout_level": "info",
@@ -144,7 +147,8 @@
       }
     },
     "loss": {
-      "loss_type": "gcl_rmi_loss",
+      "loss_type": "fs_rmi_loss",
+      "critic_loss_type": "gcl_loss",
       "params": {
         "num_classes": 6,
         "rmi_radius": 3,
@@ -160,9 +164,7 @@
     "gcl": {
       "apply_spectral_norm": true,
       "warmup_iters": 5000,
-      "gcl_loss": "SSIM",
-      "use_rmi": true,
-      "use_lovasz": false,
+      "gcl_loss": "L1",
       "loss_weight": 0.05
     }
   }

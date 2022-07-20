@@ -17,9 +17,8 @@ import torch.nn.functional as F
 from lib.models.backbones.backbone_selector import BackboneSelector
 from lib.models.tools.module_helper import ModuleHelper
 from lib.models.modules.projection import ProjectionHead
-from lib.utils.tools.logger import Logger as Log
 from lib.models.modules.hanet_attention import HANet_Conv
-from lib.models.modules.gcl_companion import GCL_Critic
+
 
 class HRNet_W48(nn.Module):
     """
@@ -364,57 +363,3 @@ class HRNet_W48_OCR_B_HA(nn.Module):
         out = F.interpolate(out, size=(x_.size(2), x_.size(3)), mode="bilinear", align_corners=True)
         return out_aux, out
 
-
-class HRNet_W48_GCL(nn.Module):
-    """
-    deep high-resolution representation learning for human pose estimation, CVPR2019
-    """
-
-    def __init__(self, configer):
-        super(HRNet_W48_GCL, self).__init__()
-        self.configer = configer
-        self.num_classes = self.configer.get('data', 'num_classes')
-        self.backbone = BackboneSelector(configer).get_backbone()
-
-        # extra added layers
-        in_channels = 1024 #720  # 48 + 96 + 192 + 384
-        self.cls_head = nn.Sequential(
-            nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1, padding=1),
-            ModuleHelper.BNReLU(in_channels, bn_type=self.configer.get('network', 'bn_type')),
-            nn.Dropout2d(0.10),
-            nn.Conv2d(in_channels, self.num_classes, kernel_size=1, stride=1, padding=0, bias=False)
-        )
-
-        self.seg_act = nn.LogSoftmax(dim=1)
-        self.gcl_critic = GCL_Critic(self.configer)
-
-    def forward(self, x_, targets=None, is_eval=True):
-        x = self.backbone(x_)
-        _, _, h, w = x[0].size()
-
-        feat1 = x[0]
-        feat2 = F.interpolate(x[1], size=(h, w), mode="bilinear", align_corners=True)
-        feat3 = F.interpolate(x[2], size=(h, w), mode="bilinear", align_corners=True)
-        feat4 = F.interpolate(x[3], size=(h, w), mode="bilinear", align_corners=True)
-
-        feats = torch.cat([feat1, feat2, feat3, feat4], 1)
-        out = self.cls_head(feats)
-        out = F.interpolate(out, size=(x_.size(2), x_.size(3)), mode="bilinear", align_corners=True)
-
-        gcl_dict = {}
-        gcl_dict['seg'] = out
-
-        if not is_eval:
-            # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
-            targets[targets < 0] = 0
-            one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-            one_hot_target_mask_fake = 1 - one_hot_target_mask
-
-            gcl_dict['gcl_real_seg'] = self.gcl_critic(x_, one_hot_target_mask)
-            gcl_dict['gcl_fake_seg'] = self.gcl_critic(x_, one_hot_target_mask_fake)
-            
-            pred_seg_map = self.seg_act(gcl_dict['seg']).exp()
-            one_hot_pred_seg_map = F.one_hot(torch.argmax(pred_seg_map, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-            gcl_dict['gcl_pred_seg'] = self.gcl_critic(x_, one_hot_pred_seg_map)
-
-        return gcl_dict

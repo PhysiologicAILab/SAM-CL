@@ -268,6 +268,10 @@ class _ConditionHelper:
         return self.configer.exists('data', 'use_dt_offset')
 
     @property
+    def use_gcl_input(self):
+        return self.configer.exists('data', 'use_gcl_input')
+
+    @property
     def use_ground_truth(self):
         return self.config_equals(('use_ground_truth',), True)
 

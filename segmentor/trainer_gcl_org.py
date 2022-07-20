@@ -63,18 +63,14 @@ class Trainer(object):
         self.evaluator = get_evaluator(configer, self)
 
         self.seg_net = None
-        self.critic_net = None
         self.train_loader = None
         self.val_loader = None
         self.optimizer = None
         self.scheduler = None
-        self.optimizer_critic = None
-        self.scheduler_critic = None
         self.running_score = None        
         self._init_model()
 
     def _init_model(self):
-
         self.seg_net = self.model_manager.semantic_segmentor()
 
         # try:
@@ -95,46 +91,17 @@ class Trainer(object):
             params_group = self.group_weight(self.seg_net)
         else:
             assert self.configer.get('optim', 'group_method') is None
-            params_group = self._get_parameters(self.seg_net)
+            params_group = self._get_parameters()
 
         self.optimizer, self.scheduler = self.optim_scheduler.init_optimizer(params_group)
 
         self.train_loader = self.data_loader.get_trainloader()
         self.val_loader = self.data_loader.get_valloader()
         self.pixel_loss = self.loss_manager.get_seg_loss()
-
         if is_distributed():
             self.pixel_loss = self.module_runner.to_device(self.pixel_loss)
 
         self.with_gcl = True if self.configer.exists("gcl") else False
-
-        if self.with_gcl:
-
-            self.critic_net = self.model_manager.critic_network()
-            self.critic_net = self.module_runner.load_net(self.critic_net)
-
-            Log.info('Params Group Method: {}'.format(self.configer.get('optim', 'group_method')))
-            if self.configer.get('optim', 'group_method') == 'decay':
-                params_group_critic = self.group_weight(self.critic_net)
-            else:
-                assert self.configer.get('optim', 'group_method') is None
-                params_group_critic = self._get_parameters(self.critic_net)
-
-            self.optimizer_critic, self.scheduler_critic = self.optim_scheduler.init_optimizer(params_group_critic)
-
-            self.critic_loss = self.loss_manager.get_critic_loss()
-            if is_distributed():
-                self.critic_loss = self.module_runner.to_device(self.critic_loss)
-
-            self.loss_weight = self.configer.get('gcl', 'loss_weight')
-
-            if self.configer.exists("gcl", "warmup_iters"):
-                self.gcl_warmup_iters = self.configer.get("gcl", "warmup_iters")
-            else:
-                self.gcl_warmup_iters = 0
-
-            self.seg_act = nn.LogSoftmax(dim=1)
-            self.num_classes = self.configer.get('data', 'num_classes')
 
 
     @staticmethod
@@ -160,11 +127,11 @@ class Trainer(object):
         groups = [dict(params=group_decay), dict(params=group_no_decay, weight_decay=.0)]
         return groups
 
-    def _get_parameters(self, net):
+    def _get_parameters(self):
         bb_lr = []
         nbb_lr = []
         fcn_lr = []
-        params_dict = dict(net.named_parameters())
+        params_dict = dict(self.seg_net.named_parameters())
         for key, value in params_dict.items():
             if 'backbone' in key:
                 bb_lr.append(value)
@@ -184,13 +151,7 @@ class Trainer(object):
         """
         self.seg_net.train()
         self.pixel_loss.train()
-
-        if self.with_gcl:
-            self.critic_net.train()
-            self.critic_loss.train()
-
         start_time = time.time()
-        
         scaler = torch.cuda.amp.GradScaler()
 
         if "swa" in self.configer.get('lr', 'lr_policy'):
@@ -201,39 +162,24 @@ class Trainer(object):
             self.train_loader.sampler.set_epoch(self.configer.get('epoch'))
 
         for i, data_dict in enumerate(self.train_loader):
-            
             self.optimizer.zero_grad()
-            if self.with_gcl:
-                self.optimizer_critic.zero_grad()
 
             if self.configer.get('lr', 'is_warm'):
-                self.module_runner.warm_lr(self.configer.get('iters'), self.scheduler, self.optimizer, backbone_list=[0, ])
+                self.module_runner.warm_lr(
+                    self.configer.get('iters'),
+                    self.scheduler, self.optimizer, backbone_list=[0, ]
+                )
 
             (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
 
             self.data_time.update(time.time() - start_time)
 
             foward_start_time = time.time()
-            with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
-
-            outputs = self.seg_net(*inputs, is_eval=False)
 
             if self.with_gcl is True:
-                critic_outputs_pred = None
-                target_mask, gcl_input = targets
-
-                # Log.info('target_mask.shape, min, max: {}, {}, {}'.format(target_mask.shape, target_mask.min(), target_mask.max()))
-                target_mask[target_mask < 0] = 0
-                one_hot_target_mask = F.one_hot(target_mask, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-                critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
-
-                one_hot_fake_mask = 1 - one_hot_target_mask
-                critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
-                
-                if with_pred_seg:
-                    pred_seg_mask = self.seg_act(outputs).exp()
-                    one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-                    critic_outputs_pred = self.critic_net(gcl_input, one_hot_pred_seg_mask)
+                outputs = self.seg_net(*inputs, targets=targets, is_eval=False)
+            else:
+                outputs = self.seg_net(*inputs, is_eval=False)
 
             self.foward_time.update(time.time() - foward_start_time)
 
@@ -254,14 +200,11 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs, target_mask, is_eval=False)
-                    if self.with_gcl:
-                        critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg)
-
+                    loss = self.pixel_loss(outputs, targets, is_eval=False)
                     backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
             else:
-                backward_loss = display_loss = self.pixel_loss(outputs, target_mask,
+                backward_loss = display_loss = self.pixel_loss(outputs, targets,
                                                                gathered=self.configer.get('network', 'gathered'))
 
             self.train_losses.update(display_loss.item(), batch_size)
@@ -269,18 +212,10 @@ class Trainer(object):
 
             backward_start_time = time.time()
 
-            # backward_loss.backward()
-            # self.optimizer.step()
             scaler.scale(backward_loss).backward()
             scaler.step(self.optimizer)
             scaler.update()
-
-            # if self.configer.get('lr', 'metric') == 'iters':
-            #     self.scheduler.step(self.configer.get('iters'))
-            # else:
-            #     self.scheduler.step(self.configer.get('epoch'))
             self.scheduler.step()
-
             self.backward_time.update(time.time() - backward_start_time)
 
             # Update the vars of the train phase.
@@ -342,12 +277,36 @@ class Trainer(object):
                 if is_distributed(): dist.barrier()  # Synchronize all processes
                 Log.info('{} images processed\n'.format(j))
 
-
-            (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
-            targets, _ = targets
+            if self.configer.get('dataset') == 'lip':
+                (inputs, targets, inputs_rev, targets_rev), batch_size = self.data_helper.prepare_data(data_dict,
+                                                                                                       want_reverse=True)
+            else:
+                (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
 
             with torch.no_grad():
-                if self.data_helper.conditions.diverse_size:
+                if self.configer.get('dataset') == 'lip':
+                    inputs = torch.cat([inputs[0], inputs_rev[0]], dim=0)
+                    outputs = self.seg_net(inputs)
+                    if not is_distributed():
+                        outputs_ = self.module_runner.gather(outputs)
+                    else:
+                        outputs_ = outputs
+                    if isinstance(outputs_, (list, tuple)):
+                        outputs_ = outputs_[-1]
+                    outputs = outputs_[0:int(outputs_.size(0) / 2), :, :, :].clone()
+                    outputs_rev = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), :, :, :].clone()
+                    if outputs_rev.shape[1] == 20:
+                        outputs_rev[:, 14, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 15, :, :]
+                        outputs_rev[:, 15, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 14, :, :]
+                        outputs_rev[:, 16, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 17, :, :]
+                        outputs_rev[:, 17, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 16, :, :]
+                        outputs_rev[:, 18, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 19, :, :]
+                        outputs_rev[:, 19, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 18, :, :]
+                    outputs_rev = torch.flip(outputs_rev, [3])
+                    outputs = (outputs + outputs_rev) / 2.
+                    self.evaluator.update_score(outputs, data_dict['meta'])
+
+                elif self.data_helper.conditions.diverse_size:
                     if is_distributed():
                         outputs = [self.seg_net(inputs[i]) for i in range(len(inputs))]
                     else:

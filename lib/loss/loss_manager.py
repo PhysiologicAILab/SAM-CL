@@ -17,7 +17,7 @@ from lib.loss.loss_helper import FSAuxOhemCELoss, FSOhemCELoss, FSRMILoss
 from lib.loss.loss_helper import FSCELoss, FSAuxCELoss, FSAuxRMILoss, FSCELOVASZLoss, MSFSAuxRMILoss, FSAuxCELossDSN
 from lib.loss.loss_helper import SegFixLoss
 from lib.loss.rmi_loss import RMILoss
-from lib.loss.loss_gcl import GCL_RMI_Loss
+from lib.loss.loss_adversarial import GCL_Loss, GAN_Loss
 from lib.loss.loss_contrast import ContrastAuxCELoss, ContrastCELoss
 from lib.loss.loss_contrast_mem import ContrastCELoss as MemContrastCELoss
 
@@ -40,9 +40,12 @@ SEG_LOSS_DICT = {
     'ms_fs_aux_rmi_loss': MSFSAuxRMILoss,
     'fs_auxce_dsn_loss': FSAuxCELossDSN,
     'mem_contrast_ce_loss': MemContrastCELoss,
-    'gcl_rmi_loss': GCL_RMI_Loss
 }
 
+CRITIC_LOSS_DICT = {
+    'gcl_loss': GCL_Loss,
+    'gan_loss': GAN_Loss,
+}
 
 class LossManager(object):
     def __init__(self, configer):
@@ -69,4 +72,13 @@ class LossManager(object):
         loss = SEG_LOSS_DICT[key](self.configer)
         return self._parallel(loss)
 
+
+    def get_critic_loss(self, loss_type=None):
+        key = self.configer.get('loss', 'critic_loss_type') if loss_type is None else loss_type
+        if key not in CRITIC_LOSS_DICT:
+            Log.error('Loss: {} not valid!'.format(key))
+            exit(1)
+        Log.info('use loss: {}.'.format(key))
+        loss = CRITIC_LOSS_DICT[key](self.configer)
+        return self._parallel(loss)
 

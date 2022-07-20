@@ -61,6 +61,11 @@ class DataHelper:
                 'distance_map',
                 'multi_label_direction_map',
             ]
+        elif self.conditions.use_gcl_input:
+            targets = [
+                'labelmap', 
+                'gcl_input'
+                ]
         else:
             targets = ['labelmap']
 
@@ -123,15 +128,9 @@ class DataHelper:
         if self.conditions.use_ground_truth:
             input_keys += target_keys
 
-        Log.info_once('Input keys: {}'.format(input_keys))
-        Log.info_once('Target keys: {}'.format(target_keys))
-
         inputs = [data_dict[k] for k in input_keys]
         batch_size = len(inputs[0])
         targets = [data_dict[k] for k in target_keys]
-
-        Log.info_once('Min of Targets: {}'.format(targets[0].min()))
-        Log.info_once('Max of Targets: {}'.format(targets[0].max()))
 
         sequences = [
             self._prepare_sequence(inputs, force_list=True),

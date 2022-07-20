@@ -21,10 +21,7 @@ from .thermal_occlusions import ThermOcclusion
 
 class _BaseTransform(object):
     DATA_ITEMS = (
-        'labelmap', 'maskmap',
-        'distance_map', 'angle_map', 'multi_label_direction_map',
-        'boundary_map', 'offsetmap',
-        'region_indexmap'
+        'labelmap', 'gcl_input'
     )
 
     def __call__(self, img, **kwargs):
@@ -86,25 +83,7 @@ class Padding(_BaseTransform):
     def _process_labelmap(self, x, *args):
         return self._pad(x, 0, *args)
 
-    def _process_region_indexmap(self, x, *args):
-        return self._pad(x, 0, *args)
-
-    def _process_maskmap(self, x, *args):
-        return self._pad(x, 0, *args)
-
-    def _process_distance_map(self, x, *args):
-        return self._pad(x, 0, *args)
-
-    def _process_angle_map(self, x, *args):
-        return self._pad(x, 0, *args)
-
-    def _process_boundary_map(self, x, *args):
-        return self._pad(x, 0, *args)
-
-    def _process_multi_label_direction_map(self, x, *args):
-        return self._pad(x, 0, *args)
-
-    def _process_offsetmap(self, x, *args):
+    def _process_gcl_input(self, x, *args):
         return self._pad(x, 0, *args)
 
     def __call__(self, img, **kwargs):
@@ -126,28 +105,10 @@ class RandomHFlip(_BaseTransform):
     def _process_img(self, x):
         return np.fliplr(x)
 
+    def _process_gcl_input(self, x):
+        return np.fliplr(x)
+
     def _process_labelmap(self, x):
-        return np.fliplr(x)
-
-    def _process_region_indexmap(self, x):
-        return np.fliplr(x)
-
-    def _process_maskmap(self, x):
-        return np.fliplr(x)
-
-    def _process_distance_map(self, x):
-        return np.fliplr(x)
-
-    def _process_angle_map(self, x):
-        return np.fliplr(x)
-
-    def _process_boundary_map(self, x):
-        return np.fliplr(x)
-
-    def _process_multi_label_direction_map(self, x):
-        return np.fliplr(x)
-
-    def _process_offsetmap_w(self, x):
         return np.fliplr(x)
 
     def __call__(self, img, **kwargs):
@@ -162,28 +123,10 @@ class RandomVFlip(_BaseTransform):
     def _process_img(self, x):
         return np.flipud(x)
 
+    def _process_gcl_input(self, x):
+        return np.flipud(x)
+
     def _process_labelmap(self, x):
-        return np.flipud(x)
-
-    def _process_region_indexmap(self, x):
-        return np.flipud(x)
-
-    def _process_maskmap(self, x):
-        return np.flipud(x)
-
-    def _process_distance_map(self, x):
-        return np.flipud(x)
-
-    def _process_angle_map(self, x):
-        return np.flipud(x)
-
-    def _process_boundary_map(self, x):
-        return np.flipud(x)
-
-    def _process_multi_label_direction_map(self, x):
-        return np.flipud(x)
-
-    def _process_offsetmap_w(self, x):
         return np.flipud(x)
 
     def __call__(self, img, **kwargs):
@@ -223,10 +166,10 @@ class RandomRotate(_BaseTransform):
     def _process_img(self, x):
         return self._rotate(x, self.rotation_angle)
 
-    def _process_labelmap(self, x):
-        return self._rotate_map(x, self.rotation_angle)
+    def _process_gcl_input(self, x):
+        return self._rotate(x, self.rotation_angle)
 
-    def _process_maskmap(self, x):
+    def _process_labelmap(self, x):
         return self._rotate_map(x, self.rotation_angle)
 
     def __call__(self, img, **kwargs):
@@ -340,32 +283,15 @@ class RandomResize(_BaseTransform):
             Log.error('Resize method {} is invalid.'.format(self.method))
             exit(1)
 
-    def _process_img(self, img, converted_size, *args):
-        return cv2.resize(img, converted_size, interpolation=cv2.INTER_CUBIC)
+    def _process_img(self, x, converted_size, *args):
+        return cv2.resize(x, converted_size, interpolation=cv2.INTER_CUBIC)
+
+    def _process_gcl_input(self, x, converted_size, *args):
+        return cv2.resize(x, converted_size, interpolation=cv2.INTER_CUBIC)
 
     def _process_labelmap(self, x, converted_size, *args):
         return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
 
-    def _process_region_indexmap(self, x, converted_size, *args):
-        return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
-
-    def _process_maskmap(self, x, converted_size, *args):
-        return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
-
-    def _process_distance_map(self, x, converted_size, *args):
-        return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
-
-    def _process_angle_map(self, x, converted_size, *args):
-        return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
-
-    def _process_boundary_map(self, x, converted_size, *args):
-        return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
-
-    def _process_multi_label_direction_map(self, x, converted_size, *args):
-        return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
-
-    def _process_offsetmap(self, x, converted_size, h_scale_ratio, w_scale_ratio):
-        return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
 
     def __call__(self, img, **kwargs):
         """
@@ -449,32 +375,15 @@ class RandomCrop(_BaseTransform):
     def _crop(self, x, offset_up, offset_left, target_size):
         return x[offset_up:offset_up + target_size[1], offset_left:offset_left + target_size[0]]
 
-    def _process_img(self, img, *args):
-        return self._crop(img, *args)
+    def _process_img(self, x, *args):
+        return self._crop(x, *args)
+
+    def _process_gcl_input(self, x, *args):
+        return self._crop(x, *args)
 
     def _process_labelmap(self, x, *args):
         return self._crop(x, *args)
 
-    def _process_region_indexmap(self, x, *args):
-        return self._crop(x, *args)
-
-    def _process_maskmap(self, x, *args):
-        return self._crop(x, *args)
-
-    def _process_distance_map(self, x, *args):
-        return self._crop(x, *args)
-
-    def _process_angle_map(self, x, *args):
-        return self._crop(x, *args)
-
-    def _process_boundary_map(self, x, *args):
-        return self._crop(x, *args)
-
-    def _process_multi_label_direction_map(self, x, *args):
-        return self._crop(x, *args)
-
-    def _process_offsetmap(self, x, *args):
-        return self._crop(x, *args)
 
     def __call__(self, img, **kwargs):
         """

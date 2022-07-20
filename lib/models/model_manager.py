@@ -86,6 +86,13 @@ SEG_MODEL_DICT = {
 }
 
 
+CRITIC_MODEL_DICT = {
+    'gcl_companion': gcl_companion,
+    # OCNet series
+    'base_ocnet': BaseOCNet,
+    'asp_ocnet': AspOCNet,
+}
+
 class ModelManager(object):
     def __init__(self, configer):
         self.configer = configer
@@ -98,5 +105,16 @@ class ModelManager(object):
             exit(1)
 
         model = SEG_MODEL_DICT[model_name](self.configer)
+
+        return model
+
+    def critic_network(self):
+        model_name = self.configer.get('critic', 'model_name')
+
+        if model_name not in CRITIC_MODEL_DICT:
+            Log.error('Model: {} not valid!'.format(model_name))
+            exit(1)
+
+        model = CRITIC_MODEL_DICT[model_name](self.configer)
 
         return model
