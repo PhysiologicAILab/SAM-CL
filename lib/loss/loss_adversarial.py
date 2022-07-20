@@ -21,6 +21,7 @@ class GCL_Loss(nn.Module, ABC):
 
         self.configer = configer
 
+        self.loss_weight = self.configer.get('gcl', 'loss_weight')
         self.lossObj_x1 = nn.SmoothL1Loss()
         self.lossObj_x2 = nn.SmoothL1Loss()
         self.lossObj_x3 = nn.SmoothL1Loss()
@@ -54,7 +55,7 @@ class GCL_Loss(nn.Module, ABC):
                 (1.00) * self.lossObj_x4(pred_seg_x4, torch.ones_like(pred_seg_x4))
             )
 
-        return loss
+        return self.loss_weight * loss
 
 
 class GAN_Loss(nn.Module, ABC):
@@ -62,7 +63,7 @@ class GAN_Loss(nn.Module, ABC):
         super(GAN_Loss, self).__init__()
 
         self.configer = configer
-
+        self.loss_weight = self.configer.get('gan', 'loss_weight')
         self.lossObj = nn.BCEWithLogitsLoss()
 
     def forward(self, real, fake_pred, real_pred, **kwargs):
@@ -73,4 +74,4 @@ class GAN_Loss(nn.Module, ABC):
             (1.00) * self.lossObj(fake_pred, torch.zeros_like(fake_pred))
         )
 
-        return loss
+        return self.loss_weight * loss

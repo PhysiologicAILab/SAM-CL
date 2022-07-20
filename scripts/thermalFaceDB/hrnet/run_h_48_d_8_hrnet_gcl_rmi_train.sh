@@ -15,8 +15,8 @@ BACKBONE="deepbase_resnet101_dilated8"
 CONFIGS="configs/thermalFaceDB/H_48_D_8_GCL_RMI.json"
 # CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="hrnet_w48_gcl"
-LOSS_TYPE="gcl_rmi_loss"
+MODEL_NAME="hrnet_w48"
+LOSS_TYPE="fs_rmi_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
 LOG_FILE="${SCRATCH_ROOT}/logs/Processed/${CHECKPOINTS_NAME}.log"
@@ -36,7 +36,7 @@ if [ "$1"x == "train"x ]; then
                        --log_to_file n \
                        --backbone ${BACKBONE} \
                        --model_name ${MODEL_NAME} \
-                       --gpu 0 \
+                       --gpu 0 1 2 3 \
                        --data_dir ${DATA_DIR} \
                        --loss_type ${LOSS_TYPE} \
                        --max_iters ${MAX_ITERS} \

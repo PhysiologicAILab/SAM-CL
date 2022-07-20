@@ -95,7 +95,7 @@
     "network":{
       "backbone": "deepbase_resnet101_dilated8",
       "multi_grid": [1, 1, 1],
-      "model_name": "hrnet_w48_gcl",
+      "model_name": "hrnet_w48",
       "bn_type": "torchsyncbn",
       "stride": 8,
       "factors": [[8, 8]],
@@ -104,6 +104,9 @@
         "aux_loss": 0.4,
         "seg_loss": 1.0
       }
+    },
+    "critic":{
+      "model_name": "gcl_companion"
     },
     "logging": {
       "logfile_level": "info",
@@ -162,9 +165,6 @@
     "gcl": {
       "apply_spectral_norm": true,
       "warmup_iters": 5000,
-      "gcl_loss": "L1",
-      "use_rmi": true,
-      "use_lovasz": false,
-      "loss_weight": 0.05
+      "loss_weight": 0.33
     }
   }

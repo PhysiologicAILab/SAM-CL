@@ -8,7 +8,8 @@
       "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
       "num_classes": 6,
       "data_dir": "~/dev/data/ThermalFaceDBx340",
-      "workers": 0
+      "workers": 0,
+      "use_gcl_input": true
     },
    "train": {
       "batch_size": 16,
@@ -94,7 +95,7 @@
     "network":{
       "backbone": "deepbase_resnet101_dilated8",
       "multi_grid": [1, 1, 1],
-      "model_name": "hrnet_w48_gcl",
+      "model_name": "hrnet_w48",
       "bn_type": "torchsyncbn",
       "stride": 8,
       "factors": [[8, 8]],
@@ -164,7 +165,6 @@
     "gcl": {
       "apply_spectral_norm": true,
       "warmup_iters": 5000,
-      "gcl_loss": "L1",
-      "loss_weight": 0.05
+      "loss_weight": 0.33
     }
   }
