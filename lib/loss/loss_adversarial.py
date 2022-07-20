@@ -57,3 +57,20 @@ class GCL_Loss(nn.Module, ABC):
         return loss
 
 
+class GAN_Loss(nn.Module, ABC):
+    def __init__(self, configer=None):
+        super(GAN_Loss, self).__init__()
+
+        self.configer = configer
+
+        self.lossObj = nn.BCEWithLogitsLoss()
+
+    def forward(self, real, fake_pred, real_pred, **kwargs):
+
+        loss = (
+            (1.00) * self.lossObj(real, torch.ones_like(real)) +
+            (1.00) * self.lossObj(real_pred, torch.ones_like(real_pred)) +
+            (1.00) * self.lossObj(fake_pred, torch.zeros_like(fake_pred))
+        )
+
+        return loss
