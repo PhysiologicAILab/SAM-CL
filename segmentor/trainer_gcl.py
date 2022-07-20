@@ -70,8 +70,6 @@ class Trainer(object):
         self.val_loader = None
         self.optimizer = None
         self.scheduler = None
-        self.optimizer_critic = None
-        self.scheduler_critic = None
         self.running_score = None        
         self._init_model()
 
@@ -99,8 +97,6 @@ class Trainer(object):
             assert self.configer.get('optim', 'group_method') is None
             params_group = self._get_parameters(self.seg_net)
 
-        self.optimizer, self.scheduler = self.optim_scheduler.init_optimizer(params_group)
-
         self.train_loader = self.data_loader.get_trainloader()
         self.val_loader = self.data_loader.get_valloader()
         self.pixel_loss = self.loss_manager.get_seg_loss()
@@ -117,12 +113,10 @@ class Trainer(object):
 
             Log.info('Params Group Method: {}'.format(self.configer.get('optim', 'group_method')))
             if self.configer.get('optim', 'group_method') == 'decay':
-                params_group_critic = self.group_weight(self.critic_net)
+                params_group = params_group + self.group_weight(self.critic_net)
             else:
                 assert self.configer.get('optim', 'group_method') is None
-                params_group_critic = self._get_parameters(self.critic_net)
-
-            self.optimizer_critic, self.scheduler_critic = self.optim_scheduler.init_optimizer(params_group_critic)
+                params_group = params_group + self._get_parameters(self.critic_net)
 
             self.critic_loss = self.loss_manager.get_critic_loss()
             if is_distributed():
@@ -137,6 +131,9 @@ class Trainer(object):
 
             self.seg_act = nn.LogSoftmax(dim=1)
             self.num_classes = self.configer.get('data', 'num_classes')
+
+
+        self.optimizer, self.scheduler = self.optim_scheduler.init_optimizer(params_group)
 
 
     @staticmethod
@@ -205,8 +202,6 @@ class Trainer(object):
         for i, data_dict in enumerate(self.train_loader):
             
             self.optimizer.zero_grad()
-            if self.with_gcl:
-                self.optimizer_critic.zero_grad()
 
             if self.configer.get('lr', 'is_warm'):
                 self.module_runner.warm_lr(self.configer.get('iters'), self.scheduler, self.optimizer, backbone_list=[0, ])
@@ -279,12 +274,10 @@ class Trainer(object):
 
             backward_start_time = time.time()
 
-            # backward_loss.backward()
-            # self.optimizer.step()
-            # if self.with_gcl:
-            #     scaler.scale(critic_loss).backward(retain_graph=True)
-            #     scaler.step(self.optimizer_critic)
-            #     scaler.update()
+            if self.with_gcl:
+                scaler.scale(critic_loss).backward(retain_graph=True)
+                scaler.step(self.optimizer)
+                scaler.update()
 
             scaler.scale(backward_loss).backward()
             scaler.step(self.optimizer)
