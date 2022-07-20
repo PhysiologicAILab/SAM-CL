@@ -218,7 +218,7 @@ class Trainer(object):
             foward_start_time = time.time()
             with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
 
-            outputs = self.seg_net(*inputs, is_eval=False)
+            outputs = self.seg_net(*inputs)
 
             if self.with_gcl is True:
                 critic_outputs_pred = None
