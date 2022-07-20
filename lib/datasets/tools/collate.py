@@ -94,6 +94,11 @@ def collate(batch, trans_dict):
             scaled_size_hw = (scaled_size[1], scaled_size[0])
             batch[i]['img'] = DataContainer(F.interpolate(batch[i]['img'].data.unsqueeze(0),
                                             scaled_size_hw, mode='bilinear', align_corners=True).squeeze(0), stack=True)
+
+            if 'gcl_input' in data_keys:
+                batch[i]['gcl_input'] = DataContainer(F.interpolate(batch[i]['gcl_input'].data.unsqueeze(0),
+                                                scaled_size_hw, mode='bilinear', align_corners=True).squeeze(0), stack=True)
+
             if 'labelmap' in data_keys:
                 labelmap = batch[i]['labelmap'].data.unsqueeze(0).unsqueeze(0).float()
                 labelmap = F.interpolate(labelmap, scaled_size_hw, mode='nearest').long().squeeze(0).squeeze(0)

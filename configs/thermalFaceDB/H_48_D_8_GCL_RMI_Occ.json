@@ -130,7 +130,7 @@
       "max_iters": 40000
     },
     "optim": {
-      "optim_method": "adamw",
+      "optim_method": "sgd",
       "adam": {
         "betas": [0.9, 0.999],
         "eps": 1e-08,
@@ -164,7 +164,7 @@
     },
     "gcl": {
       "apply_spectral_norm": true,
-      "warmup_iters": 5000,
+      "warmup_iters": 500,
       "loss_weight": 0.33
     }
   }
