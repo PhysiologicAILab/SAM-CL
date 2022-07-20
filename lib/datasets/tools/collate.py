@@ -145,6 +145,9 @@ def collate(batch, trans_dict):
             if 'labelmap' in data_keys:
                 batch[i]['labelmap'] = DataContainer(F.pad(batch[i]['labelmap'].data, pad=pad, value=-1), stack=batch[i]['labelmap'].stack)
 
+            if 'gcl_input' in data_keys:
+                batch[i]['gcl_input'] = DataContainer(F.pad(batch[i]['gcl_input'].data, pad=pad, value=-1), stack=batch[i]['gcl_input'].stack)
+
             if 'maskmap' in data_keys:
                 batch[i]['maskmap'] = DataContainer(F.pad(batch[i]['maskmap'].data, pad=pad, value=0), stack=batch[i]['maskmap'].stack)
 
