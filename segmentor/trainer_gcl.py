@@ -16,11 +16,6 @@ from sys import base_exec_prefix
 
 import time
 
-import os
-from turtle import back
-import cv2
-import pdb
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -61,6 +56,7 @@ class Trainer(object):
         self.model_manager = ModelManager(configer)
         self.data_loader = DataLoader(configer)
         self.optim_scheduler = OptimScheduler(configer)
+        self.optim_scheduler_critic = OptimScheduler(configer)
         self.data_helper = DataHelper(configer, self)
         self.evaluator = get_evaluator(configer, self)
 
@@ -68,8 +64,12 @@ class Trainer(object):
         self.critic_net = None
         self.train_loader = None
         self.val_loader = None
+
         self.optimizer = None
         self.scheduler = None
+        self.optimizer_critic = None
+        self.scheduler_critic = None
+
         self.running_score = None        
         self._init_model()
 
@@ -104,6 +104,8 @@ class Trainer(object):
         if is_distributed():
             self.pixel_loss = self.module_runner.to_device(self.pixel_loss)
 
+        self.optimizer, self.scheduler = self.optim_scheduler.init_optimizer(params_group)
+
         self.with_gcl = True if self.configer.exists("gcl") else False
 
         if self.with_gcl:
@@ -113,10 +115,10 @@ class Trainer(object):
 
             Log.info('Params Group Method: {}'.format(self.configer.get('optim', 'group_method')))
             if self.configer.get('optim', 'group_method') == 'decay':
-                params_group = params_group + self.group_weight(self.critic_net)
+                params_group_critic = self.group_weight(self.critic_net)
             else:
                 assert self.configer.get('optim', 'group_method') is None
-                params_group = params_group + self._get_parameters(self.critic_net)
+                params_group_critic = self._get_parameters(self.critic_net)
 
             self.critic_loss = self.loss_manager.get_critic_loss()
             if is_distributed():
@@ -132,8 +134,7 @@ class Trainer(object):
             self.seg_act = nn.LogSoftmax(dim=1)
             self.num_classes = self.configer.get('data', 'num_classes')
 
-
-        self.optimizer, self.scheduler = self.optim_scheduler.init_optimizer(params_group)
+            self.optimizer_critic, self.scheduler_critic = self.optim_scheduler_critic.init_optimizer(params_group_critic)
 
 
     @staticmethod
@@ -191,6 +192,7 @@ class Trainer(object):
         start_time = time.time()
         
         scaler = torch.cuda.amp.GradScaler()
+        scaler_critic = torch.cuda.amp.GradScaler()
 
         if "swa" in self.configer.get('lr', 'lr_policy'):
             normal_max_iters = int(self.configer.get('solver', 'max_iters') * 0.75)
@@ -203,8 +205,13 @@ class Trainer(object):
             
             self.optimizer.zero_grad()
 
+            if self.with_gcl:
+                self.optimizer_critic.zero_grad()
+
             if self.configer.get('lr', 'is_warm'):
                 self.module_runner.warm_lr(self.configer.get('iters'), self.scheduler, self.optimizer, backbone_list=[0, ])
+                if self.with_gcl:
+                    self.module_runner.warm_lr(self.configer.get('iters'), self.scheduler_critic, self.optimizer_critic, backbone_list=[0, ])
 
             (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
 
@@ -275,18 +282,14 @@ class Trainer(object):
             backward_start_time = time.time()
 
             if self.with_gcl:
-                scaler.scale(critic_loss).backward(retain_graph=True)
-                # scaler.step(self.optimizer)
-                # scaler.update()
+                scaler_critic.scale(critic_loss).backward()
+                scaler_critic.step(self.optimizer_critic)
+                scaler_critic.update()
+                self.scheduler_critic.step()
 
             scaler.scale(backward_loss).backward()
             scaler.step(self.optimizer)
             scaler.update()
-
-            # if self.configer.get('lr', 'metric') == 'iters':
-            #     self.scheduler.step(self.configer.get('iters'))
-            # else:
-            #     self.scheduler.step(self.configer.get('epoch'))
             self.scheduler.step()
 
             self.backward_time.update(time.time() - backward_start_time)
@@ -324,6 +327,8 @@ class Trainer(object):
                     ((self.configer.get('iters') - normal_max_iters) % swa_step_max_iters == 0 or \
                      self.configer.get('iters') == self.configer.get('solver', 'max_iters')):
                 self.optimizer.update_swa()
+                if self.with_gcl:
+                    self.optimizer_critic.update_swa()
 
             if self.configer.get('iters') == self.configer.get('solver', 'max_iters'):
                 break
@@ -438,6 +443,9 @@ class Trainer(object):
         if 'swa' in self.configer.get('lr', 'lr_policy'):
             self.optimizer.swap_swa_sgd()
             self.optimizer.bn_update(self.train_loader, self.seg_net)
+            if self.with_gcl:
+                self.optimizer_critic.swap_swa_sgd()
+                self.optimizer_critic.bn_update(self.train_loader, self.critic_net)
 
         self.__val(data_loader=self.data_loader.get_valloader(dataset='val'))
 
