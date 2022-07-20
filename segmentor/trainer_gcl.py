@@ -283,14 +283,17 @@ class Trainer(object):
 
             if self.with_gcl:
                 scaler_critic.scale(critic_loss).backward(retain_graph=True)
-                scaler_critic.step(self.optimizer_critic)
-                scaler_critic.update()
-                self.scheduler_critic.step()
 
             scaler.scale(backward_loss).backward()
+
             scaler.step(self.optimizer)
             scaler.update()
             self.scheduler.step()
+
+            if self.with_gcl:
+                scaler_critic.step(self.optimizer_critic)
+                scaler_critic.update()
+                self.scheduler_critic.step()
 
             self.backward_time.update(time.time() - backward_start_time)
 
