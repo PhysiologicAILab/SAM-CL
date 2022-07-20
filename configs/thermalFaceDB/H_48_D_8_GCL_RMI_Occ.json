@@ -111,7 +111,7 @@
     "logging": {
       "logfile_level": "info",
       "stdout_level": "info",
-      "log_file": "./log/thermalFaceDB/fs_baseocnet_thermalFaceDB_seg.log",
+      "log_file": "./log/thermalFaceDB/hrnet_w48_deepbase_resnet101_dilated8_rmi.log",
       "log_format": "%(asctime)s %(levelname)-7s %(message)s",
       "rewrite": true
     },

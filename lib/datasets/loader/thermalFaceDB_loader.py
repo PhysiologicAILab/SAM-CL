@@ -23,7 +23,7 @@ from torch.utils import data
 from lib.utils.helpers.image_helper import ImageHelper
 from lib.extensions.parallel.data_container import DataContainer
 from lib.utils.tools.logger import Logger as Log
-
+from copy import deepcopy
 
 class ThermalFaceDBLoader(data.Dataset):
     def __init__(self, root_dir, aug_transform=None, dataset=None,
@@ -45,6 +45,8 @@ class ThermalFaceDBLoader(data.Dataset):
         img = ImageHelper.read_image(self.img_list[index],
                                      tool=self.configer.get('data', 'image_tool'),
                                      mode=self.configer.get('data', 'input_mode'))
+
+        gcl_input = deepcopy(img)
         # Log.info('{}'.format(self.img_list[index]))
         img_size = ImageHelper.get_size(img)
         labelmap = ImageHelper.read_image(self.label_list[index],
@@ -58,7 +60,7 @@ class ThermalFaceDBLoader(data.Dataset):
         ori_target = ImageHelper.tonp(labelmap)
 
         if self.aug_transform is not None:
-            img, labelmap = self.aug_transform(img, labelmap=labelmap)
+            img, labelmap, gcl_input = self.aug_transform(img, labelmap=labelmap, gcl_input=gcl_input)
 
         border_size = ImageHelper.get_size(img)
 
@@ -78,6 +80,7 @@ class ThermalFaceDBLoader(data.Dataset):
         return_dict = dict(
             img=DataContainer(img, stack=self.is_stack),
             labelmap=DataContainer(labelmap, stack=self.is_stack),
+            gcl_input = DataContainer(gcl_input, stack=self.is_stack),
             meta=DataContainer(meta, stack=False, cpu_only=True),
             name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
         )
