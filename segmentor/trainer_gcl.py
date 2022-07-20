@@ -12,10 +12,12 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from sys import base_exec_prefix
 
 import time
 
 import os
+from turtle import back
 import cv2
 import pdb
 import numpy as np
@@ -257,12 +259,20 @@ class Trainer(object):
                     loss = self.pixel_loss(outputs, target_mask, is_eval=False)
                     if self.with_gcl:
                         critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg)
-
-                    backward_loss = loss
+                        backward_loss = loss + critic_loss
+                    else:
+                        backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
             else:
-                backward_loss = display_loss = self.pixel_loss(outputs, target_mask,
-                                                               gathered=self.configer.get('network', 'gathered'))
+                loss = self.pixel_loss(outputs, target_mask, is_eval=False, gathered=self.configer.get('network', 'gathered'))
+                
+                if self.with_gcl:
+                    critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
+                                                   with_pred_seg, gathered=self.configer.get('network', 'gathered'))
+                    backward_loss = display_loss = loss + critic_loss
+
+                else:
+                    backward_loss = display_loss = loss
 
             self.train_losses.update(display_loss.item(), batch_size)
             self.loss_time.update(time.time() - loss_start_time)
@@ -271,6 +281,11 @@ class Trainer(object):
 
             # backward_loss.backward()
             # self.optimizer.step()
+            if self.with_gcl:
+                scaler.scale(critic_loss).backward(retain_graph=True)
+                scaler.step(self.optimizer_critic)
+                scaler.update()
+
             scaler.scale(backward_loss).backward()
             scaler.step(self.optimizer)
             scaler.update()

@@ -26,7 +26,7 @@ class GCL_Loss(nn.Module, ABC):
         self.lossObj_x3 = nn.SmoothL1Loss()
         self.lossObj_x4 = nn.BCEWithLogitsLoss()
 
-    def forward(self, critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False):
+    def forward(self, critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False, **kwargs):
 
         real_seg_x1, real_seg_x2, real_seg_x3, real_seg_x4 = critic_outputs_real
         fake_seg_x1, fake_seg_x2, fake_seg_x3, fake_seg_x4 = critic_outputs_fake
