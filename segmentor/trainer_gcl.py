@@ -181,14 +181,18 @@ class Trainer(object):
         return params
 
     def _generate_fake_segmenation_mask(self, one_hot_target_mask):
-        if torch.randn(1) > 0:
-            one_hot_fake_mask = 1 - one_hot_target_mask
-        else:
-            tc_rnd_cls = torch.randperm(self.num_classes)
-            while((tc_rnd_cls == self.tc_cls_ord).any()):
-                tc_rnd_cls = torch.randperm(self.num_classes)
-            one_hot_fake_mask = torch.zeros_like(one_hot_target_mask)
-            one_hot_fake_mask = one_hot_target_mask[:, tc_rnd_cls, :, :]
+
+        one_hot_fake_mask = 1 - one_hot_target_mask
+
+        # if torch.randn(1) > 0:
+        #     one_hot_fake_mask = 1 - one_hot_target_mask
+        # else:
+        #     tc_rnd_cls = torch.randperm(self.num_classes)
+        #     while((tc_rnd_cls == self.tc_cls_ord).any()):
+        #         tc_rnd_cls = torch.randperm(self.num_classes)
+        #     one_hot_fake_mask = torch.zeros_like(one_hot_target_mask)
+        #     one_hot_fake_mask = one_hot_target_mask[:, tc_rnd_cls, :, :]
+
         return one_hot_fake_mask
         
     def __train(self):
@@ -237,11 +241,11 @@ class Trainer(object):
 
             if self.with_gcl is True:
                 critic_outputs_pred = None
-                target_mask, gcl_input = targets
+                targets, gcl_input = targets
 
-                # Log.info('target_mask.shape, min, max: {}, {}, {}'.format(target_mask.shape, target_mask.min(), target_mask.max()))
-                target_mask[target_mask < 0] = 0
-                one_hot_target_mask = F.one_hot(target_mask, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+                # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
+                targets[targets < 0] = 0
+                one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
                 critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
 
                 one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
@@ -272,7 +276,7 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs, target_mask, is_eval=False)
+                    loss = self.pixel_loss(outputs, targets, is_eval=False)
                     if self.with_gcl:
                         critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg)
                         backward_loss = loss + critic_loss
@@ -280,7 +284,7 @@ class Trainer(object):
                         backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
             else:
-                loss = self.pixel_loss(outputs, target_mask, is_eval=False, gathered=self.configer.get('network', 'gathered'))
+                loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered'))
                 
                 if self.with_gcl:
                     critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,

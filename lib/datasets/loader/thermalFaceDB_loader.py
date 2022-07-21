@@ -35,6 +35,7 @@ class ThermalFaceDBLoader(data.Dataset):
         self.img_list, self.label_list, self.name_list = self.__list_dirs(root_dir, dataset)
         size_mode = self.configer.get(dataset, 'data_transformer')['size_mode']
         self.is_stack = size_mode != 'diverse_size'
+        self.with_gcl = True if self.configer.exists("gcl") else False
 
         Log.info('{} {}'.format(dataset, len(self.img_list)))
 
@@ -46,7 +47,8 @@ class ThermalFaceDBLoader(data.Dataset):
                                      tool=self.configer.get('data', 'image_tool'),
                                      mode=self.configer.get('data', 'input_mode'))
 
-        gcl_input = deepcopy(img)
+        if self.with_gcl:
+            gcl_input = deepcopy(img)
         # Log.info('{}'.format(self.img_list[index]))
         img_size = ImageHelper.get_size(img)
         labelmap = ImageHelper.read_image(self.label_list[index],
@@ -66,7 +68,8 @@ class ThermalFaceDBLoader(data.Dataset):
 
         if self.img_transform is not None:
             img = self.img_transform(img)
-            gcl_input = self.img_transform(gcl_input)
+            if self.with_gcl:
+                gcl_input = self.img_transform(gcl_input)
 
         if self.label_transform is not None:
             labelmap = self.label_transform(labelmap)
@@ -78,13 +81,22 @@ class ThermalFaceDBLoader(data.Dataset):
         )
         # Log.info('After Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
         
-        return_dict = dict(
-            img=DataContainer(img, stack=self.is_stack),
-            labelmap=DataContainer(labelmap, stack=self.is_stack),
-            gcl_input = DataContainer(gcl_input, stack=self.is_stack),
-            meta=DataContainer(meta, stack=False, cpu_only=True),
-            name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
-        )
+        if self.with_gcl:
+            return_dict = dict(
+                img=DataContainer(img, stack=self.is_stack),
+                labelmap=DataContainer(labelmap, stack=self.is_stack),
+                gcl_input = DataContainer(gcl_input, stack=self.is_stack),
+                meta=DataContainer(meta, stack=False, cpu_only=True),
+                name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
+            )
+        else:
+            return_dict = dict(
+                img=DataContainer(img, stack=self.is_stack),
+                labelmap=DataContainer(labelmap, stack=self.is_stack),
+                meta=DataContainer(meta, stack=False, cpu_only=True),
+                name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
+            )
+
 
         # Log.info('return_dict: Labelmap Min Max: {} {}'.format(
         #     return_dict['labelmap'].min(), return_dict['labelmap'].max()))
