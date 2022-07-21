@@ -111,7 +111,7 @@ class ResNet(nn.Module):
         self.inplanes = 128 if deep_base else 64
         if deep_base:
             self.resinit = nn.Sequential(OrderedDict([
-                ('conv1', nn.Conv2d(1, 64, kernel_size=3, stride=2, padding=1, bias=False)),
+                ('conv1', nn.Conv2d(3, 64, kernel_size=3, stride=2, padding=1, bias=False)),
                 ('bn1', ModuleHelper.BatchNorm2d(bn_type=bn_type)(64)),
                 ('relu1', nn.ReLU(inplace=False)),
                 ('conv2', nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False)),
