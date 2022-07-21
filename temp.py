@@ -80,8 +80,9 @@ root_pth = "~/dev/data/ThermalFaceDBx340"
 mode = 'test'  # 'val'
 
 pth_label = os.path.join(
-    root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48_mem" + "_" + "deepbase_resnet101_dilated8_" + \
+    root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48" + "_" + "deepbase_resnet101_dilated8_" + \
     "hrnet_gcl_rmi_occ_wide_critic" + "_test_ss", "label")
+
 
 if mode == 'val':
     pth_gt_label = os.path.join(root_pth, "Processed", "val", "label")
