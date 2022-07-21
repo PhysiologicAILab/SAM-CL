@@ -13,6 +13,7 @@ from __future__ import division
 from __future__ import print_function
 
 import pdb
+from matplotlib import use
 import torch
 from torch.utils import data
 
@@ -34,21 +35,27 @@ class DataLoader(object):
 
     def __init__(self, configer):
         self.configer = configer
+        use_default_loader = False
+        if self.configer.exists('train', 'loader'):
+            if self.configer.get('train', 'loader') == 'thermalFaceDB':
+                from lib.datasets.tools import therm_aug_transforms
+                Log.info('using thermalFaceDB_loader')
+                self.aug_train_transform = therm_aug_transforms.ThermAugCompose(self.configer, split='train')
+                self.aug_val_transform = therm_aug_transforms.ThermAugCompose(self.configer, split='val')
 
-        if self.configer.get('train', 'loader') == 'thermalFaceDB':
-            from lib.datasets.tools import therm_aug_transforms
-            Log.info('using thermalFaceDB_loader')
-            self.aug_train_transform = therm_aug_transforms.ThermAugCompose(self.configer, split='train')
-            self.aug_val_transform = therm_aug_transforms.ThermAugCompose(self.configer, split='val')
+                self.img_transform = trans.Compose([
+                    trans.ToTensor(),
+                    trans.NormalizeThermal(norm_mode=self.configer.get('normalize', 'norm_mode')), ])
 
-            self.img_transform = trans.Compose([
-                trans.ToTensor(),
-                trans.NormalizeThermal(norm_mode=self.configer.get('normalize', 'norm_mode')), ])
-
-            self.label_transform = trans.Compose([
-                trans.ToLabel(), ])
+                self.label_transform = trans.Compose([
+                    trans.ToLabel(), ])
+            else:
+                use_default_loader = True
 
         else:
+            use_default_loader = True
+
+        if use_default_loader:
             from lib.datasets.tools import cv2_aug_transforms
             Log.info('using cv2 loader')
             self.aug_train_transform = cv2_aug_transforms.CV2AugCompose(self.configer, split='train')
