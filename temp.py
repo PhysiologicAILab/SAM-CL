@@ -4,8 +4,8 @@ import os
 import cv2
 import copy
 
-# pth = "/home/uclic/dev/data/thermal/Thermal_FaceDB/Processed/val/label/"
-pth = "/home/uclic/dev/data/thermal/Thermal_FaceDB/Processed/train/label/"
+# pth = "~/dev/data/thermal/Thermal_FaceDB/Processed/val/label/"
+pth = "~/dev/data/thermal/Thermal_FaceDB/Processed/train/label/"
 
 flist = os.listdir(pth)
 
@@ -30,7 +30,7 @@ matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
 
-pth = "/home/uclic/dev/data/thermal/Thermal_FaceDB/Processed/train/label/"
+pth = "~/dev/data/thermal/Thermal_FaceDB/Processed/train/label/"
 flist = os.listdir(pth)
 remap_classes = [0, 1, 2, 3, 3, 4, 4, 5]
 
@@ -53,9 +53,9 @@ import os
 import cv2
 import numpy as np
 
-# root_pth = "/home/uclic/dev/data/ThermalFaceDB"
-# root_pth = "/home/uclic/dev/data/ThermalFaceDBx256"
-root_pth = "/home/jitesh/dev/data/ThermalFaceDBx340"
+# root_pth = "~/dev/data/ThermalFaceDB"
+# root_pth = "~/dev/data/ThermalFaceDBx256"
+root_pth = "~/dev/data/ThermalFaceDBx340"
 
 # pth_label = os.path.join(
 #     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_"+ "chk_cl_4gpu" + "_val", "label")
