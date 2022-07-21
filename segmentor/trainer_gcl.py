@@ -296,10 +296,7 @@ class Trainer(object):
             backward_start_time = time.time()
 
             if self.with_gcl:
-                if with_pred_seg:
-                    scaler_critic.scale(critic_loss).backward(retain_graph=True)
-                else:
-                    scaler_critic.scale(critic_loss).backward()
+                scaler_critic.scale(critic_loss).backward(retain_graph=True)
 
             scaler.scale(backward_loss).backward()
 
