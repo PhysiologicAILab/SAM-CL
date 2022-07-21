@@ -136,6 +136,8 @@ class Trainer(object):
 
             self.optimizer_critic, self.scheduler_critic = self.optim_scheduler_critic.init_optimizer(params_group_critic)
 
+            self.tc_cls_ord = torch.arange(0, self.num_classes)
+
 
     @staticmethod
     def group_weight(module):
@@ -178,6 +180,17 @@ class Trainer(object):
                   {'params': nbb_lr, 'lr': self.configer.get('lr', 'base_lr') * self.configer.get('lr', 'nbb_mult')}]
         return params
 
+    def _generate_fake_segmenation_mask(self, one_hot_target_mask):
+        if torch.randn(1) > 0:
+            one_hot_fake_mask = 1 - one_hot_target_mask
+        else:
+            tc_rnd_cls = torch.randperm(self.num_classes)
+            while((tc_rnd_cls == self.tc_cls_ord).any()):
+                tc_rnd_cls = torch.randperm(self.num_classes)
+            one_hot_fake_mask = torch.zeros_like(one_hot_target_mask)
+            one_hot_fake_mask = one_hot_target_mask[:, tc_rnd_cls, :, :]
+        return one_hot_fake_mask
+        
     def __train(self):
         """
           Train function of every epoch during train phase.
@@ -231,7 +244,8 @@ class Trainer(object):
                 one_hot_target_mask = F.one_hot(target_mask, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
                 critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
 
-                one_hot_fake_mask = 1 - one_hot_target_mask
+                one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
+
                 critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
                 
                 if with_pred_seg:
@@ -282,7 +296,10 @@ class Trainer(object):
             backward_start_time = time.time()
 
             if self.with_gcl:
-                scaler_critic.scale(critic_loss).backward(retain_graph=True)
+                if with_pred_seg:
+                    scaler_critic.scale(critic_loss).backward(retain_graph=True)
+                else:
+                    scaler_critic.scale(critic_loss).backward()
 
             scaler.scale(backward_loss).backward()
 
