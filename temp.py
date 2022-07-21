@@ -72,31 +72,45 @@ root_pth = "/home/jitesh/dev/data/ThermalFaceDBx340"
 # pth_vis = os.path.join(
 #     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_" + "cl_occ" + "_val", "vis")
 
+# pth_label = os.path.join(
+#     root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48_mem" + "_" + "deepbase_resnet101_dilated8_" + "cl_hrnet_mem_rmi_no_occ" + "_val", "label")
+# pth_vis = os.path.join(
+#     root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48_mem" + "_" + "deepbase_resnet101_dilated8_" + "cl_hrnet_mem_rmi_no_occ" + "_val", "vis")
+
+mode = 'test'  # 'val'
+
 pth_label = os.path.join(
-    root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48_mem" + "_" + "deepbase_resnet101_dilated8_" + "cl_hrnet_mem_rmi_no_occ" + "_val", "label")
-pth_vis = os.path.join(
-    root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48_mem" + "_" + "deepbase_resnet101_dilated8_" + "cl_hrnet_mem_rmi_no_occ" + "_val", "vis")
+    root_pth, "seg_results", "thermalFaceDB" + "hrnet_w48_mem" + "_" + "deepbase_resnet101_dilated8_" + \
+    "hrnet_gcl_rmi_occ_wide_critic" + "_test_ss", "label")
 
-
-pth_gt_label = os.path.join(root_pth, "Processed", "val", "label")
-pth_image = os.path.join(root_pth, "Processed", "val", "image")
+if mode == 'val':
+    pth_gt_label = os.path.join(root_pth, "Processed", "val", "label")
+    pth_image = os.path.join(root_pth, "Processed", "val", "image")
+else:
+    pth_image = os.path.join(root_pth, "Processed", "test")
 
 print("Path exists:", pth_label, os.path.exists(pth_label))
 
-# lsdir = os.listdir(pth_label)
-lsdir = os.listdir(pth_gt_label)
+lsdir = os.listdir(pth_label)
 
 for i in range(len(lsdir)):
     img = np.load(os.path.join(pth_image, lsdir[i].replace(".png", ".npy")))
     pred_mask = cv2.imread(os.path.join(pth_label, lsdir[i]), 0)
-    gt_mask = cv2.imread(os.path.join(pth_gt_label, lsdir[i]), 0)
 
     fig, ax = plt.subplots(1, 2)
+    if mode == 'val':
+        gt_mask = cv2.imread(os.path.join(pth_gt_label, lsdir[i]), 0)
 
-    ax[0].imshow(img, cmap='gray')
-    ax[0].imshow(pred_mask, cmap='seismic', alpha=0.65)
+        ax[0].imshow(img, cmap='gray')
+        ax[0].imshow(pred_mask, cmap='seismic', alpha=0.65)
 
-    ax[1].imshow(img, cmap='gray')
-    ax[1].imshow(gt_mask, cmap='seismic', alpha=0.65)
+        ax[1].imshow(img, cmap='gray')
+        ax[1].imshow(gt_mask, cmap='seismic', alpha=0.65)
+
+    else:
+        ax[0].imshow(img, cmap='gray')
+
+        ax[1].imshow(img, cmap='gray')
+        ax[1].imshow(pred_mask, cmap='seismic', alpha=0.65)
 
     plt.show()
