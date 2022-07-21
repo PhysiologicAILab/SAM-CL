@@ -55,7 +55,8 @@ import numpy as np
 
 # root_pth = "$HOME/dev/data/ThermalFaceDB"
 # root_pth = "$HOME/dev/data/ThermalFaceDBx256"
-root_pth = "$HOME/dev/data/ThermalFaceDBx340"
+# root_pth = "$HOME/dev/data/ThermalFaceDBx340"
+root_pth = "/home/jitesh/dev/data/ThermalFaceDBx340"
 
 # pth_label = os.path.join(
 #     root_pth, "seg_results", "thermalFaceDBdeeplab_v3_contrast_deepbase_resnet101_dilated8_"+ "chk_cl_4gpu" + "_val", "label")

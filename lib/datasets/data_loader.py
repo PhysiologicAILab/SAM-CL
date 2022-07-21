@@ -230,21 +230,41 @@ class DataLoader(object):
             return test_loader
 
         elif self.configer.get('method') == 'fcn_segmentor':
-            Log.info('use CSDataTestLoader for test ...')
+            if self.configer.exists('test', 'loader') and \
+                    self.configer.get('test', 'loader') == 'thermalFaceDB':
+                Log.info('use ThermalFaceDBLoader for test...')
+                klass = ThermalFaceDBLoader
 
-            root_dir = self.configer.get('data', 'data_dir')
-            if isinstance(root_dir, list) and len(root_dir) == 1:
-                root_dir = root_dir[0]
-            test_loader = data.DataLoader(
-                CSDataTestLoader(root_dir=root_dir, dataset=dataset,
-                                 img_transform=self.img_transform,
-                                 configer=self.configer),
-                batch_size=self.configer.get('test', 'batch_size'), pin_memory=True,
-                num_workers=self.configer.get('data', 'workers'), shuffle=False,
-                collate_fn=lambda *args: collate(
-                    *args, trans_dict=self.configer.get('test', 'data_transformer')
+                root_dir = self.configer.get('data', 'data_dir')
+                if isinstance(root_dir, list) and len(root_dir) == 1:
+                    root_dir = root_dir[0]
+                test_loader = data.DataLoader(
+                    ThermalFaceDBLoader(root_dir=root_dir, dataset=dataset,
+                                     img_transform=self.img_transform,
+                                     configer=self.configer),
+                    batch_size=self.configer.get('test', 'batch_size'), pin_memory=True,
+                    num_workers=self.configer.get('data', 'workers'), shuffle=False,
+                    collate_fn=lambda *args: collate(
+                        *args, trans_dict=self.configer.get('test', 'data_transformer')
+                    )
                 )
-            )
+
+            else:
+                Log.info('use CSDataTestLoader for test ...')
+
+                root_dir = self.configer.get('data', 'data_dir')
+                if isinstance(root_dir, list) and len(root_dir) == 1:
+                    root_dir = root_dir[0]
+                test_loader = data.DataLoader(
+                    CSDataTestLoader(root_dir=root_dir, dataset=dataset,
+                                    img_transform=self.img_transform,
+                                    configer=self.configer),
+                    batch_size=self.configer.get('test', 'batch_size'), pin_memory=True,
+                    num_workers=self.configer.get('data', 'workers'), shuffle=False,
+                    collate_fn=lambda *args: collate(
+                        *args, trans_dict=self.configer.get('test', 'data_transformer')
+                    )
+                )
             return test_loader
 
 

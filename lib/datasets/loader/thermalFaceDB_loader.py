@@ -62,7 +62,10 @@ class ThermalFaceDBLoader(data.Dataset):
         ori_target = ImageHelper.tonp(labelmap)
 
         if self.aug_transform is not None:
-            img, labelmap, gcl_input = self.aug_transform(img, labelmap=labelmap, gcl_input=gcl_input)
+            if self.with_gcl:
+                img, labelmap, gcl_input = self.aug_transform(img, labelmap=labelmap, gcl_input=gcl_input)
+            else:
+                img, labelmap = self.aug_transform(img, labelmap=labelmap)
 
         border_size = ImageHelper.get_size(img)
 

@@ -32,7 +32,7 @@ class HRNet_W48(nn.Module):
         self.backbone = BackboneSelector(configer).get_backbone()
 
         # extra added layers
-        in_channels = 1024 #720 #1024 #720  # 48 + 96 + 192 + 384
+        in_channels = 720 #1024 #720  # 48 + 96 + 192 + 384
         self.cls_head = nn.Sequential(
             nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1, padding=1),
             ModuleHelper.BNReLU(in_channels, bn_type=self.configer.get('network', 'bn_type')),
@@ -68,7 +68,7 @@ class HRNet_W48_CONTRAST(nn.Module):
         self.proj_dim = self.configer.get('contrast', 'proj_dim')
 
         # extra added layers
-        in_channels = 1024 #720 #1024  # 48 + 96 + 192 + 384 = 720
+        in_channels = 720 #1024  # 48 + 96 + 192 + 384 = 720
         self.cls_head = nn.Sequential(
             nn.Conv2d(in_channels, in_channels, kernel_size=3, stride=1, padding=1),
             ModuleHelper.BNReLU(in_channels, bn_type=self.configer.get('network', 'bn_type')),
