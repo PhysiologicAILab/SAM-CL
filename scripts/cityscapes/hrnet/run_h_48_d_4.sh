@@ -22,7 +22,7 @@ LOG_FILE="${SCRATCH_ROOT}/logs/Cityscapes/${CHECKPOINTS_NAME}.log"
 echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
-PRETRAINED_MODEL="${ASSET_ROOT}/hrnetv2_w48_imagenet_pretrained.pth"
+PRETRAINED_MODEL="${ASSET_ROOT}/Cityscapes/hrnetv2_w48_imagenet_pretrained.pth"
 MAX_ITERS=40000
 BATCH_SIZE=8
 BASE_LR=0.01
