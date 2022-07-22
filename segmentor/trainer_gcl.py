@@ -124,7 +124,7 @@ class Trainer(object):
             if is_distributed():
                 self.critic_loss = self.module_runner.to_device(self.critic_loss)
 
-            self.loss_weight = self.configer.get('gcl', 'loss_weight')
+            self.gcl_loss_weight = self.configer.get('gcl', 'loss_weight')
 
             if self.configer.exists("gcl", "warmup_iters"):
                 self.gcl_warmup_iters = self.configer.get("gcl", "warmup_iters")
@@ -182,16 +182,16 @@ class Trainer(object):
 
     def _generate_fake_segmenation_mask(self, one_hot_target_mask):
 
-        one_hot_fake_mask = 1 - one_hot_target_mask
+        # one_hot_fake_mask = 1 - one_hot_target_mask
 
-        # if torch.randn(1) > 0:
-        #     one_hot_fake_mask = 1 - one_hot_target_mask
-        # else:
-        #     tc_rnd_cls = torch.randperm(self.num_classes)
-        #     while((tc_rnd_cls == self.tc_cls_ord).any()):
-        #         tc_rnd_cls = torch.randperm(self.num_classes)
-        #     one_hot_fake_mask = torch.zeros_like(one_hot_target_mask)
-        #     one_hot_fake_mask = one_hot_target_mask[:, tc_rnd_cls, :, :]
+        if torch.randn(1) > 0:
+            one_hot_fake_mask = 1 - one_hot_target_mask
+        else:
+            tc_rnd_cls = torch.randperm(self.num_classes)
+            while((tc_rnd_cls == self.tc_cls_ord).any()):
+                tc_rnd_cls = torch.randperm(self.num_classes)
+            one_hot_fake_mask = torch.zeros_like(one_hot_target_mask)
+            one_hot_fake_mask = one_hot_target_mask[:, tc_rnd_cls, :, :]
 
         return one_hot_fake_mask
         
@@ -278,7 +278,7 @@ class Trainer(object):
                     loss = self.pixel_loss(outputs, targets, is_eval=False)
                     if self.with_gcl:
                         critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg)
-                        backward_loss = loss + critic_loss
+                        backward_loss = loss + self.gcl_loss_weight * critic_loss
                     else:
                         backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
@@ -288,7 +288,7 @@ class Trainer(object):
                 if self.with_gcl:
                     critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
                                                    with_pred_seg, gathered=self.configer.get('network', 'gathered'))
-                    backward_loss = display_loss = loss + critic_loss
+                    backward_loss = display_loss = loss + self.gcl_loss_weight * critic_loss
 
                 else:
                     backward_loss = display_loss = loss

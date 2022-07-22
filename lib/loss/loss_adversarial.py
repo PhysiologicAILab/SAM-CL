@@ -21,7 +21,6 @@ class GCL_Loss(nn.Module, ABC):
 
         self.configer = configer
 
-        self.loss_weight = self.configer.get('gcl', 'loss_weight')
         self.lossObj_x1 = nn.SmoothL1Loss()
         self.lossObj_x2 = nn.SmoothL1Loss()
         self.lossObj_x3 = nn.SmoothL1Loss()
@@ -32,30 +31,24 @@ class GCL_Loss(nn.Module, ABC):
         real_seg_x1, real_seg_x2, real_seg_x3, real_seg_x4 = critic_outputs_real
         fake_seg_x1, fake_seg_x2, fake_seg_x3, fake_seg_x4 = critic_outputs_fake
 
-        loss = (
-            (-0.40) * self.lossObj_x1(real_seg_x1, fake_seg_x1) +
-            (-0.40) * self.lossObj_x2(real_seg_x2, fake_seg_x2) +
-            (-0.40) * self.lossObj_x3(real_seg_x3, fake_seg_x3)
-        ) + (
-            (0.50) * self.lossObj_x4(real_seg_x4, torch.ones_like(real_seg_x4)) +
-            (0.50) * self.lossObj_x4(fake_seg_x4, torch.zeros_like(fake_seg_x4))
-        )
-
         if with_pred_seg:
             pred_seg_x1, pred_seg_x2, pred_seg_x3, pred_seg_x4 = critic_outputs_pred
 
-            loss = loss + (
-                (-0.40) * self.lossObj_x1(pred_seg_x1, fake_seg_x1) +
-                (-0.40) * self.lossObj_x2(pred_seg_x2, fake_seg_x2) +
-                (-0.40) * self.lossObj_x3(pred_seg_x3, fake_seg_x3) +
-                (0.40) * self.lossObj_x1(pred_seg_x1, real_seg_x1) +
-                (0.40) * self.lossObj_x2(pred_seg_x2, real_seg_x2) +
-                (0.40) * self.lossObj_x3(pred_seg_x3, real_seg_x3)
-            ) + (
-                (0.50) * self.lossObj_x4(pred_seg_x4, torch.ones_like(pred_seg_x4))
+            loss = (
+                (0.33) * self.lossObj_x4(real_seg_x4, torch.ones_like(real_seg_x4)) +
+                (0.33) * self.lossObj_x4(fake_seg_x4, torch.zeros_like(fake_seg_x4)) +
+                (0.34) * self.lossObj_x4(pred_seg_x4, torch.ones_like(pred_seg_x4)) +
+                (-0.50) * self.lossObj_x3(real_seg_x3, fake_seg_x3) +
+                (-0.50) * self.lossObj_x3(pred_seg_x3, fake_seg_x3) +
+                (1.00) * self.lossObj_x3(pred_seg_x3, real_seg_x3)
             )
-
-        return self.loss_weight * loss
+        else:
+            loss = (
+                (1.00) * self.lossObj_x4(real_seg_x4, torch.ones_like(real_seg_x4)) +
+                (1.00) * self.lossObj_x4(fake_seg_x4, torch.zeros_like(fake_seg_x4)) +
+                (-1.00) * self.lossObj_x3(real_seg_x3, fake_seg_x3)
+            )
+        return loss
 
 
 class GAN_Loss(nn.Module, ABC):

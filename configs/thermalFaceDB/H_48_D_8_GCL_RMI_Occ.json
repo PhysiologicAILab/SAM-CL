@@ -164,7 +164,7 @@
     },
     "gcl": {
       "apply_spectral_norm": true,
-      "warmup_iters": 500,
+      "warmup_iters": 5000,
       "loss_weight": 0.33
     }
   }
