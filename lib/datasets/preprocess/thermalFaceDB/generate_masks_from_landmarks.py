@@ -4,45 +4,61 @@ import cv2
 from skimage.transform import resize
 
 class GenerateMask():
-	def __init__(self, image_height=None, target_res=None) -> None:
+	def __init__(self, crop_res=None, target_res=None) -> None:
 		# self.labels = ['nose', 'mouth', 'eye', 'eyebrow']
 		# self.class_val = [1, 2, 3, 3, 4, 4, 5]
 		self.labels = ['chin', 'mouth', 'leye', 'reye', 'leyebrow', 'reyebrow', 'nose']
 		self.class_val = [1, 2, 3, 4, 5, 6, 7]
-		if image_height != None:
-			self.crop_res = int(float(image_height)/2.0)
+		if crop_res == None:
+			self.crop_res = (768,960)
+		self.crop_res = crop_res
+
+		if target_res == None:
+			self.target_res = (256,320)
 		else:
-			self.crop_res = None
-		self.target_res = target_res
+			self.target_res = target_res
 
 	def crop_resize_mask(self, img, mask, landmarks_dict):
 		n_classes = int(mask.max() + 1)
 		height, width = img.shape
 		
-		# print(len(landmarks_dict['landmarks']['points']))
-		pt_arr = np.array(landmarks_dict['landmarks']['points'])
-		# print(pt_arr.shape)
-		ymin = int(np.min(pt_arr, 0)[0])
-		xmin = int(np.min(pt_arr, 0)[1])
-		ymax = int(np.max(pt_arr, 0)[0])
-		xmax = int(np.max(pt_arr, 0)[1])
-		mid_x = int((xmax + xmin)/2.0)
-		# mid_y = int((ymax + ymin)/2.0)
+		# # print(len(landmarks_dict['landmarks']['points']))
+		# pt_arr = np.array(landmarks_dict['landmarks']['points'])
+		# # print(pt_arr.shape)
+		# ymin = int(np.min(pt_arr, 0)[0])
+		# xmin = int(np.min(pt_arr, 0)[1])
+		# ymax = int(np.max(pt_arr, 0)[0])
+		# xmax = int(np.max(pt_arr, 0)[1])
+		# mid_x = int((xmax + xmin)/2.0)
+		# # mid_y = int((ymax + ymin)/2.0)
 
-		if self.crop_res != None:
-			if mid_x - self.crop_res >= 0:
-				if mid_x + self.crop_res < width:
-					crop_xmin = mid_x - self.crop_res
-					crop_xmax = mid_x + self.crop_res
-				else:
-					crop_xmin = mid_x - self.crop_res - ((mid_x + self.crop_res) - width)
-					crop_xmax = width
-			else:
-				crop_xmin = 0
-				crop_xmax = mid_x + self.crop_res + (self.crop_res - mid_x)
+		# if self.crop_res != None:
+		# 	if mid_x - self.crop_res >= 0:
+		# 		if mid_x + self.crop_res < width:
+		# 			crop_xmin = mid_x - self.crop_res
+		# 			crop_xmax = mid_x + self.crop_res
+		# 		else:
+		# 			crop_xmin = mid_x - self.crop_res - ((mid_x + self.crop_res) - width)
+		# 			crop_xmax = width
+		# 	else:
+		# 		crop_xmin = 0
+		# 		crop_xmax = mid_x + self.crop_res + (self.crop_res - mid_x)
 
-			img = img[:, crop_xmin:crop_xmax]
-			mask = mask[:, crop_xmin:crop_xmax]
+		# 	img = img[:, crop_xmin:crop_xmax]
+		# 	mask = mask[:, crop_xmin:crop_xmax]
+
+		half_height = int(height/2.0)
+		half_width = int(width/2.0)
+		crop_half_height = int(self.crop_res[0]/2.0)
+		crop_half_width = int(self.crop_res[1]/2.0)
+		# Center cropping
+		ymin = 0 + (half_height - crop_half_height)
+		ymax = height - (int(height/2) - crop_half_height)
+		xmin = 0 + (half_width - crop_half_width)
+		xmax = width - (int(width/2) - crop_half_width)
+
+		img = img[ymin:ymax, xmin:xmax]
+		mask = mask[ymin:ymax, xmin:xmax]
 
 		mask_canvas = np.zeros(shape=self.target_res)
 
