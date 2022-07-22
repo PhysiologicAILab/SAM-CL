@@ -72,16 +72,17 @@ class GCL_Companion(nn.Module):
 
     def forward(self, input_img, seg_map):
 
-        print("input_img.shape", input_img.shape)
-        print("seg_map.shape", seg_map.shape)
+        b, _, h, w = input_img.shape
+        # print("input_img.shape", input_img.shape)
+        # print("seg_map.shape", seg_map.shape)
 
         if self.n_channels == 1:
             x0 = input_img * seg_map
 
         else:
-            x0_0 = torch.mul(input_img[:, 0, :, :].expand(-1, self.num_classes, -1, -1), seg_map)
-            x0_1 = torch.mul(input_img[:, 1, :, :].expand(-1, self.num_classes, -1, -1), seg_map)
-            x0_2 = torch.mul(input_img[:, 2, :, :].expand(-1, self.num_classes, -1, -1), seg_map)
+            x0_0 = torch.mul(input_img[:, 0, :, :].expand(b, self.num_classes, h, w), seg_map)
+            x0_1 = torch.mul(input_img[:, 1, :, :].expand(b, self.num_classes, h, w), seg_map)
+            x0_2 = torch.mul(input_img[:, 2, :, :].expand(b, self.num_classes, h, w), seg_map)
             x0 = torch.cat([x0_0, x0_1, x0_2], dim=1)
 
         # x0 = torch.cat([input_img, seg_map], dim=1)
