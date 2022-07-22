@@ -288,10 +288,12 @@ class Trainer(object):
 
                 backward_start_time = time.time()
 
-                scaler_critic.scale(critic_loss).backward()
-                scaler_critic.step(self.optimizer_critic)
-                scaler_critic.update()
-                self.scheduler_critic.step()
+
+                with torch.autograd.set_detect_anomaly(True):
+                    scaler_critic.scale(critic_loss).backward()
+                    scaler_critic.step(self.optimizer_critic)
+                    scaler_critic.update()
+                    self.scheduler_critic.step()
 
             if self.with_gcl:
                 critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
