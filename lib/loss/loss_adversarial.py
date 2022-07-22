@@ -35,18 +35,18 @@ class GCL_Loss(nn.Module, ABC):
             pred_seg_x1, pred_seg_x2, pred_seg_x3, pred_seg_x4 = critic_outputs_pred
 
             loss = (
-                (0.33) * self.lossObj_x4(real_seg_x4, torch.ones_like(real_seg_x4)) +
-                (0.33) * self.lossObj_x4(fake_seg_x4, torch.zeros_like(fake_seg_x4)) +
-                (0.34) * self.lossObj_x4(pred_seg_x4, torch.ones_like(pred_seg_x4)) +
-                (-0.50) * self.lossObj_x3(real_seg_x3, fake_seg_x3) +
-                (-0.50) * self.lossObj_x3(pred_seg_x3, fake_seg_x3) +
-                (1.00) * self.lossObj_x3(pred_seg_x3, real_seg_x3)
+                (0.20) * self.lossObj_x4(real_seg_x4, torch.ones_like(real_seg_x4)) +
+                (0.20) * self.lossObj_x4(fake_seg_x4, torch.zeros_like(fake_seg_x4)) +
+                (0.20) * self.lossObj_x4(pred_seg_x4, torch.ones_like(pred_seg_x4)) +
+                (0.20) * self.lossObj_x2(real_seg_x1, pred_seg_x1) +
+                (0.20) * self.lossObj_x3(real_seg_x2, pred_seg_x2) +
+                (0.20) * self.lossObj_x3(real_seg_x3, pred_seg_x3) +
+                (- 0.20) * self.lossObj_x3(real_seg_x3, fake_seg_x3)
             )
         else:
             loss = (
-                (1.00) * self.lossObj_x4(real_seg_x4, torch.ones_like(real_seg_x4)) +
-                (1.00) * self.lossObj_x4(fake_seg_x4, torch.zeros_like(fake_seg_x4)) +
-                (-1.00) * self.lossObj_x3(real_seg_x3, fake_seg_x3)
+                (0.50) * self.lossObj_x4(real_seg_x4, torch.ones_like(real_seg_x4)) +
+                (0.50) * self.lossObj_x4(fake_seg_x4, torch.zeros_like(fake_seg_x4))
             )
         return loss
 
