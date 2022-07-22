@@ -45,6 +45,20 @@ if __name__ == "__main__":
                         dest='data:data_dir', help='The Directory of the data.')
     parser.add_argument('--include_val', type=str2bool, nargs='?', default=False,
                         dest='data:include_val', help='Include validation set for training.')
+    # include-coarse is only provided for Cityscapes.
+    parser.add_argument('--include_coarse', type=str2bool, nargs='?', default=False,
+                        dest='data:include_coarse', help='Include coarse-labeled set for training.')
+    parser.add_argument('--only_coarse', type=str2bool, nargs='?', default=False,
+                        dest='data:only_coarse', help='Only include coarse-labeled set for training.')
+    parser.add_argument('--only_mapillary', type=str2bool, nargs='?', default=False,
+                        dest='data:only_mapillary', help='Only include mapillary set for training.')
+    parser.add_argument('--only_small', type=str2bool, nargs='?', default=False,
+                        dest='data:only_small', help='Only include small val set for testing.')
+    # include-atr is used to choose ATR as extra training set for LIP dataset.
+    parser.add_argument('--include_atr', type=str2bool, nargs='?', default=False,
+                        dest='data:include_atr', help='Include atr set for LIP training.')
+    parser.add_argument('--include_cihp', type=str2bool, nargs='?', default=False,
+                        dest='data:include_cihp', help='Include cihp set for LIP training.')
     parser.add_argument('--drop_last', type=str2bool, nargs='?', default=False,
                         dest='data:drop_last', help='Fix bug for syncbn.')
     parser.add_argument('--workers', default=None, type=int,
