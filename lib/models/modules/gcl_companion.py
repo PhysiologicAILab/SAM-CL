@@ -72,6 +72,9 @@ class GCL_Companion(nn.Module):
 
     def forward(self, input_img, seg_map):
 
+        print("input_img.shape", input_img.shape)
+        print("seg_map.shape", seg_map.shape)
+
         if self.n_channels == 1:
             x0 = input_img * seg_map
 
