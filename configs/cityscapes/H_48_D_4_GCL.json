@@ -151,6 +151,6 @@
     "gcl": {
       "apply_spectral_norm": true,
       "warmup_iters": 500,
-      "loss_weight": 0.33
+      "loss_weight": 1.0
     }    
 }
