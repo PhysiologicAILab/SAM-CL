@@ -293,11 +293,11 @@ class Trainer(object):
                 scaler_critic.update()
 
             if self.with_gcl:
-                critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
-                critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
+                critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
+                critic_outputs_fake_seg = self.critic_net(gcl_input, one_hot_fake_mask)
                 
                 if with_pred_seg:
-                    critic_outputs_pred = self.critic_net(gcl_input, one_hot_pred_seg_mask)
+                    critic_outputs_pred_seg = self.critic_net(gcl_input, one_hot_pred_seg_mask)
 
             if is_distributed():
                 import torch.distributed as dist
@@ -319,7 +319,7 @@ class Trainer(object):
                     if self.with_gcl:
                         backward_loss = loss + self.gcl_loss_weight * \
                             self.critic_loss_func(
-                                critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg, with_fake_seg=False)
+                                critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, with_fake_seg=False)
                     else:
                         backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
@@ -328,7 +328,7 @@ class Trainer(object):
                 
                 if self.with_gcl:
                     backward_loss = display_loss = loss + self.gcl_loss_weight * self.critic_loss_func(
-                        critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg, with_fake_seg=False, gathered=self.configer.get('network', 'gathered'))
+                        critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, with_fake_seg=False, gathered=self.configer.get('network', 'gathered'))
 
                 else:
                     backward_loss = display_loss = loss
