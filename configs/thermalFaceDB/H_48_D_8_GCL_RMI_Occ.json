@@ -7,38 +7,38 @@
       "input_mode": "therm",
       "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
       "num_classes": 6,
-      "data_dir": "~/dev/data/ThermalFaceDBx340",
+      "data_dir": "~/dev/data/ThermalFaceDBx320",
       "workers": 0,
       "use_gcl_input": true
     },
    "train": {
-      "batch_size": 16,
+      "batch_size": 8,
       "loader": "thermalFaceDB",
       "data_transformer": {
         "size_mode": "fix_size",
-        "input_size": [340, 256],
+        "input_size": [320, 256],
         "align_method": "only_pad",
         "pad_mode": "random"
       }
     },
     "val": {
-      "batch_size": 16,
+      "batch_size": 8,
       "loader": "thermalFaceDB",
       "mode": "ss_test",
       "data_transformer": {
         "size_mode": "fix_size",
-        "input_size": [340, 256],
+        "input_size": [320, 256],
         "align_method": "only_pad"
       }
     },
     "test": {
-      "batch_size": 16,
+      "batch_size": 8,
       "loader": "thermalFaceDB",
       "mode": "ss_test",
       "out_dir": "ckpts/thermalFaceDB/HRNET_GCL",
       "data_transformer": {
         "size_mode": "fix_size",
-        "input_size": [340, 256],
+        "input_size": [320, 256],
         "align_method": "only_pad"
       }
     },
@@ -59,7 +59,7 @@
       },
       "random_crop":{
         "ratio": 1.0,
-        "crop_size": [340, 256],
+        "crop_size": [320, 256],
         "method": "center",
         "allow_outside_center": false
       },
@@ -165,6 +165,6 @@
     "gcl": {
       "apply_spectral_norm": true,
       "warmup_iters": 5000,
-      "loss_weight": 0.33
+      "loss_weight": 1.0
     }
   }
