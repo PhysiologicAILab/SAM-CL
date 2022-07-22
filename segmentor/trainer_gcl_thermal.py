@@ -241,20 +241,21 @@ class Trainer(object):
 
             if self.with_gcl is True:
                 critic_outputs_pred = None
+                targets, gcl_input = targets
 
                 # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
                 targets[targets < 0] = 0
                 one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-                critic_outputs_real = self.critic_net(*inputs, one_hot_target_mask)
+                critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
 
                 one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
 
-                critic_outputs_fake = self.critic_net(*inputs, one_hot_fake_mask)
+                critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
                 
                 if with_pred_seg:
                     pred_seg_mask = self.seg_act(outputs).exp()
                     one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-                    critic_outputs_pred = self.critic_net(*inputs, one_hot_pred_seg_mask)
+                    critic_outputs_pred = self.critic_net(gcl_input, one_hot_pred_seg_mask)
 
             self.foward_time.update(time.time() - foward_start_time)
 
