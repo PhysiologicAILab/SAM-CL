@@ -3,8 +3,6 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.utils.spectral_norm as spectral_norm
 from lib.models.tools.module_helper import ModuleHelper
-from lib.utils.distributed import get_rank, is_distributed
-
 
 class DownConv(nn.Module):
     def __init__(self, in_channels, out_channels, apply_spectral_norm=True, bn_type='torchsyncbn'):
@@ -63,42 +61,28 @@ class GCL_Companion(nn.Module):
         self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
         self.n_channels = int(self.configer.get('data', 'num_channels'))
 
-        self.nf = self.num_classes * self.n_channels
-        # self.nf = self.num_classes + self.n_channels
+        # self.nf = self.num_classes * self.n_channels
+        self.nf = self.num_classes + self.n_channels
         self.n_filters = np.array([1*self.nf, 2*self.nf, 4*self.nf, 8*self.nf, 1])
         self.conv_down_1 = DownConv(self.n_filters[0] , self.n_filters[1], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
 
-        if is_distributed():
-            self.device = torch.device('cuda:{}'.format(get_rank()))
-        else:
-            self.device = torch.device(
-                'cpu' if self.configer.get('gpu') is None else 'cuda')
-
     def forward(self, input_img, seg_map):
 
-        b, _, h, w = input_img.shape
-        # print("input_img.shape", input_img.shape)
-        # print("seg_map.shape", seg_map.shape)
+        # b, _, h, w = input_img.shape
+        # # print("input_img.shape", input_img.shape)
+        # # print("seg_map.shape", seg_map.shape)
+        # if self.n_channels == 1:
+        #     x0 = input_img * seg_map
+        # else:
+        #     x0_0 = torch.mul(input_img[:, 0, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
+        #     x0_1 = torch.mul(input_img[:, 1, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
+        #     x0_2 = torch.mul(input_img[:, 2, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
+        #     x0 = torch.cat([x0_0, x0_1, x0_2], dim=1)
 
-        if self.n_channels == 1:
-            x0 = input_img * seg_map
-
-        else:
-            x0_0 = torch.mul(input_img[:, 0, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
-            x0_1 = torch.mul(input_img[:, 1, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
-            x0_2 = torch.mul(input_img[:, 2, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
-
-            x0 = torch.tensor([]).to(self.device)
-            for cls_num in range(self.num_classes):
-                x0 = torch.cat([x0, x0_0[:, cls_num, :, :]], dim=1)
-                x0 = torch.cat([x0, x0_1[:, cls_num, :, :]], dim=1)
-                x0 = torch.cat([x0, x0_2[:, cls_num, :, :]], dim=1)
-
-        # x0 = torch.cat([input_img, seg_map], dim=1)
-
+        x0 = torch.cat([input_img, seg_map], dim=1)
         x1 = self.conv_down_1(x0)
         x2 = self.conv_down_2(x1)
         x3 = self.conv_down_3(x2)
