@@ -299,19 +299,21 @@ class Trainer(object):
 
             backward_start_time = time.time()
 
-            scaler.scale(backward_loss).backward(retain_graph=True)
+            with torch.autograd.set_detect_anomaly(True):
 
-            if self.with_gcl:
-                scaler_critic.scale(critic_loss).backward()
+                if self.with_gcl:
+                    scaler_critic.scale(critic_loss).backward(retain_graph=True)
 
-            scaler.step(self.optimizer)
-            scaler.update()
-            self.scheduler.step()
+                scaler.scale(backward_loss).backward()
 
-            if self.with_gcl:
-                scaler_critic.step(self.optimizer_critic)
-                scaler_critic.update()
-                self.scheduler_critic.step()
+                scaler.step(self.optimizer)
+                scaler.update()
+                self.scheduler.step()
+
+                if self.with_gcl:
+                    scaler_critic.step(self.optimizer_critic)
+                    scaler_critic.update()
+                    self.scheduler_critic.step()
 
             self.backward_time.update(time.time() - backward_start_time)
 
