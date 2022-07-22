@@ -28,7 +28,7 @@ BATCH_SIZE=8
 BASE_LR=0.01
 
 if [ "$1"x == "train"x ]; then
-  python -u main.py --configs ${CONFIGS} \
+  python -u main_GCL.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered n \
