@@ -291,6 +291,7 @@ class Trainer(object):
                 scaler_critic.scale(critic_loss).backward()
                 scaler_critic.step(self.optimizer_critic)
                 scaler_critic.update()
+                self.scheduler_critic.step()
 
             if self.with_gcl:
                 critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
@@ -341,8 +342,6 @@ class Trainer(object):
             scaler.scale(backward_loss).backward()
             scaler.step(self.optimizer)
             scaler.update()
-
-            self.scheduler_critic.step()
             self.scheduler.step()
 
             self.backward_time.update(time.time() - backward_start_time)
