@@ -120,9 +120,9 @@ class Trainer(object):
                 assert self.configer.get('optim', 'group_method') is None
                 params_group_critic = self._get_parameters(self.critic_net)
 
-            self.critic_loss = self.loss_manager.get_critic_loss()
+            self.critic_loss_func = self.loss_manager.get_critic_loss()
             if is_distributed():
-                self.critic_loss = self.module_runner.to_device(self.critic_loss)
+                self.critic_loss_func = self.module_runner.to_device(self.critic_loss_func)
 
             self.gcl_loss_weight = self.configer.get('gcl', 'loss_weight')
 
@@ -204,7 +204,7 @@ class Trainer(object):
 
         if self.with_gcl:
             self.critic_net.train()
-            self.critic_loss.train()
+            self.critic_loss_func.train()
 
         start_time = time.time()
         
@@ -260,6 +260,47 @@ class Trainer(object):
             self.foward_time.update(time.time() - foward_start_time)
 
             loss_start_time = time.time()
+
+            if self.with_gcl:
+                if is_distributed():
+                    import torch.distributed as dist
+
+                    def reduce_tensor(inp):
+                        """
+                        Reduce the loss from all processes so that 
+                        process with rank 0 has the averaged results.
+                        """
+                        world_size = get_world_size()
+                        if world_size < 2:
+                            return inp
+                        with torch.no_grad():
+                            reduced_inp = inp
+                            dist.reduce(reduced_inp, dst=0)
+                        return reduced_inp
+
+                    with torch.cuda.amp.autocast():
+                        critic_loss = self.critic_loss_func(
+                            critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg, with_fake_seg=True)
+
+                else:
+                    critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
+                                                        with_pred_seg, with_fake_seg=True, gathered=self.configer.get('network', 'gathered'))
+
+                backward_start_time = time.time()
+
+                scaler_critic.scale(critic_loss).backward(retain_graph=True)
+                scaler_critic.step(self.optimizer_critic)
+                scaler_critic.update()
+                self.scheduler_critic.step()
+
+
+            if self.with_gcl:
+                critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
+                critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
+                
+                if with_pred_seg:
+                    critic_outputs_pred = self.critic_net(gcl_input, one_hot_pred_seg_mask)
+
             if is_distributed():
                 import torch.distributed as dist
                 def reduce_tensor(inp):
@@ -278,8 +319,9 @@ class Trainer(object):
                 with torch.cuda.amp.autocast():
                     loss = self.pixel_loss(outputs, targets, is_eval=False)
                     if self.with_gcl:
-                        critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg)
-                        backward_loss = loss + self.gcl_loss_weight * critic_loss
+                        backward_loss = loss + self.gcl_loss_weight * \
+                            self.critic_loss_func(
+                                critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg, with_fake_seg=False)
                     else:
                         backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
@@ -287,9 +329,8 @@ class Trainer(object):
                 loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered'))
                 
                 if self.with_gcl:
-                    critic_loss = self.critic_loss(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
-                                                   with_pred_seg, gathered=self.configer.get('network', 'gathered'))
-                    backward_loss = display_loss = loss + self.gcl_loss_weight * critic_loss
+                    backward_loss = display_loss = loss + self.gcl_loss_weight * self.critic_loss_func(
+                        critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg, with_fake_seg=False, gathered=self.configer.get('network', 'gathered'))
 
                 else:
                     backward_loss = display_loss = loss
@@ -299,21 +340,11 @@ class Trainer(object):
 
             backward_start_time = time.time()
 
-            with torch.autograd.set_detect_anomaly(True):
+            scaler.scale(backward_loss).backward()
 
-                if self.with_gcl:
-                    scaler_critic.scale(critic_loss).backward(retain_graph=True)
-
-                scaler.scale(backward_loss).backward()
-
-                scaler.step(self.optimizer)
-                scaler.update()
-                self.scheduler.step()
-
-                if self.with_gcl:
-                    scaler_critic.step(self.optimizer_critic)
-                    scaler_critic.update()
-                    self.scheduler_critic.step()
+            scaler.step(self.optimizer)
+            scaler.update()
+            self.scheduler.step()
 
             self.backward_time.update(time.time() - backward_start_time)
 
