@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.utils.spectral_norm as spectral_norm
 from lib.models.tools.module_helper import ModuleHelper
+from lib.utils.distributed import get_rank, is_distributed
 
 
 class DownConv(nn.Module):
@@ -70,6 +71,12 @@ class GCL_Companion(nn.Module):
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
 
+        if is_distributed():
+            self.device = torch.device('cuda:{}'.format(get_rank()))
+        else:
+            self.device = torch.device(
+                'cpu' if self.configer.get('gpu') is None else 'cuda')
+
     def forward(self, input_img, seg_map):
 
         b, _, h, w = input_img.shape
@@ -84,7 +91,7 @@ class GCL_Companion(nn.Module):
             x0_1 = torch.mul(input_img[:, 1, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
             x0_2 = torch.mul(input_img[:, 2, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
 
-            x0 = torch.tensor([])
+            x0 = torch.tensor([]).to(self.device)
             for cls_num in range(self.num_classes):
                 x0 = torch.cat([x0, x0_0[:, cls_num, :, :]], dim=1)
                 x0 = torch.cat([x0, x0_1[:, cls_num, :, :]], dim=1)
