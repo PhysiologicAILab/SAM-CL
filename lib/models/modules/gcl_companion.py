@@ -83,7 +83,12 @@ class GCL_Companion(nn.Module):
             x0_0 = torch.mul(input_img[:, 0, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
             x0_1 = torch.mul(input_img[:, 1, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
             x0_2 = torch.mul(input_img[:, 2, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
-            x0 = torch.cat([x0_0, x0_1, x0_2], dim=1)
+
+            x0 = torch.tensor([])
+            for cls_num in range(self.num_classes):
+                x0 = torch.cat([x0, x0_0[:, cls_num, :, :]], dim=1)
+                x0 = torch.cat([x0, x0_1[:, cls_num, :, :]], dim=1)
+                x0 = torch.cat([x0, x0_2[:, cls_num, :, :]], dim=1)
 
         # x0 = torch.cat([input_img, seg_map], dim=1)
 
