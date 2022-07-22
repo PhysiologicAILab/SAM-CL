@@ -72,11 +72,11 @@ elif [ "$1"x == "resume"x ]; then
 
 
 elif [ "$1"x == "val"x ]; then
-  python -u main.py --configs ${CONFIGS} --drop_last y  --data_dir ${DATA_DIR} \
-                       --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
-                       --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
-                       --loss_type ${LOSS_TYPE} --test_dir ${DATA_DIR}/val/image \
-                       --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val_ms
+  # python -u main.py --configs ${CONFIGS} --drop_last y  --data_dir ${DATA_DIR} \
+  #                      --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
+  #                      --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
+  #                      --loss_type ${LOSS_TYPE} --test_dir ${DATA_DIR}/val/image \
+  #                      --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val_ms
 
   python -m lib.metrics.cityscapes_evaluator --pred_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_val_ms/label  \
                                        --gt_dir ${DATA_DIR}/val/label
