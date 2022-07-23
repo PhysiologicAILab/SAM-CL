@@ -303,18 +303,24 @@ class Trainer(object):
             outputs = self.seg_net(*inputs)
 
             if self.with_gcl:
+
+                if self.with_gcl_input:
+                    critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
+                    critic_outputs_fake_seg = self.critic_net(gcl_input, one_hot_fake_mask)
+                else:
+                    critic_outputs_real_seg = self.critic_net(one_hot_target_mask)
+                    critic_outputs_fake_seg = self.critic_net(one_hot_fake_mask)
+
                 if with_pred_seg:
                     pred_seg_mask = self.seg_act(outputs).exp()
                     one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
                     
                     if self.with_gcl_input:
-                        critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
-                        critic_outputs_fake_seg = self.critic_net(gcl_input, one_hot_fake_mask)
                         critic_outputs_pred_seg = self.critic_net(gcl_input, one_hot_pred_seg_mask)
                     else:
-                        critic_outputs_real_seg = self.critic_net(one_hot_target_mask)
-                        critic_outputs_fake_seg = self.critic_net(one_hot_fake_mask)
                         critic_outputs_pred_seg = self.critic_net(one_hot_pred_seg_mask)
+                else:
+                    critic_outputs_pred_seg = None
 
             if is_distributed():
                 import torch.distributed as dist
