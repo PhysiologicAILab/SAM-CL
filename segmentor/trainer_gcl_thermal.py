@@ -292,8 +292,6 @@ class Trainer(object):
                 backward_start_time = time.time()
                 
                 scaler_critic.scale(critic_loss).backward()
-                scaler_critic.step(self.optimizer_critic)
-                scaler_critic.update()
                
                 # critic_loss.backward(retain_graph=True)
                 # nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
@@ -362,14 +360,17 @@ class Trainer(object):
             backward_start_time = time.time()
 
             scaler.scale(backward_loss).backward()
-            scaler.step(self.optimizer)
-            scaler.update()
 
             # backward_loss.backward()
             # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
             # self.optimizer.step()
 
+            scaler_critic.step(self.optimizer_critic)
+            scaler_critic.update()
             self.scheduler_critic.step()
+
+            scaler.step(self.optimizer)
+            scaler.update()
             self.scheduler.step()
 
             self.backward_time.update(time.time() - backward_start_time)
