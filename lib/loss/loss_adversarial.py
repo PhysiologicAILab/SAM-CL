@@ -16,9 +16,9 @@ import torch
 import torch.nn as nn
 
 
-class GCL_Loss_Critic(nn.Module, ABC):
+class GCL_Loss(nn.Module, ABC):
     def __init__(self, configer=None):
-        super(GCL_Loss_Critic, self).__init__()
+        super(GCL_Loss, self).__init__()
 
         self.configer = configer
         self.lossObj = nn.SmoothL1Loss()
