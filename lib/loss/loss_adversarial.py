@@ -117,14 +117,11 @@ class GCL_Loss(nn.Module, ABC):
                 (0.20) * self.lossObj_x3(real_seg_x3, pred_seg_x3)
             )
 
-        elif not with_pred_seg and with_fake_seg:
+        else:
             loss = (
                 (0.50) * self.lossObj_x4(real_seg_x4, torch.ones_like(real_seg_x4)) +
                 (0.50) * self.lossObj_x4(fake_seg_x4, torch.zeros_like(fake_seg_x4))
             )
-
-        else:
-            print('Invalid loss computation, consider breaking the training')
         
         return loss
 
