@@ -287,13 +287,14 @@ class Trainer(object):
                                                         with_pred_seg, with_fake_seg=True, gathered=self.configer.get('network', 'gathered'))
 
                 backward_start_time = time.time()
-
-
-                with torch.autograd.set_detect_anomaly(True):
-                    scaler_critic.scale(critic_loss).backward()
-                    scaler_critic.step(self.optimizer_critic)
-                    scaler_critic.update()
-                    self.scheduler_critic.step()
+                
+                # scaler_critic.scale(critic_loss).backward()
+                # scaler_critic.step(self.optimizer_critic)
+                # scaler_critic.update()
+               
+                critic_loss.backward(retain_graph=True)
+                nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
+                self.optimizer_critic.step()
 
             if self.with_gcl:
                 critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
@@ -341,10 +342,17 @@ class Trainer(object):
 
             backward_start_time = time.time()
 
-            scaler.scale(backward_loss).backward()
-            scaler.step(self.optimizer)
-            scaler.update()
+            # scaler.scale(backward_loss).backward()
+            # scaler.step(self.optimizer)
+            # scaler.update()
+
+            backward_loss.backward()
+            nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
+            self.optimizer.step()
+
             self.scheduler.step()
+            self.scheduler_critic.step()
+
 
             self.backward_time.update(time.time() - backward_start_time)
 
