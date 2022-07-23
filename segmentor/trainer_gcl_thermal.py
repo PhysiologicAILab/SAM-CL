@@ -369,8 +369,8 @@ class Trainer(object):
             # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
             # self.optimizer.step()
 
-            self.scheduler.step()
             self.scheduler_critic.step()
+            self.scheduler.step()
 
             self.backward_time.update(time.time() - backward_start_time)
 
