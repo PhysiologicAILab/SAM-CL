@@ -35,7 +35,9 @@ class ThermalFaceDBLoader(data.Dataset):
         self.img_list, self.label_list, self.name_list = self.__list_dirs(root_dir, dataset)
         size_mode = self.configer.get(dataset, 'data_transformer')['size_mode']
         self.is_stack = size_mode != 'diverse_size'
-        self.with_gcl = True if self.configer.exists("gcl") else False
+        self.with_gcl_input = False
+        if self.configer.exists("gcl"):
+            self.with_gcl_input = bool(self.configer.get("gcl", "with_gcl_input"))
 
         Log.info('{} {}'.format(dataset, len(self.img_list)))
 
@@ -47,7 +49,7 @@ class ThermalFaceDBLoader(data.Dataset):
                                      tool=self.configer.get('data', 'image_tool'),
                                      mode=self.configer.get('data', 'input_mode'))
 
-        if self.with_gcl:
+        if self.with_gcl_input:
             gcl_input = deepcopy(img)
         # Log.info('{}'.format(self.img_list[index]))
         img_size = ImageHelper.get_size(img)
@@ -62,7 +64,7 @@ class ThermalFaceDBLoader(data.Dataset):
         ori_target = ImageHelper.tonp(labelmap)
 
         if self.aug_transform is not None:
-            if self.with_gcl:
+            if self.with_gcl_input:
                 img, labelmap, gcl_input = self.aug_transform(img, labelmap=labelmap, gcl_input=gcl_input)
             else:
                 img, labelmap = self.aug_transform(img, labelmap=labelmap)
@@ -71,7 +73,7 @@ class ThermalFaceDBLoader(data.Dataset):
 
         if self.img_transform is not None:
             img = self.img_transform(img)
-            if self.with_gcl:
+            if self.with_gcl_input:
                 gcl_input = self.img_transform(gcl_input)
 
         if self.label_transform is not None:
@@ -84,7 +86,7 @@ class ThermalFaceDBLoader(data.Dataset):
         )
         # Log.info('After Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
         
-        if self.with_gcl:
+        if self.with_gcl_input:
             return_dict = dict(
                 img=DataContainer(img, stack=self.is_stack),
                 labelmap=DataContainer(labelmap, stack=self.is_stack),

@@ -110,6 +110,8 @@ class Trainer(object):
 
         if self.with_gcl:
 
+            self.with_gcl_input = bool(self.configer.get("gcl", "with_gcl_input"))
+
             self.critic_net = self.model_manager.critic_network()
             self.critic_net = self.module_runner.load_net(self.critic_net)
 
@@ -239,16 +241,24 @@ class Trainer(object):
 
             if self.with_gcl is True:
                 critic_outputs_pred = None
-                targets, gcl_input = targets
+                if self.with_gcl_input:
+                    targets, gcl_input = targets
 
                 # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
                 targets[targets < 0] = 0
                 one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-                critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
+
+                if self.with_gcl_input:
+                    critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
+                else:
+                    critic_outputs_real = self.critic_net(one_hot_target_mask)
 
                 one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
 
-                critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
+                if self.with_gcl_input:
+                    critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
+                else:
+                    critic_outputs_fake = self.critic_net(one_hot_fake_mask)
                 
             self.foward_time.update(time.time() - foward_start_time)
 
@@ -273,11 +283,11 @@ class Trainer(object):
 
                     with torch.cuda.amp.autocast():
                         critic_loss = self.critic_loss_func(
-                            critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False, with_fake_seg=True)
+                            critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
 
                 else:
                     critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
-                                                        with_pred_seg=False, with_fake_seg=True, gathered=self.configer.get('network', 'gathered'))
+                                                        with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
 
                 backward_start_time = time.time()
                 
@@ -293,13 +303,18 @@ class Trainer(object):
             outputs = self.seg_net(*inputs)
 
             if self.with_gcl:
-                critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
-                critic_outputs_fake_seg = self.critic_net(gcl_input, one_hot_fake_mask)
-                
                 if with_pred_seg:
                     pred_seg_mask = self.seg_act(outputs).exp()
                     one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-                    critic_outputs_pred_seg = self.critic_net(gcl_input, one_hot_pred_seg_mask)
+                    
+                    if self.with_gcl_input:
+                        critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
+                        critic_outputs_fake_seg = self.critic_net(gcl_input, one_hot_fake_mask)
+                        critic_outputs_pred_seg = self.critic_net(gcl_input, one_hot_pred_seg_mask)
+                    else:
+                        critic_outputs_real_seg = self.critic_net(one_hot_target_mask)
+                        critic_outputs_fake_seg = self.critic_net(one_hot_fake_mask)
+                        critic_outputs_pred_seg = self.critic_net(one_hot_pred_seg_mask)
 
             if is_distributed():
                 import torch.distributed as dist
@@ -321,7 +336,7 @@ class Trainer(object):
                     if self.with_gcl:
                         backward_loss = loss + self.gcl_loss_weight * \
                             self.critic_loss_func(
-                                critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, with_fake_seg=True)
+                                critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg)
                     else:
                         backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
@@ -330,7 +345,7 @@ class Trainer(object):
                 
                 if self.with_gcl:
                     backward_loss = display_loss = loss + self.gcl_loss_weight * self.critic_loss_func(
-                        critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, with_fake_seg=True, gathered=self.configer.get('network', 'gathered'))
+                        critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, gathered=self.configer.get('network', 'gathered'))
 
                 else:
                     backward_loss = display_loss = loss
@@ -350,7 +365,6 @@ class Trainer(object):
 
             self.scheduler.step()
             self.scheduler_critic.step()
-
 
             self.backward_time.update(time.time() - backward_start_time)
 

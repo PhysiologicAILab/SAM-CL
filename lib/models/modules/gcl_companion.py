@@ -13,14 +13,14 @@ class DownConv(nn.Module):
 
         if apply_spectral_norm:
             self.conv = nn.Sequential(
-                spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, padding=1, padding_mode='reflect', bias=False)),
+                spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1, padding_mode='reflect', bias=False)),
                 ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
                 spectral_norm(nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, padding=1, padding_mode='reflect', bias=False)),
                 ModuleHelper.BNReLU(n_ch3, bn_type=bn_type),
             )
         else:
             self.conv = nn.Sequential(
-                nn.Conv2d(n_ch1, n_ch2, kernel_size=3, stride=1, padding=1, padding_mode='reflect', bias=False),
+                nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1, padding_mode='reflect', bias=False),
                 ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
                 nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, padding=1, padding_mode='reflect', bias=False),
                 ModuleHelper.BNReLU(n_ch3, bn_type=bn_type),
@@ -62,14 +62,15 @@ class GCL_Companion(nn.Module):
         self.n_channels = int(self.configer.get('data', 'num_channels'))
 
         # self.nf = self.num_classes * self.n_channels
-        self.nf = self.num_classes + self.n_channels
+        # self.nf = self.num_classes + self.n_channels
+        self.nf = self.num_classes
         self.n_filters = np.array([1*self.nf, 2*self.nf, 4*self.nf, 8*self.nf, 1])
         self.conv_down_1 = DownConv(self.n_filters[0] , self.n_filters[1], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
 
-    def forward(self, input_img, seg_map):
+    def forward(self, seg_map):
 
         # b, _, h, w = input_img.shape
         # # print("input_img.shape", input_img.shape)
@@ -82,8 +83,8 @@ class GCL_Companion(nn.Module):
         #     x0_2 = torch.mul(input_img[:, 2, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
         #     x0 = torch.cat([x0_0, x0_1, x0_2], dim=1)
 
-        x0 = torch.cat([input_img, seg_map], dim=1)
-        x1 = self.conv_down_1(x0)
+        # x0 = torch.cat([input_img, seg_map], dim=1)
+        x1 = self.conv_down_1(seg_map)
         x2 = self.conv_down_2(x1)
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
