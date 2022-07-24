@@ -284,13 +284,13 @@ class Trainer(object):
                             dist.reduce(reduced_inp, dst=0)
                         return reduced_inp
 
-                    with torch.cuda.amp.autocast():
-                        critic_loss = self.critic_loss_func(
-                            critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
+                    # with torch.cuda.amp.autocast():
+                    critic_loss = self.critic_loss_func(
+                        critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
 
                 else:
-                    with torch.cuda.amp.autocast():
-                        critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
+                    # with torch.cuda.amp.autocast():
+                    critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
                                                             with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
 
                 backward_start_time = time.time()
