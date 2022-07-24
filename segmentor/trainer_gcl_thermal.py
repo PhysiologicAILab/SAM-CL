@@ -245,7 +245,7 @@ class Trainer(object):
             if self.with_gcl_input:
                 targets, gcl_input = targets
 
-            # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
+            Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
             # targets[targets < 0] = 0  # Changed line 58 of default loader to address this
             one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
