@@ -11,7 +11,7 @@ import math
 import random
 
 import cv2
-from skimage.transform import resize
+# from skimage.transform import resize
 import numpy as np
 
 from lib.utils.tools.logger import Logger as Log
@@ -285,27 +285,27 @@ class RandomResize(_BaseTransform):
             exit(1)
 
     def _process_img(self, x, converted_size, *args):
-        return resize(x, converted_size)
-        # return cv2.resize(x, converted_size, interpolation=cv2.INTER_CUBIC)
+        # return resize(x, converted_size)
+        return cv2.resize(x, converted_size, interpolation=cv2.INTER_CUBIC)
 
     def _process_gcl_input(self, x, converted_size, *args):
-        return resize(x, converted_size)
-        # return cv2.resize(x, converted_size, interpolation=cv2.INTER_CUBIC)
+        # return resize(x, converted_size)
+        return cv2.resize(x, converted_size, interpolation=cv2.INTER_CUBIC)
 
     def _process_labelmap(self, x, converted_size, *args):
 
-        n_classes = int(x.max() + 1)
-        mask_canvas = np.zeros(shape=converted_size)
+        # n_classes = int(x.max() + 1)
+        # mask_canvas = np.zeros(shape=converted_size)
 
-        # To avoid misclassification at the boundaries
-        for i in range(n_classes):
-            cls_mask = np.zeros(shape=x.shape)
-            cls_mask[(x == i)] = i
-            cls_mask = resize(cls_mask, converted_size)
-            mask_canvas[cls_mask > 0] = i
+        # # To avoid misclassification at the boundaries
+        # for i in range(n_classes):
+        #     cls_mask = np.zeros(shape=x.shape)
+        #     cls_mask[(x == i)] = i
+        #     cls_mask = resize(cls_mask, converted_size)
+        #     mask_canvas[cls_mask > 0] = i
 
-        return mask_canvas
-        # return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
+        # return mask_canvas
+        return cv2.resize(x, converted_size, interpolation=cv2.INTER_NEAREST)
 
     def __call__(self, img, **kwargs):
         """
