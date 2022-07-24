@@ -15,6 +15,8 @@ from abc import ABC
 import torch
 import torch.nn as nn
 from lib.loss.pytorch_ssim import SSIM
+from lib.utils.tools.logger import Logger as Log
+
 
 class GCL_Loss(nn.Module, ABC):
     def __init__(self, configer=None):
@@ -28,12 +30,14 @@ class GCL_Loss(nn.Module, ABC):
             self.lossObj_x3 = SSIM(window_size=5)
             self.lossObj_x4 = SSIM(window_size=3)
             self.loss_sign = 1
+            Log.info('Using SSIM Loss')
         else:
             self.lossObj_x1 = nn.SmoothL1Loss()
             self.lossObj_x2 = nn.SmoothL1Loss()
             self.lossObj_x3 = nn.SmoothL1Loss()
             self.lossObj_x4 = nn.SmoothL1Loss()
             self.loss_sign = -1
+            Log.info('Using L1 Loss')
 
         self.real_feat_sign = 1.0
         self.fake_feat_sign = -1.0
