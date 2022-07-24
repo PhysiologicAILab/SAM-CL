@@ -291,7 +291,7 @@ class Trainer(object):
                                                         with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
 
             backward_start_time = time.time()
-            scaler_critic.scale(critic_loss).backward()
+            scaler_critic.scale(critic_loss).backward(retain_graph=True)
             nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
             scaler_critic.step(self.optimizer_critic)
             scaler_critic.update()
