@@ -294,6 +294,7 @@ class Trainer(object):
                                                         with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
 
             if self.with_gcl:
+                backward_start_time = time.time()
                 scaler_critic.scale(critic_loss).backward()
                 # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
                 scaler_critic.step(self.optimizer_critic)
