@@ -236,10 +236,14 @@ class Trainer(object):
 
             self.data_time.update(time.time() - start_time)
 
-            foward_start_time = time.time()
-            with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
+            if self.with_gcl:
+                with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
 
-            if self.with_gcl is True:
+            foward_start_time = time.time()
+            
+            outputs = self.seg_net(*inputs)
+
+            if self.with_gcl:
                 critic_outputs_pred = None
                 if self.with_gcl_input:
                     targets, gcl_input = targets
@@ -289,16 +293,11 @@ class Trainer(object):
                     critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
                                                         with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
 
-                backward_start_time = time.time()
-                
+            if self.with_gcl:
                 scaler_critic.scale(critic_loss).backward()
-               
-                # critic_loss.backward(retain_graph=True)
-                # nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
-                # self.optimizer_critic.step()
-
-
-            outputs = self.seg_net(*inputs)
+                # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
+                scaler_critic.step(self.optimizer_critic)
+                scaler_critic.update()
 
             if self.with_gcl:
 
@@ -317,8 +316,6 @@ class Trainer(object):
                         critic_outputs_pred_seg = self.critic_net(gcl_input, one_hot_pred_seg_mask)
                     else:
                         critic_outputs_pred_seg = self.critic_net(one_hot_pred_seg_mask)
-                else:
-                    critic_outputs_pred_seg = None
 
             if is_distributed():
                 import torch.distributed as dist
@@ -337,7 +334,7 @@ class Trainer(object):
 
                 with torch.cuda.amp.autocast():
                     loss = self.pixel_loss(outputs, targets, is_eval=False)
-                    if self.with_gcl:
+                    if self.with_gcl and with_pred_seg:
                         backward_loss = loss + self.gcl_loss_weight * \
                             self.critic_loss_func(
                                 critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg)
@@ -347,7 +344,7 @@ class Trainer(object):
             else:
                 loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered'))
                 
-                if self.with_gcl:
+                if self.with_gcl and with_pred_seg:
                     backward_loss = display_loss = loss + self.gcl_loss_weight * self.critic_loss_func(
                         critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, gathered=self.configer.get('network', 'gathered'))
 
@@ -357,20 +354,17 @@ class Trainer(object):
             self.train_losses.update(display_loss.item(), batch_size)
             self.loss_time.update(time.time() - loss_start_time)
 
-            backward_start_time = time.time()
+            if not self.with_gcl:
+                backward_start_time = time.time()
 
             scaler.scale(backward_loss).backward()
-
-            # backward_loss.backward()
             # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
-            # self.optimizer.step()
-
-            scaler_critic.step(self.optimizer_critic)
-            scaler_critic.update()
-            self.scheduler_critic.step()
-
             scaler.step(self.optimizer)
             scaler.update()
+
+            if self.with_gcl:
+                self.scheduler_critic.step()
+
             self.scheduler.step()
 
             self.backward_time.update(time.time() - backward_start_time)
