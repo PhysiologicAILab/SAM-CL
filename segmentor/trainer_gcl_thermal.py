@@ -296,7 +296,7 @@ class Trainer(object):
             if self.with_gcl:
                 backward_start_time = time.time()
                 scaler_critic.scale(critic_loss).backward()
-                # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
+                nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
                 scaler_critic.step(self.optimizer_critic)
                 scaler_critic.update()
 
@@ -359,7 +359,7 @@ class Trainer(object):
                 backward_start_time = time.time()
 
             scaler.scale(backward_loss).backward()
-            # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
+            nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
             scaler.step(self.optimizer)
             scaler.update()
 
