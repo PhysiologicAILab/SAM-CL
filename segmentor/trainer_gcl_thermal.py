@@ -245,10 +245,8 @@ class Trainer(object):
             if self.with_gcl_input:
                 targets, gcl_input = targets
 
-
-            # with torch.autograd.set_detect_anomaly(True):
-            
-            Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
+            # with torch.autograd.set_detect_anomaly(True):            
+            # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
             targets[targets < 0] = 0  # Resizing and Crop is causing this to -1 - need to resolve
             one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
