@@ -246,58 +246,58 @@ class Trainer(object):
                 targets, gcl_input = targets
 
 
-            with torch.autograd.set_detect_anomaly(True):
+            # with torch.autograd.set_detect_anomaly(True):
             
-                Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
-                # targets[targets < 0] = 0  # Resizing and Crop is causing this to -1 - need to resolve
-                one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+            Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
+            targets[targets < 0] = 0  # Resizing and Crop is causing this to -1 - need to resolve
+            one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
-                if self.with_gcl_input:
-                    critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
-                else:
-                    critic_outputs_real = self.critic_net(one_hot_target_mask)
+            if self.with_gcl_input:
+                critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
+            else:
+                critic_outputs_real = self.critic_net(one_hot_target_mask)
 
-                one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
+            one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
 
-                if self.with_gcl_input:
-                    critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
-                else:
-                    critic_outputs_fake = self.critic_net(one_hot_fake_mask)
-                    
-                self.foward_time.update(time.time() - foward_start_time)
+            if self.with_gcl_input:
+                critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
+            else:
+                critic_outputs_fake = self.critic_net(one_hot_fake_mask)
+                
+            self.foward_time.update(time.time() - foward_start_time)
 
-                loss_start_time = time.time()
+            loss_start_time = time.time()
 
-                if is_distributed():
-                    import torch.distributed as dist
+            if is_distributed():
+                import torch.distributed as dist
 
-                    def reduce_tensor(inp):
-                        """
-                        Reduce the loss from all processes so that 
-                        process with rank 0 has the averaged results.
-                        """
-                        world_size = get_world_size()
-                        if world_size < 2:
-                            return inp
-                        with torch.no_grad():
-                            reduced_inp = inp
-                            dist.reduce(reduced_inp, dst=0)
-                        return reduced_inp
+                def reduce_tensor(inp):
+                    """
+                    Reduce the loss from all processes so that 
+                    process with rank 0 has the averaged results.
+                    """
+                    world_size = get_world_size()
+                    if world_size < 2:
+                        return inp
+                    with torch.no_grad():
+                        reduced_inp = inp
+                        dist.reduce(reduced_inp, dst=0)
+                    return reduced_inp
 
-                    # with torch.cuda.amp.autocast():
-                    critic_loss = self.critic_loss_func(
-                        critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
+                # with torch.cuda.amp.autocast():
+                critic_loss = self.critic_loss_func(
+                    critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
 
-                else:
-                    # with torch.cuda.amp.autocast():
-                    critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
-                                                            with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
+            else:
+                # with torch.cuda.amp.autocast():
+                critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
+                                                        with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
 
-                backward_start_time = time.time()
-                scaler_critic.scale(critic_loss).backward()
-                nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
-                scaler_critic.step(self.optimizer_critic)
-                scaler_critic.update()
+            backward_start_time = time.time()
+            scaler_critic.scale(critic_loss).backward()
+            nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
+            scaler_critic.step(self.optimizer_critic)
+            scaler_critic.update()
 
             outputs = self.seg_net(*inputs)
 
