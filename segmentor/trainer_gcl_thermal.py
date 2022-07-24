@@ -50,6 +50,7 @@ class Trainer(object):
         self.loss_time = AverageMeter()
         self.data_time = AverageMeter()
         self.train_losses = AverageMeter()
+        self.train_losses_critic = AverageMeter()
         self.val_losses = AverageMeter()
         self.seg_visualizer = SegVisualizer(configer)
         self.loss_manager = LossManager(configer)
@@ -281,14 +282,20 @@ class Trainer(object):
                         dist.reduce(reduced_inp, dst=0)
                     return reduced_inp
 
-                # with torch.cuda.amp.autocast():
-                critic_loss = self.critic_loss_func(
-                    critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
+                with torch.cuda.amp.autocast():
+                    critic_loss = self.critic_loss_func(
+                        critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
+
+                    display_loss_critic = reduce_tensor(critic_loss) / get_world_size()
 
             else:
-                # with torch.cuda.amp.autocast():
-                critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
-                                                        with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
+                with torch.cuda.amp.autocast():
+                    critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
+                                                            with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
+
+                    display_loss_critic = critic_loss
+
+            self.train_losses_critic.update(display_loss_critic.item(), batch_size)
 
             backward_start_time = time.time()
             scaler_critic.scale(critic_loss).backward()
@@ -330,26 +337,21 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
-                    
                     loss = self.pixel_loss(outputs, targets, is_eval=False)
-
                     if self.with_gcl and with_pred_seg:
                         backward_loss = loss + self.gcl_loss_weight * \
                             self.critic_loss_func(
                                 critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg)
                     else:
                         backward_loss = loss
-
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
 
             else:
                 with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered'))
-                    
+                    loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered'))                    
                     if self.with_gcl and with_pred_seg:
                         backward_loss = display_loss = loss + self.gcl_loss_weight * self.critic_loss_func(
                             critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, gathered=self.configer.get('network', 'gathered'))
-
                     else:
                         backward_loss = display_loss = loss
 
@@ -380,12 +382,14 @@ class Trainer(object):
                          'Backward Time {backward_time.sum:.3f}s / {2}iters, ({backward_time.avg:.3f})\t'
                          'Loss Time {loss_time.sum:.3f}s / {2}iters, ({loss_time.avg:.3f})\t'
                          'Data load {data_time.sum:.3f}s / {2}iters, ({data_time.avg:3f})\n'
-                         'Learning rate = {3}\tLoss = {loss.val:.8f} (ave = {loss.avg:.8f})\n'.format(
+                         'Learning rate = {3}\tLoss = {loss.val:.8f} (ave = {loss.avg:.8f})\t'
+                         'Critic_Loss = {critic_loss.val:.8f} (ave = {critic_loss.avg:.8f})\n'.format(
                     self.configer.get('epoch'), self.configer.get('iters'),
                     self.configer.get('solver', 'display_iter'),
                     self.module_runner.get_lr(self.optimizer), batch_time=self.batch_time,
                     foward_time=self.foward_time, backward_time=self.backward_time, loss_time=self.loss_time,
-                    data_time=self.data_time, loss=self.train_losses))
+                             data_time=self.data_time, loss=self.train_losses, critic_loss=self.train_losses_critic))
+
                 self.batch_time.reset()
                 self.foward_time.reset()
                 self.backward_time.reset()
