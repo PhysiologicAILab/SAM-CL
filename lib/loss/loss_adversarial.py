@@ -57,7 +57,8 @@ class GCL_Loss(nn.Module, ABC):
 
         self.real_feat_sign = 1.0
         self.fake_feat_sign = -1.0
-        self.weight = 0.20
+        self.weight_real = 1.0
+        self.weight_fake = 0.5
 
     def forward(self, critic_outputs_real, critic_outputs_fake, critic_outputs_pred=None, with_pred_seg=False, **kwargs):
 
@@ -69,20 +70,20 @@ class GCL_Loss(nn.Module, ABC):
 
         if with_pred_seg:
             loss = (
-                (self.weight * self.real_feat_sign * self.loss_sign) * self.lossObj_x1_1(real_seg_x1, pred_seg_x1) +
-                (self.weight * self.real_feat_sign * self.loss_sign) * self.lossObj_x2_1(real_seg_x2, pred_seg_x2) +
-                (self.weight * self.real_feat_sign * self.loss_sign) * self.lossObj_x3_1(real_seg_x3, pred_seg_x3) +
-                (self.weight * self.real_feat_sign * self.loss_sign) * self.lossObj_x4_1(real_seg_x4, pred_seg_x4) +
+                (self.weight_real * self.real_feat_sign * self.loss_sign) * self.lossObj_x1_1(real_seg_x1, pred_seg_x1) +
+                (self.weight_real * self.real_feat_sign * self.loss_sign) * self.lossObj_x2_1(real_seg_x2, pred_seg_x2) +
+                (self.weight_real * self.real_feat_sign * self.loss_sign) * self.lossObj_x3_1(real_seg_x3, pred_seg_x3) +
+                (self.weight_real * self.real_feat_sign * self.loss_sign) * self.lossObj_x4_1(real_seg_x4, pred_seg_x4) +
 
-                (self.weight * self.fake_feat_sign * self.loss_sign) * self.lossObj_x1_2(real_seg_x1, fake_seg_x1) +
-                (self.weight * self.fake_feat_sign * self.loss_sign) * self.lossObj_x2_2(real_seg_x2, fake_seg_x2) +
-                (self.weight * self.fake_feat_sign * self.loss_sign) * self.lossObj_x3_2(real_seg_x3, fake_seg_x3) +
-                (self.weight * self.fake_feat_sign * self.loss_sign) * self.lossObj_x4_2(real_seg_x4, fake_seg_x4) +
+                (self.weight_fake * self.fake_feat_sign * self.loss_sign) * self.lossObj_x1_2(real_seg_x1, fake_seg_x1) +
+                (self.weight_fake * self.fake_feat_sign * self.loss_sign) * self.lossObj_x2_2(real_seg_x2, fake_seg_x2) +
+                (self.weight_fake * self.fake_feat_sign * self.loss_sign) * self.lossObj_x3_2(real_seg_x3, fake_seg_x3) +
+                (self.weight_fake * self.fake_feat_sign * self.loss_sign) * self.lossObj_x4_2(real_seg_x4, fake_seg_x4) +
 
-                (self.weight * self.fake_feat_sign * self.loss_sign) * self.lossObj_x1_3(pred_seg_x1, fake_seg_x1) +
-                (self.weight * self.fake_feat_sign * self.loss_sign) * self.lossObj_x2_3(pred_seg_x2, fake_seg_x2) +
-                (self.weight * self.fake_feat_sign * self.loss_sign) * self.lossObj_x3_3(pred_seg_x3, fake_seg_x3) +
-                (self.weight * self.fake_feat_sign * self.loss_sign) * self.lossObj_x4_3(pred_seg_x4, fake_seg_x4)
+                (self.weight_fake * self.fake_feat_sign * self.loss_sign) * self.lossObj_x1_3(pred_seg_x1, fake_seg_x1) +
+                (self.weight_fake * self.fake_feat_sign * self.loss_sign) * self.lossObj_x2_3(pred_seg_x2, fake_seg_x2) +
+                (self.weight_fake * self.fake_feat_sign * self.loss_sign) * self.lossObj_x3_3(pred_seg_x3, fake_seg_x3) +
+                (self.weight_fake * self.fake_feat_sign * self.loss_sign) * self.lossObj_x4_3(pred_seg_x4, fake_seg_x4)
             )
 
         else:
