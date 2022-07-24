@@ -129,9 +129,9 @@
       "max_iters": 40000
     },
     "optim": {
-      "optim_method": "adamw",
+      "optim_method": "adam",
       "adam": {
-        "betas": [0.9, 0.999],
+        "betas": [0.5, 0.999],
         "eps": 1e-08,
         "weight_decay": 0.0001
       },
@@ -162,7 +162,7 @@
       }
     },
     "gcl": {
-      "contrastive_loss": "L1",
+      "contrastive_loss": "SSIM",
       "with_gcl_input": false,
       "apply_spectral_norm": true,
       "warmup_iters": 500,

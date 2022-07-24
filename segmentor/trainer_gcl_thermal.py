@@ -139,7 +139,10 @@ class Trainer(object):
             self.optimizer_critic, self.scheduler_critic = self.optim_scheduler_critic.init_optimizer(params_group_critic)
 
             self.tc_cls_ord = torch.arange(0, self.num_classes)
-
+    
+        else:
+            Log.info('Incorrect training script specified. Check the main**.py')
+            exit()
 
     @staticmethod
     def group_weight(module):
@@ -204,9 +207,8 @@ class Trainer(object):
         self.seg_net.train()
         self.pixel_loss.train()
 
-        if self.with_gcl:
-            self.critic_net.train()
-            self.critic_loss_func.train()
+        self.critic_net.train()
+        self.critic_loss_func.train()
 
         start_time = time.time()
         
@@ -223,100 +225,92 @@ class Trainer(object):
         for i, data_dict in enumerate(self.train_loader):
             
             self.optimizer.zero_grad()
-
-            if self.with_gcl:
-                self.optimizer_critic.zero_grad()
+            self.optimizer_critic.zero_grad()
 
             if self.configer.get('lr', 'is_warm'):
                 self.module_runner.warm_lr(self.configer.get('iters'), self.scheduler, self.optimizer, backbone_list=[0, ])
-                if self.with_gcl:
-                    self.module_runner.warm_lr(self.configer.get('iters'), self.scheduler_critic, self.optimizer_critic, backbone_list=[0, ])
+                # self.module_runner.warm_lr(self.configer.get('iters'), self.scheduler_critic, self.optimizer_critic, backbone_list=[0, ])
 
             (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
 
             self.data_time.update(time.time() - start_time)
 
-            if self.with_gcl:
-                with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
+            with_pred_seg = True if self.configer.get('iters') >= self.gcl_warmup_iters else False
 
             foward_start_time = time.time()
             
-            outputs = self.seg_net(*inputs)
+            critic_outputs_pred = None
+            if self.with_gcl_input:
+                targets, gcl_input = targets
 
-            if self.with_gcl:
-                critic_outputs_pred = None
-                if self.with_gcl_input:
-                    targets, gcl_input = targets
+            # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
+            targets[targets < 0] = 0
+            one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
-                # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
-                targets[targets < 0] = 0
-                one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+            if self.with_gcl_input:
+                critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
+            else:
+                critic_outputs_real = self.critic_net(one_hot_target_mask)
 
-                if self.with_gcl_input:
-                    critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
-                else:
-                    critic_outputs_real = self.critic_net(one_hot_target_mask)
+            one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
 
-                one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
-
-                if self.with_gcl_input:
-                    critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
-                else:
-                    critic_outputs_fake = self.critic_net(one_hot_fake_mask)
+            if self.with_gcl_input:
+                critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
+            else:
+                critic_outputs_fake = self.critic_net(one_hot_fake_mask)
                 
             self.foward_time.update(time.time() - foward_start_time)
 
             loss_start_time = time.time()
 
-            if self.with_gcl:
-                if is_distributed():
-                    import torch.distributed as dist
+            if is_distributed():
+                import torch.distributed as dist
 
-                    def reduce_tensor(inp):
-                        """
-                        Reduce the loss from all processes so that 
-                        process with rank 0 has the averaged results.
-                        """
-                        world_size = get_world_size()
-                        if world_size < 2:
-                            return inp
-                        with torch.no_grad():
-                            reduced_inp = inp
-                            dist.reduce(reduced_inp, dst=0)
-                        return reduced_inp
+                def reduce_tensor(inp):
+                    """
+                    Reduce the loss from all processes so that 
+                    process with rank 0 has the averaged results.
+                    """
+                    world_size = get_world_size()
+                    if world_size < 2:
+                        return inp
+                    with torch.no_grad():
+                        reduced_inp = inp
+                        dist.reduce(reduced_inp, dst=0)
+                    return reduced_inp
 
-                    with torch.cuda.amp.autocast():
-                        critic_loss = self.critic_loss_func(
-                            critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
+                with torch.cuda.amp.autocast():
+                    critic_loss = self.critic_loss_func(
+                        critic_outputs_real, critic_outputs_fake, critic_outputs_pred, with_pred_seg=False)
 
-                else:
+            else:
+                with torch.cuda.amp.autocast():
                     critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred,
                                                         with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
 
-            if self.with_gcl:
-                backward_start_time = time.time()
-                scaler_critic.scale(critic_loss).backward()
-                nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
-                scaler_critic.step(self.optimizer_critic)
-                scaler_critic.update()
+            backward_start_time = time.time()
+            scaler_critic.scale(critic_loss).backward()
+            nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
+            scaler_critic.step(self.optimizer_critic)
+            scaler_critic.update()
 
-            if self.with_gcl:
+            outputs = self.seg_net(*inputs)
 
+            if self.with_gcl_input:
+                critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
+                critic_outputs_fake_seg = self.critic_net(gcl_input, one_hot_fake_mask)
+            else:
+                critic_outputs_real_seg = self.critic_net(one_hot_target_mask)
+                critic_outputs_fake_seg = self.critic_net(one_hot_fake_mask)
+
+            if with_pred_seg:
+                pred_seg_mask = self.seg_act(outputs).exp()
+                one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+                
                 if self.with_gcl_input:
-                    critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
-                    critic_outputs_fake_seg = self.critic_net(gcl_input, one_hot_fake_mask)
+                    critic_outputs_pred_seg = self.critic_net(gcl_input, one_hot_pred_seg_mask)
                 else:
-                    critic_outputs_real_seg = self.critic_net(one_hot_target_mask)
-                    critic_outputs_fake_seg = self.critic_net(one_hot_fake_mask)
-
-                if with_pred_seg:
-                    pred_seg_mask = self.seg_act(outputs).exp()
-                    one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-                    
-                    if self.with_gcl_input:
-                        critic_outputs_pred_seg = self.critic_net(gcl_input, one_hot_pred_seg_mask)
-                    else:
-                        critic_outputs_pred_seg = self.critic_net(one_hot_pred_seg_mask)
+                    critic_outputs_pred_seg = self.critic_net(one_hot_pred_seg_mask)
 
             if is_distributed():
                 import torch.distributed as dist
@@ -334,38 +328,38 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
+                    
                     loss = self.pixel_loss(outputs, targets, is_eval=False)
+
                     if self.with_gcl and with_pred_seg:
                         backward_loss = loss + self.gcl_loss_weight * \
                             self.critic_loss_func(
                                 critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg)
                     else:
                         backward_loss = loss
-                    display_loss = reduce_tensor(backward_loss) / get_world_size()
-            else:
-                loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered'))
-                
-                if self.with_gcl and with_pred_seg:
-                    backward_loss = display_loss = loss + self.gcl_loss_weight * self.critic_loss_func(
-                        critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, gathered=self.configer.get('network', 'gathered'))
 
-                else:
-                    backward_loss = display_loss = loss
+                    display_loss = reduce_tensor(backward_loss) / get_world_size()
+
+            else:
+                with torch.cuda.amp.autocast():
+                    loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered'))
+                    
+                    if self.with_gcl and with_pred_seg:
+                        backward_loss = display_loss = loss + self.gcl_loss_weight * self.critic_loss_func(
+                            critic_outputs_real_seg, critic_outputs_fake_seg, critic_outputs_pred_seg, with_pred_seg, gathered=self.configer.get('network', 'gathered'))
+
+                    else:
+                        backward_loss = display_loss = loss
 
             self.train_losses.update(display_loss.item(), batch_size)
             self.loss_time.update(time.time() - loss_start_time)
-
-            if not self.with_gcl:
-                backward_start_time = time.time()
 
             scaler.scale(backward_loss).backward()
             nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
             scaler.step(self.optimizer)
             scaler.update()
 
-            if self.with_gcl:
-                self.scheduler_critic.step()
-
+            self.scheduler_critic.step()
             self.scheduler.step()
 
             self.backward_time.update(time.time() - backward_start_time)
@@ -403,8 +397,7 @@ class Trainer(object):
                     ((self.configer.get('iters') - normal_max_iters) % swa_step_max_iters == 0 or \
                      self.configer.get('iters') == self.configer.get('solver', 'max_iters')):
                 self.optimizer.update_swa()
-                if self.with_gcl:
-                    self.optimizer_critic.update_swa()
+                self.optimizer_critic.update_swa()
 
             if self.configer.get('iters') == self.configer.get('solver', 'max_iters'):
                 break
