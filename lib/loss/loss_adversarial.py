@@ -25,17 +25,33 @@ class GCL_Loss(nn.Module, ABC):
         self.configer = configer
         loss_type = self.configer.get("gcl", "contrastive_loss")
         if loss_type.lower() == "ssim":
-            self.lossObj_x1 = SSIM(window_size=9)
-            self.lossObj_x2 = SSIM(window_size=7)
-            self.lossObj_x3 = SSIM(window_size=5)
-            self.lossObj_x4 = SSIM(window_size=3)
+            self.lossObj_x1_1 = SSIM(window_size=9)
+            self.lossObj_x2_1 = SSIM(window_size=7)
+            self.lossObj_x3_1 = SSIM(window_size=5)
+            self.lossObj_x4_1 = SSIM(window_size=3)
+            self.lossObj_x1_2 = SSIM(window_size=9)
+            self.lossObj_x2_2 = SSIM(window_size=7)
+            self.lossObj_x3_2 = SSIM(window_size=5)
+            self.lossObj_x4_2 = SSIM(window_size=3)
+            self.lossObj_x1_3 = SSIM(window_size=9)
+            self.lossObj_x2_3 = SSIM(window_size=7)
+            self.lossObj_x3_3 = SSIM(window_size=5)
+            self.lossObj_x4_3 = SSIM(window_size=3)
             self.loss_sign = 1
             Log.info('Using SSIM Loss')
         else:
-            self.lossObj_x1 = nn.SmoothL1Loss()
-            self.lossObj_x2 = nn.SmoothL1Loss()
-            self.lossObj_x3 = nn.SmoothL1Loss()
-            self.lossObj_x4 = nn.SmoothL1Loss()
+            self.lossObj_x1_1 = nn.SmoothL1Loss()
+            self.lossObj_x2_1 = nn.SmoothL1Loss()
+            self.lossObj_x3_1 = nn.SmoothL1Loss()
+            self.lossObj_x4_1 = nn.SmoothL1Loss()
+            self.lossObj_x1_2 = nn.SmoothL1Loss()
+            self.lossObj_x2_2 = nn.SmoothL1Loss()
+            self.lossObj_x3_2 = nn.SmoothL1Loss()
+            self.lossObj_x4_2 = nn.SmoothL1Loss()
+            self.lossObj_x1_3 = nn.SmoothL1Loss()
+            self.lossObj_x2_3 = nn.SmoothL1Loss()
+            self.lossObj_x3_3 = nn.SmoothL1Loss()
+            self.lossObj_x4_3 = nn.SmoothL1Loss()
             self.loss_sign = -1
             Log.info('Using L1 Loss')
 
@@ -52,28 +68,28 @@ class GCL_Loss(nn.Module, ABC):
 
         if with_pred_seg:
             loss = (
-                (0.20) * self.lossObj_x1(1 + real_seg_x1, 1 + (self.real_feat_sign * self.loss_sign * pred_seg_x1)) +
-                (0.20) * self.lossObj_x2(1 + real_seg_x2, 1 + (self.real_feat_sign * self.loss_sign * pred_seg_x2)) +
-                (0.20) * self.lossObj_x3(1 + real_seg_x3, 1 + (self.real_feat_sign * self.loss_sign * pred_seg_x3)) +
-                (0.20) * self.lossObj_x4(1 + real_seg_x4, 1 + (self.real_feat_sign * self.loss_sign * pred_seg_x4)) +
+                (0.20) * self.lossObj_x1_1(1 + real_seg_x1, 1 + (self.real_feat_sign * self.loss_sign * pred_seg_x1)) +
+                (0.20) * self.lossObj_x2_1(1 + real_seg_x2, 1 + (self.real_feat_sign * self.loss_sign * pred_seg_x2)) +
+                (0.20) * self.lossObj_x3_1(1 + real_seg_x3, 1 + (self.real_feat_sign * self.loss_sign * pred_seg_x3)) +
+                (0.20) * self.lossObj_x4_1(1 + real_seg_x4, 1 + (self.real_feat_sign * self.loss_sign * pred_seg_x4)) +
 
-                (0.20) * self.lossObj_x1(1 + real_seg_x1, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1)) +
-                (0.20) * self.lossObj_x2(1 + real_seg_x2, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2)) +
-                (0.20) * self.lossObj_x3(1 + real_seg_x3, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3)) +
-                (0.20) * self.lossObj_x4(1 + real_seg_x4, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4)) +
+                (0.20) * self.lossObj_x1_2(1 + real_seg_x1, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1)) +
+                (0.20) * self.lossObj_x2_2(1 + real_seg_x2, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2)) +
+                (0.20) * self.lossObj_x3_2(1 + real_seg_x3, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3)) +
+                (0.20) * self.lossObj_x4_2(1 + real_seg_x4, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4)) +
 
-                (0.20) * self.lossObj_x1(1 + pred_seg_x1, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1)) +
-                (0.20) * self.lossObj_x2(1 + pred_seg_x2, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2)) +
-                (0.20) * self.lossObj_x3(1 + pred_seg_x3, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3)) +
-                (0.20) * self.lossObj_x4(1 + pred_seg_x4, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4))
+                (0.20) * self.lossObj_x1_3(1 + pred_seg_x1, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1)) +
+                (0.20) * self.lossObj_x2_3(1 + pred_seg_x2, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2)) +
+                (0.20) * self.lossObj_x3_3(1 + pred_seg_x3, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3)) +
+                (0.20) * self.lossObj_x4_3(1 + pred_seg_x4, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4))
             )
 
         else:
             loss = (
-                (0.25) * self.lossObj_x1(1 + real_seg_x1, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1)) +
-                (0.25) * self.lossObj_x2(1 + real_seg_x2, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2)) +
-                (0.25) * self.lossObj_x3(1 + real_seg_x3, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3)) +
-                (0.25) * self.lossObj_x4(1 + real_seg_x4, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4))
+                (0.25) * self.lossObj_x1_1(1 + real_seg_x1, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1)) +
+                (0.25) * self.lossObj_x2_1(1 + real_seg_x2, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2)) +
+                (0.25) * self.lossObj_x3_1(1 + real_seg_x3, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3)) +
+                (0.25) * self.lossObj_x4_1(1 + real_seg_x4, 1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4))
             )
 
         return loss
