@@ -129,9 +129,9 @@
       "max_iters": 40000
     },
     "optim": {
-      "optim_method": "adam",
+      "optim_method": "sgd",
       "adam": {
-        "betas": [0.5, 0.999],
+        "betas": [0.9, 0.999],
         "eps": 1e-08,
         "weight_decay": 0.0001
       },
