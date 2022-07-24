@@ -246,7 +246,7 @@ class Trainer(object):
                 targets, gcl_input = targets
 
             Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
-            # targets[targets < 0] = 0  # Changed line 58 of default loader to address this
+            # targets[targets < 0] = 0  # Resizing and Crop is causing this to -1 - need to resolve
             one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
             if self.with_gcl_input:

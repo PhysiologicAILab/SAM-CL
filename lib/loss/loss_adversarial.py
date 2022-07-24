@@ -37,7 +37,7 @@ class GCL_Loss(nn.Module, ABC):
             self.lossObj_x2_3 = SSIM(window_size=7)
             self.lossObj_x3_3 = SSIM(window_size=5)
             self.lossObj_x4_3 = SSIM(window_size=3)
-            self.loss_sign = 1
+            self.loss_sign = torch.tensor(1).cuda()
             Log.info('Using SSIM Loss')
         else:
             self.lossObj_x1_1 = nn.SmoothL1Loss()
@@ -52,7 +52,7 @@ class GCL_Loss(nn.Module, ABC):
             self.lossObj_x2_3 = nn.SmoothL1Loss()
             self.lossObj_x3_3 = nn.SmoothL1Loss()
             self.lossObj_x4_3 = nn.SmoothL1Loss()
-            self.loss_sign = -1
+            self.loss_sign = torch.tensor(-1).cuda()
             Log.info('Using L1 Loss')
 
         self.real_feat_sign = torch.tensor(1.0).cuda()
