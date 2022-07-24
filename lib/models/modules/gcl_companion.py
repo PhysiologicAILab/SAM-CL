@@ -2,10 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import torch.nn.utils.spectral_norm as spectral_norm
-# from lib.models.tools.module_helper import ModuleHelper
-
-relu_slope = 0.01  # Default value 0.01
-norm_layer = nn.BatchNorm2d
+from lib.models.tools.module_helper import ModuleHelper
 
 class DownConv(nn.Module):
     def __init__(self, in_channels, out_channels, apply_spectral_norm=True, bn_type='torchsyncbn'):
@@ -17,20 +14,16 @@ class DownConv(nn.Module):
         if apply_spectral_norm:
             self.conv = nn.Sequential(
                 spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1, padding_mode='reflect', bias=False)),
-                norm_layer(n_ch2),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
                 spectral_norm(nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, padding=1, padding_mode='reflect', bias=False)),
-                norm_layer(n_ch3),
-                nn.LeakyReLU(negative_slope=relu_slope),
-                )
+                ModuleHelper.BNReLU(n_ch3, bn_type=bn_type),
+            )
         else:
             self.conv = nn.Sequential(
                 nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1, padding_mode='reflect', bias=False),
-                norm_layer(n_ch2),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
                 nn.Conv2d(n_ch2, n_ch3, kernel_size=3, stride=2, padding=1, padding_mode='reflect', bias=False),
-                norm_layer(n_ch3),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch3, bn_type=bn_type),
             )
 
     def forward(self, x):
@@ -45,14 +38,12 @@ class ConvFinal(nn.Module):
         if apply_spectral_norm:
             self.conv_final = nn.Sequential(
                 spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1, padding_mode='reflect', bias=False)),
-                norm_layer(n_ch2),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BatchNorm2d(bn_type=bn_type)(n_ch2),
             )
         else:
             self.conv_final = nn.Sequential(
                 nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1, padding_mode='reflect', bias=False),
-                norm_layer(n_ch2),
-                nn.LeakyReLU(negative_slope=relu_slope),
+                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type)(n_ch2),
             )
 
     def forward(self, x):
@@ -73,7 +64,7 @@ class GCL_Companion(nn.Module):
         # self.nf = self.num_classes * self.n_channels
         # self.nf = self.num_classes + self.n_channels
         self.nf = self.num_classes
-        self.n_filters = np.array([1*self.nf, 2*self.nf, 4*self.nf, 8*self.nf, 1*self.nf])
+        self.n_filters = np.array([1*self.nf, 2*self.nf, 4*self.nf, 8*self.nf, 1])
         self.conv_down_1 = DownConv(self.n_filters[0] , self.n_filters[1], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
