@@ -166,6 +166,6 @@
       "with_gcl_input": false,
       "apply_spectral_norm": true,
       "warmup_iters": 500,
-      "loss_weight": 1.0
+      "loss_weight": 0.5
     }
   }
