@@ -246,7 +246,7 @@ class Trainer(object):
                 targets, gcl_input = targets
 
             # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
-            targets[targets < 0] = 0
+            # targets[targets < 0] = 0  # Changed line 58 of default loader to address this
             one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
             if self.with_gcl_input:
@@ -291,7 +291,7 @@ class Trainer(object):
                                                         with_pred_seg=False, gathered=self.configer.get('network', 'gathered'))
 
             backward_start_time = time.time()
-            scaler_critic.scale(critic_loss).backward(retain_graph=True)
+            scaler_critic.scale(critic_loss).backward()
             nn.utils.clip_grad_value_(self.critic_net.parameters(), 0.1)
             scaler_critic.step(self.optimizer_critic)
             scaler_critic.update()

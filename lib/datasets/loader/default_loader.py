@@ -55,7 +55,8 @@ class DefaultLoader(data.Dataset):
             labelmap = self._reduce_zero_label(labelmap)
 
         ori_target = ImageHelper.tonp(labelmap)
-        ori_target[ori_target == 255] = -1
+        ori_target[ori_target == 255] = 0
+        # ori_target[ori_target == 255] = -1
 
         if self.aug_transform is not None:
             img, labelmap = self.aug_transform(img, labelmap=labelmap)
