@@ -22,7 +22,7 @@ class GCL_Loss(nn.Module, ABC):
     def __init__(self, configer=None):
         super(GCL_Loss, self).__init__()
 
-        self.num_classes = self.configer.get('data', 'num_classes')
+        self.num_classes = configer.get('data', 'num_classes')
         class_mode = 'multilabel'
         classes = list(range(self.num_classes))
         log_loss = True #False #True
