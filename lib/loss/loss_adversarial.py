@@ -24,9 +24,9 @@ class GCL_Loss(nn.Module, ABC):
 
         # self.configer = configer
         self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function=nn.BCEWithLogitsLoss())
-        self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss)
-        self.lossObj_x2 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss)
-        self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss)
+        self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss())
+        self.lossObj_x2 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss())
+        self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss())
         self.lossObj_x4 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
 
         # self.real_feat_sign = 1.0
