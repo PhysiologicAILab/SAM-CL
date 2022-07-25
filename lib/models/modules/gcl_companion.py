@@ -61,8 +61,10 @@ class GCL_Companion(nn.Module):
         self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
         self.n_channels = int(self.configer.get('data', 'num_channels'))
 
-        self.with_gcl_input = bool(self.configer.get("gcl", "with_gcl_input"))
-        
+        self.with_gcl_input = False
+        if self.configer.exists('data', 'use_gcl_input'):
+            self.with_gcl_input = bool(self.configer.get('data', 'use_gcl_input'))
+
         # self.nf = self.num_classes * self.n_channels
         # self.nf = self.num_classes + self.n_channels
         self.nf = self.num_classes
@@ -90,7 +92,7 @@ class GCL_Companion(nn.Module):
         if self.with_gcl_input and gcl_input != None:
             x0 = (1 + seg_map) * gcl_input
         else:
-            x0 = 1 + seg_map
+            x0 = seg_map
 
         x1 = self.conv_down_1(x0)
         x2 = self.conv_down_2(x1)

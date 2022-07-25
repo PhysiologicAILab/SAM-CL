@@ -269,7 +269,10 @@ class _ConditionHelper:
 
     @property
     def use_gcl_input(self):
-        return self.configer.exists('data', 'use_gcl_input')
+        use_gcl_input = False
+        if self.configer.exists('data', 'use_gcl_input'):
+            use_gcl_input = bool(self.configer.get('data', 'use_gcl_input'))
+        return use_gcl_input
 
     @property
     def use_ground_truth(self):

@@ -8,7 +8,8 @@
       "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
       "num_classes": 6,
       "data_dir": "~/dev/data/ThermalFaceDBx320",
-      "workers": 0
+      "workers": 0,
+      "use_gcl_input": false
     },
    "train": {
       "batch_size": 16,
@@ -163,7 +164,6 @@
     },
     "gcl": {
       "contrastive_loss": "L1",
-      "with_gcl_input": false,
       "apply_spectral_norm": true,
       "warmup_iters": 100,
       "loss_weight": 1.0

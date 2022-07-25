@@ -36,8 +36,8 @@ class ThermalFaceDBLoader(data.Dataset):
         size_mode = self.configer.get(dataset, 'data_transformer')['size_mode']
         self.is_stack = size_mode != 'diverse_size'
         self.with_gcl_input = False
-        if self.configer.exists("gcl"):
-            self.with_gcl_input = bool(self.configer.get("gcl", "with_gcl_input"))
+        if self.configer.exists('data', 'use_gcl_input'):
+            self.with_gcl_input = bool(self.configer.get('data', 'use_gcl_input'))
 
         Log.info('{} {}'.format(dataset, len(self.img_list)))
 

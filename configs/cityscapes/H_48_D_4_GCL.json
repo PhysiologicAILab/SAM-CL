@@ -8,7 +8,8 @@
       "num_classes": 19,
       "label_list": [7, 8, 11, 12, 13, 17, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33],
       "data_dir": "/msravcshare/dataset/cityscapes",
-      "workers": 8
+      "workers": 8,
+      "use_gcl_input": false
     },
    "train": {
       "batch_size": 16,
@@ -151,7 +152,6 @@
     },
     "gcl": {
       "contrastive_loss": "L1",
-      "with_gcl_input": false,
       "apply_spectral_norm": true,
       "warmup_iters": 500,
       "loss_weight": 1.0
