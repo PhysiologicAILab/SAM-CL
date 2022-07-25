@@ -81,7 +81,7 @@ class GCL_Loss(nn.Module, ABC):
                 (self.weight_fake) * self.lossObj_x1_3((1 + pred_seg_x1), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1))) +
                 (self.weight_fake) * self.lossObj_x2_3((1 + pred_seg_x2), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2))) +
                 (self.weight_fake) * self.lossObj_x3_3((1 + pred_seg_x3), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3))) +
-                
+
                 (self.weight_real) * self.lossObj_x4_1(real_seg_x4, torch.ones_like(real_seg_x4)) +
                 (self.weight_real) * self.lossObj_x4_2(pred_seg_x4, torch.ones_like(pred_seg_x4)) +
                 (self.weight_real) * self.lossObj_x4_3(fake_seg_x4, torch.zeros_like(fake_seg_x4))
@@ -92,8 +92,9 @@ class GCL_Loss(nn.Module, ABC):
                 self.lossObj_x1_1((1 + real_seg_x1), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1))) +
                 self.lossObj_x2_1((1 + real_seg_x2), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2))) +
                 self.lossObj_x3_1((1 + real_seg_x3), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3))) +
-                self.lossObj_x4_1((1 + real_seg_x4), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4)))
-            )
+                self.lossObj_x4_1(real_seg_x4, torch.ones_like(real_seg_x4)) +
+                self.lossObj_x4_2(fake_seg_x4, torch.zeros_like(fake_seg_x4))
+                )
 
         return loss
 

@@ -163,7 +163,7 @@
       }
     },
     "gcl": {
-      "contrastive_loss": "SSIM",
+      "contrastive_loss": "L1",
       "with_gcl_input": true,
       "apply_spectral_norm": true,
       "warmup_iters": 100,
