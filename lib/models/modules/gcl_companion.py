@@ -72,23 +72,23 @@ class GCL_Companion(nn.Module):
         self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
 
-    def forward(self, seg_map, input_img=None):
+    def forward(self, seg_map, gcl_input=None):
 
-        # b, _, h, w = input_img.shape
-        # # print("input_img.shape", input_img.shape)
+        # b, _, h, w = gcl_input.shape
+        # # print("gcl_input.shape", gcl_input.shape)
         # # print("seg_map.shape", seg_map.shape)
         # if self.n_channels == 1:
-        #     x0 = input_img * seg_map
+        #     x0 = gcl_input * seg_map
         # else:
-        #     x0_0 = torch.mul(input_img[:, 0, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
-        #     x0_1 = torch.mul(input_img[:, 1, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
-        #     x0_2 = torch.mul(input_img[:, 2, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
+        #     x0_0 = torch.mul(gcl_input[:, 0, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
+        #     x0_1 = torch.mul(gcl_input[:, 1, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
+        #     x0_2 = torch.mul(gcl_input[:, 2, :, :].unsqueeze(1).expand(b, self.num_classes, h, w), seg_map)
         #     x0 = torch.cat([x0_0, x0_1, x0_2], dim=1)
 
-        # x0 = torch.cat([input_img, seg_map], dim=1)
+        # x0 = torch.cat([gcl_input, seg_map], dim=1)
 
-        if self.with_gcl_input and input_img != None:
-            x0 = (1 + seg_map) * input_img
+        if self.with_gcl_input and gcl_input != None:
+            x0 = (1 + seg_map) * gcl_input
         else:
             x0 = 1 + seg_map
 

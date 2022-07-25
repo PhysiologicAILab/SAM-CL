@@ -251,14 +251,14 @@ class Trainer(object):
             one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
             if self.with_gcl_input:
-                critic_outputs_real = self.critic_net(gcl_input, one_hot_target_mask)
+                critic_outputs_real = self.critic_net(one_hot_target_mask, gcl_input=gcl_input)
             else:
                 critic_outputs_real = self.critic_net(one_hot_target_mask)
 
             one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
 
             if self.with_gcl_input:
-                critic_outputs_fake = self.critic_net(gcl_input, one_hot_fake_mask)
+                critic_outputs_fake = self.critic_net(one_hot_fake_mask, gcl_input=gcl_input)
             else:
                 critic_outputs_fake = self.critic_net(one_hot_fake_mask)
                 
@@ -306,8 +306,8 @@ class Trainer(object):
             outputs = self.seg_net(*inputs)
 
             if self.with_gcl_input:
-                critic_outputs_real_seg = self.critic_net(gcl_input, one_hot_target_mask)
-                critic_outputs_fake_seg = self.critic_net(gcl_input, one_hot_fake_mask)
+                critic_outputs_real_seg = self.critic_net(one_hot_target_mask, gcl_input=gcl_input)
+                critic_outputs_fake_seg = self.critic_net(one_hot_fake_mask, gcl_input=gcl_input)
             else:
                 critic_outputs_real_seg = self.critic_net(one_hot_target_mask)
                 critic_outputs_fake_seg = self.critic_net(one_hot_fake_mask)
@@ -317,7 +317,7 @@ class Trainer(object):
                 one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
                 
                 if self.with_gcl_input:
-                    critic_outputs_pred_seg = self.critic_net(gcl_input, one_hot_pred_seg_mask)
+                    critic_outputs_pred_seg = self.critic_net(one_hot_pred_seg_mask, gcl_input=gcl_input)
                 else:
                     critic_outputs_pred_seg = self.critic_net(one_hot_pred_seg_mask)
 
