@@ -163,10 +163,10 @@
       }
     },
     "gcl": {
-      "contrastive_loss": "L1",
+      "contrastive_loss": "SSIM",
       "with_gcl_input": true,
       "apply_spectral_norm": true,
       "warmup_iters": 100,
-      "loss_weight": 10.0
+      "loss_weight": 1.0
     }
   }
