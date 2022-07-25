@@ -185,7 +185,7 @@ class Trainer(object):
 
     def _generate_fake_segmenation_mask(self, one_hot_target_mask):
 
-        one_hot_fake_mask = 1 - one_hot_target_mask
+        # one_hot_fake_mask = 1 - one_hot_target_mask
         
         # if torch.randn(1) > 0:
         #     one_hot_fake_mask = 1 - one_hot_target_mask
@@ -195,6 +195,13 @@ class Trainer(object):
         #         tc_rnd_cls = torch.randperm(self.num_classes)
         #     one_hot_fake_mask = torch.zeros_like(one_hot_target_mask)
         #     one_hot_fake_mask = one_hot_fake_mask[:, tc_rnd_cls, :, :]
+
+        tc_rnd_cls = torch.randperm(self.num_classes)
+        while((tc_rnd_cls == self.tc_cls_ord).any()):
+            tc_rnd_cls = torch.randperm(self.num_classes)
+        one_hot_fake_mask = torch.zeros_like(one_hot_target_mask)
+        one_hot_fake_mask = one_hot_fake_mask[:, tc_rnd_cls, :, :]
+
 
         return one_hot_fake_mask
         
