@@ -28,30 +28,30 @@ class GCL_Loss(nn.Module, ABC):
             self.lossObj_x1_1 = SSIM(window_size=9)
             self.lossObj_x2_1 = SSIM(window_size=7)
             self.lossObj_x3_1 = SSIM(window_size=5)
-            self.lossObj_x4_1 = SSIM(window_size=3)
+            self.lossObj_x4_1 = nn.BCEWithLogitsLoss()
             self.lossObj_x1_2 = SSIM(window_size=9)
             self.lossObj_x2_2 = SSIM(window_size=7)
             self.lossObj_x3_2 = SSIM(window_size=5)
-            self.lossObj_x4_2 = SSIM(window_size=3)
+            self.lossObj_x4_2 = nn.BCEWithLogitsLoss()
             self.lossObj_x1_3 = SSIM(window_size=9)
             self.lossObj_x2_3 = SSIM(window_size=7)
             self.lossObj_x3_3 = SSIM(window_size=5)
-            self.lossObj_x4_3 = SSIM(window_size=3)
+            self.lossObj_x4_3 = nn.BCEWithLogitsLoss()
             self.loss_sign = -1.0
             Log.info('Using SSIM Loss')
         else:
             self.lossObj_x1_1 = nn.SmoothL1Loss()
             self.lossObj_x2_1 = nn.SmoothL1Loss()
             self.lossObj_x3_1 = nn.SmoothL1Loss()
-            self.lossObj_x4_1 = nn.SmoothL1Loss()
+            self.lossObj_x4_1 = nn.BCEWithLogitsLoss()
             self.lossObj_x1_2 = nn.SmoothL1Loss()
             self.lossObj_x2_2 = nn.SmoothL1Loss()
             self.lossObj_x3_2 = nn.SmoothL1Loss()
-            self.lossObj_x4_2 = nn.SmoothL1Loss()
+            self.lossObj_x4_2 = nn.BCEWithLogitsLoss()
             self.lossObj_x1_3 = nn.SmoothL1Loss()
             self.lossObj_x2_3 = nn.SmoothL1Loss()
             self.lossObj_x3_3 = nn.SmoothL1Loss()
-            self.lossObj_x4_3 = nn.SmoothL1Loss()
+            self.lossObj_x4_3 = nn.BCEWithLogitsLoss()
             self.loss_sign = 1.0
             Log.info('Using L1 Loss')
 
@@ -73,17 +73,18 @@ class GCL_Loss(nn.Module, ABC):
                 (self.weight_real) * self.lossObj_x1_1((1 + real_seg_x1), (1 + (self.real_feat_sign * self.loss_sign * pred_seg_x1))) +
                 (self.weight_real) * self.lossObj_x2_1((1 + real_seg_x2), (1 + (self.real_feat_sign * self.loss_sign * pred_seg_x2))) +
                 (self.weight_real) * self.lossObj_x3_1((1 + real_seg_x3), (1 + (self.real_feat_sign * self.loss_sign * pred_seg_x3))) +
-                (self.weight_real) * self.lossObj_x4_1((1 + real_seg_x4), (1 + (self.real_feat_sign * self.loss_sign * pred_seg_x4))) +
 
                 (self.weight_fake) * self.lossObj_x1_2((1 + real_seg_x1), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1))) +
                 (self.weight_fake) * self.lossObj_x2_2((1 + real_seg_x2), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2))) +
                 (self.weight_fake) * self.lossObj_x3_2((1 + real_seg_x3), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3))) +
-                (self.weight_fake) * self.lossObj_x4_2((1 + real_seg_x4), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4))) +
 
                 (self.weight_fake) * self.lossObj_x1_3((1 + pred_seg_x1), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x1))) +
                 (self.weight_fake) * self.lossObj_x2_3((1 + pred_seg_x2), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x2))) +
                 (self.weight_fake) * self.lossObj_x3_3((1 + pred_seg_x3), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x3))) +
-                (self.weight_fake) * self.lossObj_x4_3((1 + pred_seg_x4), (1 + (self.fake_feat_sign * self.loss_sign * fake_seg_x4)))
+                
+                (self.weight_real) * self.lossObj_x4_1(real_seg_x4, torch.ones_like(real_seg_x4)) +
+                (self.weight_real) * self.lossObj_x4_2(pred_seg_x4, torch.ones_like(pred_seg_x4)) +
+                (self.weight_real) * self.lossObj_x4_3(fake_seg_x4, torch.zeros_like(fake_seg_x4))
             )
 
         else:
