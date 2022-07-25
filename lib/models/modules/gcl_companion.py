@@ -68,11 +68,10 @@ class GCL_Companion(nn.Module):
         # self.nf = self.num_classes * self.n_channels
         # self.nf = self.num_classes + self.n_channels
         self.nf = self.num_classes
-        self.n_filters = np.array([1*self.nf, int(1.5*self.nf), 3*self.nf, 5*self.nf, 1])
+        self.n_filters = np.array([1*self.nf, int(2*self.nf), 4*self.nf, 1])
         self.conv_down_1 = DownConv(self.n_filters[0] , self.n_filters[1], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
         self.conv_down_2 = DownConv(self.n_filters[1], self.n_filters[2], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
-        self.conv_down_3 = DownConv(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
-        self.conv_final = ConvFinal(self.n_filters[3], self.n_filters[4], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
+        self.conv_final = ConvFinal(self.n_filters[2], self.n_filters[3], apply_spectral_norm=self.apply_spectral_norm, bn_type=self.bn_type)
 
     def forward(self, seg_map, gcl_input=None):
 
@@ -97,6 +96,5 @@ class GCL_Companion(nn.Module):
         x0 = seg_map
         x1 = self.conv_down_1(x0)
         x2 = self.conv_down_2(x1)
-        x3 = self.conv_down_3(x2)
-        x4 = self.conv_final(x3)
-        return [x0, x1, x2, x3, x4]
+        x3 = self.conv_final(x2)
+        return [x0, x1, x2, x3]

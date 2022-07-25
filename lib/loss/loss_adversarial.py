@@ -16,18 +16,23 @@ import torch
 import torch.nn as nn
 from lib.loss.pytorch_ssim import SSIM
 from lib.utils.tools.logger import Logger as Log
-
+from lib.loss.dice_loss import DiceLoss
 
 class GCL_Loss(nn.Module, ABC):
     def __init__(self, configer=None):
         super(GCL_Loss, self).__init__()
 
+        self.num_classes = self.configer.get('data', 'num_classes')
+        class_mode = 'multilabel'
+        classes = list(range(self.num_classes))
+        log_loss = True #False #True
+
         # self.configer = configer
-        self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function=nn.BCEWithLogitsLoss())
+        self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(
+            distance_function=nn.DiceLoss(mode=class_mode, classes=classes, log_loss=log_loss))
         self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss())
         self.lossObj_x2 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss())
-        self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(distance_function=nn.SmoothL1Loss())
-        self.lossObj_x4 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
+        self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
 
         # self.real_feat_sign = 1.0
         # self.fake_feat_sign = -1.0
@@ -36,16 +41,15 @@ class GCL_Loss(nn.Module, ABC):
 
     def forward(self, critic_outputs_real, critic_outputs_fake, critic_outputs_pred, **kwargs):
 
-        real_seg_x0, real_seg_x1, real_seg_x2, real_seg_x3, real_seg_x4 = critic_outputs_real
-        fake_seg_x0, fake_seg_x1, fake_seg_x2, fake_seg_x3, fake_seg_x4 = critic_outputs_fake
-        pred_seg_x0, pred_seg_x1, pred_seg_x2, pred_seg_x3, pred_seg_x4 = critic_outputs_pred
+        real_seg_x0, real_seg_x1, real_seg_x2, real_seg_x3 = critic_outputs_real
+        fake_seg_x0, fake_seg_x1, fake_seg_x2, fake_seg_x3 = critic_outputs_fake
+        pred_seg_x0, pred_seg_x1, pred_seg_x2, pred_seg_x3 = critic_outputs_pred
 
         loss = (
             self.lossObj_x0(pred_seg_x0, real_seg_x0, fake_seg_x0) +
             self.lossObj_x1(pred_seg_x1, real_seg_x1, fake_seg_x1) +
             self.lossObj_x2(pred_seg_x2, real_seg_x2, fake_seg_x2) +
-            self.lossObj_x3(pred_seg_x3, real_seg_x3, fake_seg_x3) +
-            self.lossObj_x4(pred_seg_x4, real_seg_x4, fake_seg_x4)
+            self.lossObj_x3(pred_seg_x3, real_seg_x3, fake_seg_x3)
         )
 
         return loss
