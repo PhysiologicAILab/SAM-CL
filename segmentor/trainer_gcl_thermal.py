@@ -202,7 +202,6 @@ class Trainer(object):
         one_hot_fake_mask = torch.zeros_like(one_hot_target_mask)
         one_hot_fake_mask = one_hot_fake_mask[:, tc_rnd_cls, :, :]
 
-
         return one_hot_fake_mask
         
     def __train(self):
