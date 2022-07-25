@@ -94,8 +94,9 @@ class GCL_Companion(nn.Module):
         # else:
         #     x0 = seg_map
 
-        x1 = self.conv_down_1(seg_map)
+        x0 = seg_map
+        x1 = self.conv_down_1(x0)
         x2 = self.conv_down_2(x1)
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
-        return [x1, x2, x3, x4]
+        return [x0, x1, x2, x3, x4]

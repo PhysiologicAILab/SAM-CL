@@ -23,6 +23,7 @@ class GCL_Loss(nn.Module, ABC):
         super(GCL_Loss, self).__init__()
 
         # self.configer = configer
+        self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
         self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
         self.lossObj_x2 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
         self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
@@ -35,11 +36,12 @@ class GCL_Loss(nn.Module, ABC):
 
     def forward(self, critic_outputs_real, critic_outputs_fake, critic_outputs_pred, **kwargs):
 
-        real_seg_x1, real_seg_x2, real_seg_x3, real_seg_x4 = critic_outputs_real
-        fake_seg_x1, fake_seg_x2, fake_seg_x3, fake_seg_x4 = critic_outputs_fake
-        pred_seg_x1, pred_seg_x2, pred_seg_x3, pred_seg_x4 = critic_outputs_pred
+        real_seg_x0, real_seg_x1, real_seg_x2, real_seg_x3, real_seg_x4 = critic_outputs_real
+        fake_seg_x0, fake_seg_x1, fake_seg_x2, fake_seg_x3, fake_seg_x4 = critic_outputs_fake
+        pred_seg_x0, pred_seg_x1, pred_seg_x2, pred_seg_x3, pred_seg_x4 = critic_outputs_pred
 
         loss = (
+            self.lossObj_x0(pred_seg_x0, real_seg_x0, fake_seg_x0) +
             self.lossObj_x1(pred_seg_x1, real_seg_x1, fake_seg_x1) +
             self.lossObj_x2(pred_seg_x2, real_seg_x2, fake_seg_x2) +
             self.lossObj_x3(pred_seg_x3, real_seg_x3, fake_seg_x3) +
