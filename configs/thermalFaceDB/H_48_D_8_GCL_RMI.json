@@ -8,7 +8,8 @@
       "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
       "num_classes": 6,
       "data_dir": "~/dev/data/ThermalFaceDBx320",
-      "workers": 0
+      "workers": 0,
+      "use_gcl_input": true
     },
    "train": {
       "batch_size": 16,
