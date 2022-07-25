@@ -22,16 +22,16 @@ class GCL_Loss(nn.Module, ABC):
     def __init__(self, configer=None):
         super(GCL_Loss, self).__init__()
 
-        self.configer = configer
-        self.lossObj_x1 = nn.TripletMarginLoss()
-        self.lossObj_x2 = nn.TripletMarginLoss()
-        self.lossObj_x3 = nn.TripletMarginLoss()
-        self.lossObj_x4 = nn.TripletMarginLoss()
+        # self.configer = configer
+        self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(nn.CrossEntropyLoss())
+        self.lossObj_x2 = nn.TripletMarginWithDistanceLoss(nn.CrossEntropyLoss())
+        self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(nn.CrossEntropyLoss())
+        self.lossObj_x4 = nn.TripletMarginWithDistanceLoss(nn.CrossEntropyLoss())
 
-        self.real_feat_sign = 1.0
-        self.fake_feat_sign = -1.0
-        self.weight_full = 1.0
-        self.weight_half = 0.5
+        # self.real_feat_sign = 1.0
+        # self.fake_feat_sign = -1.0
+        # self.weight_full = 1.0
+        # self.weight_half = 0.5
 
     def forward(self, critic_outputs_real, critic_outputs_fake, critic_outputs_pred, **kwargs):
 

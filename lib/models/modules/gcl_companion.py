@@ -89,12 +89,12 @@ class GCL_Companion(nn.Module):
 
         # x0 = torch.cat([gcl_input, seg_map], dim=1)
 
-        if self.with_gcl_input and gcl_input != None:
-            x0 = (1 + seg_map) * gcl_input
-        else:
-            x0 = seg_map
+        # if self.with_gcl_input and gcl_input != None:
+        #     x0 = (1 + seg_map) * gcl_input
+        # else:
+        #     x0 = seg_map
 
-        x1 = self.conv_down_1(x0)
+        x1 = self.conv_down_1(seg_map)
         x2 = self.conv_down_2(x1)
         x3 = self.conv_down_3(x2)
         x4 = self.conv_final(x3)
