@@ -23,10 +23,10 @@ class GCL_Loss(nn.Module, ABC):
         super(GCL_Loss, self).__init__()
 
         # self.configer = configer
-        self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(nn.CrossEntropyLoss())
-        self.lossObj_x2 = nn.TripletMarginWithDistanceLoss(nn.CrossEntropyLoss())
-        self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(nn.CrossEntropyLoss())
-        self.lossObj_x4 = nn.TripletMarginWithDistanceLoss(nn.CrossEntropyLoss())
+        self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
+        self.lossObj_x2 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
+        self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
+        self.lossObj_x4 = nn.TripletMarginWithDistanceLoss(distance_function=nn.CrossEntropyLoss())
 
         # self.real_feat_sign = 1.0
         # self.fake_feat_sign = -1.0
