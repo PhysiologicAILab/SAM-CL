@@ -26,4 +26,4 @@ module load cudnn/8.2.1.32/cuda-11.3
 module load pytorch/1.11.0/gpu
 source ~/sw/python/seg/bin/activate
 cd ~/dev/repo/GenCL/
-bash scripts/thermalFaceDB/hrnet/run_h_48_d_8_hrnet_gcl_rmi_train_occ.sh train hrnet_gcl_rmi_occ_SSIM2 ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+bash scripts/thermalFaceDB/hrnet/run_h_48_d_8_hrnet_gcl_rmi_train_occ.sh train hrnet_gcl_rmi_occ_L1_SGD_2 ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
