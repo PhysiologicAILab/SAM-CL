@@ -93,8 +93,8 @@ def _setup_process_group(args):
     # torch.cuda.set_device(local_rank)
     torch.distributed.init_process_group(
         'nccl',
-        # init_method='file:///tmp/somefile',
-        init_method='env://',
+        init_method='file:///tmp/somefile',
+        # init_method='env://',
         rank=local_rank,
         world_size=1
     )
