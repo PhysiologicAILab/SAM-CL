@@ -94,6 +94,6 @@ def _setup_process_group(args):
     torch.distributed.init_process_group(
         'nccl',
         init_method='file:///tmp/somefile',
-        # rank=local_rank,
+        rank=local_rank,
         # world_size=1
     )
