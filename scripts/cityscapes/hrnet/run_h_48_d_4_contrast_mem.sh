@@ -8,7 +8,7 @@ SCRATCH_ROOT=$4
 ASSET_ROOT=${DATA_ROOT}
 
 DATA_DIR="${DATA_ROOT}/Cityscapes"
-SAVE_DIR="${SCRATCH_ROOT}/seg_results/cityscapes"
+SAVE_DIR="${SCRATCH_ROOT}/Cityscapes/seg_results/"
 BACKBONE="hrnet48"
 
 CONFIGS="configs/cityscapes/H_48_D_4_MEM.json"
@@ -16,13 +16,13 @@ CONFIGS_TEST="configs/cityscapes/H_48_D_4_TEST.json"
 
 MODEL_NAME="hrnet_w48_mem"
 LOSS_TYPE="mem_contrast_ce_loss"
-CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Cityscapes/"
+CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Cityscapes"
 CHECKPOINTS_NAME="${MODEL_NAME}_paddle_lr2x_"$2
 LOG_FILE="${SCRATCH_ROOT}/logs/Cityscapes/${CHECKPOINTS_NAME}.log"
 echo "Logging to $LOG_FILE"
 mkdir -p `dirname $LOG_FILE`
 
-PRETRAINED_MODEL="${ASSET_ROOT}/hrnetv2_w48_imagenet_pretrained.pth"
+PRETRAINED_MODEL="${ASSET_ROOT}/Cityscapes/hrnetv2_w48_imagenet_pretrained.pth"
 MAX_ITERS=40000
 BATCH_SIZE=8
 BASE_LR=0.01
