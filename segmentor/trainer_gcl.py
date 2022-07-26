@@ -211,8 +211,9 @@ class Trainer(object):
         self.seg_net.train()
         self.pixel_loss.train()
 
-        self.critic_net.train()
-        self.critic_loss_func.train()
+        if self.with_gcl:
+            self.critic_net.train()
+            self.critic_loss_func.train()
 
         start_time = time.time()
         
@@ -240,26 +241,28 @@ class Trainer(object):
             foward_start_time = time.time()
             with torch.cuda.amp.autocast():
                 outputs = self.seg_net(*inputs)
+
+            if self.with_gcl:    
             
-            if self.with_gcl_input:
-                targets, gcl_input = targets
+                if self.with_gcl_input:
+                    targets, gcl_input = targets
 
-            # with torch.autograd.set_detect_anomaly(True):            
-            # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
-            targets[targets < 0] = 0  # Resizing and Crop is causing this to -1 - need to resolve
-            one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
-            one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
-            pred_seg_mask = self.seg_act(outputs).exp()
-            one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+                # with torch.autograd.set_detect_anomaly(True):            
+                # Log.info('targets.shape, min, max: {}, {}, {}'.format(targets.shape, targets.min(), targets.max()))
+                targets[targets < 0] = 0  # Resizing and Crop is causing this to -1 - need to resolve
+                one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
+                one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
+                pred_seg_mask = self.seg_act(outputs).exp()
+                one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
-            if self.with_gcl_input:
-                critic_outputs_pred = self.critic_net(one_hot_pred_seg_mask, gcl_input=gcl_input)
-                critic_outputs_real = self.critic_net(one_hot_target_mask, gcl_input=gcl_input)
-                critic_outputs_fake = self.critic_net(one_hot_fake_mask, gcl_input=gcl_input)
-            else:
-                critic_outputs_pred = self.critic_net(one_hot_pred_seg_mask)
-                critic_outputs_real = self.critic_net(one_hot_target_mask)
-                critic_outputs_fake = self.critic_net(one_hot_fake_mask)
+                if self.with_gcl_input:
+                    critic_outputs_pred = self.critic_net(one_hot_pred_seg_mask, gcl_input=gcl_input)
+                    critic_outputs_real = self.critic_net(one_hot_target_mask, gcl_input=gcl_input)
+                    critic_outputs_fake = self.critic_net(one_hot_fake_mask, gcl_input=gcl_input)
+                else:
+                    critic_outputs_pred = self.critic_net(one_hot_pred_seg_mask)
+                    critic_outputs_real = self.critic_net(one_hot_target_mask)
+                    critic_outputs_fake = self.critic_net(one_hot_fake_mask)
 
             self.foward_time.update(time.time() - foward_start_time)
 
@@ -281,20 +284,26 @@ class Trainer(object):
 
                 with torch.cuda.amp.autocast():
                     loss = self.pixel_loss(outputs, targets, is_eval=False)
-                    critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred)
-                    
-                    backward_loss = loss + self.gcl_loss_weight * critic_loss
+                    if self.with_gcl:
+                        critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred)
+                        backward_loss = loss + self.gcl_loss_weight * critic_loss
+                        display_loss_critic = reduce_tensor(critic_loss) / get_world_size()
+                    else:
+                        backward_loss = loss
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
-                    display_loss_critic = reduce_tensor(critic_loss) / get_world_size()
 
             else:
                 loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered')) 
-                critic_loss = self.critic_loss_func(
-                    critic_outputs_real, critic_outputs_fake, critic_outputs_pred, gathered=self.configer.get('network', 'gathered'))
-                backward_loss = display_loss = loss + self.gcl_loss_weight * critic_loss
-                display_loss_critic = critic_loss
+                if self.with_gcl:
+                    critic_loss = self.critic_loss_func(
+                        critic_outputs_real, critic_outputs_fake, critic_outputs_pred, gathered=self.configer.get('network', 'gathered'))
+                    backward_loss = display_loss = loss + self.gcl_loss_weight * critic_loss
+                    display_loss_critic = critic_loss
+                else:
+                    backward_loss = display_loss = loss
 
-            self.train_losses_critic.update(display_loss_critic.item(), batch_size)
+            if self.with_gcl:
+                self.train_losses_critic.update(display_loss_critic.item(), batch_size)
             self.train_losses.update(display_loss.item(), batch_size)
             self.loss_time.update(time.time() - loss_start_time)
 
@@ -326,13 +335,15 @@ class Trainer(object):
                          'Backward Time {backward_time.sum:.3f}s / {2}iters, ({backward_time.avg:.3f})\t'
                          'Loss Time {loss_time.sum:.3f}s / {2}iters, ({loss_time.avg:.3f})\t'
                          'Data load {data_time.sum:.3f}s / {2}iters, ({data_time.avg:3f})\n'
-                         'Learning rate = {3}\tLoss = {loss.val:.8f} (ave = {loss.avg:.8f})\t'
-                         'Critic_Loss = {critic_loss.val:.8f} (ave = {critic_loss.avg:.8f})\n'.format(
+                         'Learning rate = {3}\tLoss = {loss.val:.8f} (ave = {loss.avg:.8f})\n'.format(
                     self.configer.get('epoch'), self.configer.get('iters'),
                     self.configer.get('solver', 'display_iter'),
                     self.module_runner.get_lr(self.optimizer), batch_time=self.batch_time,
                     foward_time=self.foward_time, backward_time=self.backward_time, loss_time=self.loss_time,
-                             data_time=self.data_time, loss=self.train_losses, critic_loss=self.train_losses_critic))
+                             data_time=self.data_time, loss=self.train_losses))
+                if self.with_gcl:
+                    Log.info('Critic_Loss = {critic_loss.val:.8f} (ave = {critic_loss.avg:.8f})\n'.format(
+                        critic_loss=self.train_losses_critic))
 
                 self.batch_time.reset()
                 self.foward_time.reset()
@@ -340,6 +351,8 @@ class Trainer(object):
                 self.loss_time.reset()
                 self.data_time.reset()
                 self.train_losses.reset()
+                if self.with_gcl:
+                    self.train_losses_critic()
 
             # save checkpoints for swa
             if 'swa' in self.configer.get('lr', 'lr_policy') and \
