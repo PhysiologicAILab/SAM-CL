@@ -149,11 +149,5 @@
       "warmup_iters": 5000,
       "loss_weight": 0.1,
       "use_rmi": false
-    },
-    "gcl": {
-      "contrastive_loss": "L1",
-      "apply_spectral_norm": false,
-      "warmup_iters": 100,
-      "loss_weight": 0.1
-    }    
+    }
 }
