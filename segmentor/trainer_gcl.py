@@ -227,10 +227,6 @@ class Trainer(object):
 
         for i, data_dict in enumerate(self.train_loader):
             self.optimizer.zero_grad()
-            if self.configer.get('lr', 'metric') == 'iters':
-                self.scheduler.step(self.configer.get('iters'))
-            else:
-                self.scheduler.step(self.configer.get('epoch'))
 
             if self.configer.get('lr', 'is_warm'):
                 self.module_runner.warm_lr(
@@ -308,6 +304,11 @@ class Trainer(object):
             # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
             scaler.step(self.optimizer)
             scaler.update()
+            self.scheduler.step()
+            # if self.configer.get('lr', 'metric') == 'iters':
+            #     self.scheduler.step(self.configer.get('iters'))
+            # else:
+            #     self.scheduler.step(self.configer.get('epoch'))
 
             self.backward_time.update(time.time() - backward_start_time)
 
