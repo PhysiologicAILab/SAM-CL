@@ -38,7 +38,7 @@ class ConvFinal(nn.Module):
         if apply_spectral_norm:
             self.conv_final = nn.Sequential(
                 spectral_norm(nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1, padding_mode='reflect', bias=False)),
-                ModuleHelper.BatchNorm2d(n_ch2, bn_type=bn_type),
+                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type),
             )
         else:
             self.conv_final = nn.Sequential(
