@@ -17,6 +17,7 @@ import torch.nn as nn
 from lib.loss.pytorch_ssim import SSIM
 from lib.utils.tools.logger import Logger as Log
 from lib.loss.dice_loss import DiceLoss
+from lib.loss.loss_helper import FSCELoss
 
 class GCL_Loss(nn.Module, ABC):
     def __init__(self, configer=None):
@@ -28,8 +29,11 @@ class GCL_Loss(nn.Module, ABC):
         # classes = list(range(self.num_classes))
         # log_loss = True #False #True
 
+        # self.ce_loss = FSCELoss(self.configer)
+
         # self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = DiceLoss(mode=class_mode, classes=classes, log_loss=log_loss))
-        self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())
+        # self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())
+        self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = FSCELoss(self.configer))
         self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())
         self.lossObj_x2 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())
         self.lossObj_x3 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())

@@ -127,11 +127,6 @@ class Trainer(object):
 
             self.gcl_loss_weight = self.configer.get('gcl', 'loss_weight')
 
-            if self.configer.exists("gcl", "warmup_iters"):
-                self.gcl_warmup_iters = self.configer.get("gcl", "warmup_iters")
-            else:
-                self.gcl_warmup_iters = 0
-
             self.seg_act = nn.LogSoftmax(dim=1)
             self.num_classes = self.configer.get('data', 'num_classes')
 
