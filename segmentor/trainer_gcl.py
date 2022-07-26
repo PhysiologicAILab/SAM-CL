@@ -392,8 +392,9 @@ class Trainer(object):
             else:
                 (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
             
-            if self.with_gcl_input:
-                targets, _ = targets
+            if self.with_gcl:
+                if self.with_gcl_input:
+                    targets, _ = targets
 
             with torch.no_grad():
                 if self.configer.get('dataset') == 'lip':
