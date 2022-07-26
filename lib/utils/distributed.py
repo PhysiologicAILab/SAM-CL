@@ -76,24 +76,24 @@ def handle_distributed(args, main_file):
     sys.exit(process.returncode)
 
 
-def _setup_process_group(args):
-    local_rank = args.local_rank
-
-    torch.cuda.set_device(local_rank)
-    torch.distributed.init_process_group(
-        'nccl',
-        init_method='env://',
-        # rank=local_rank
-    )
-
-
 # def _setup_process_group(args):
 #     local_rank = args.local_rank
 
-#     # torch.cuda.set_device(local_rank)
+#     torch.cuda.set_device(local_rank)
 #     torch.distributed.init_process_group(
 #         'nccl',
-#         init_method='file:///tmp/somefile',
-#         rank=local_rank,
-#         world_size=1
+#         init_method='env://',
+#         # rank=local_rank
 #     )
+
+
+def _setup_process_group(args):
+    local_rank = args.local_rank
+
+    # torch.cuda.set_device(local_rank)
+    torch.distributed.init_process_group(
+        'nccl',
+        init_method='file:///tmp/somefile',
+        rank=local_rank,
+        world_size=1
+    )
