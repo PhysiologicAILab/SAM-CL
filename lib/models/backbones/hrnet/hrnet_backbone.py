@@ -303,14 +303,14 @@ class HighResolutionNet(nn.Module):
         if os.environ.get('full_res_stem'):
             Log.info("using full-resolution stem with stride=1")
             stem_stride = 1
-            self.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=stem_stride, padding=1,
+            self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=stem_stride, padding=1,
                                    bias=False)
             self.bn1 = ModuleHelper.BatchNorm2d(bn_type=bn_type)(64, momentum=bn_momentum)
             self.relu = nn.ReLU(inplace=False)
             self.layer1 = self._make_layer(Bottleneck, 64, 64, 4, bn_type=bn_type, bn_momentum=bn_momentum)
         else:
             stem_stride = 2
-            self.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=stem_stride, padding=1,
+            self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=stem_stride, padding=1,
                                    bias=False)
             self.bn1 = ModuleHelper.BatchNorm2d(bn_type=bn_type)(64, momentum=bn_momentum)
             self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=stem_stride, padding=1,
