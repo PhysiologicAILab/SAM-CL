@@ -58,7 +58,7 @@ class GCL_Companion(nn.Module):
         self.num_classes = self.configer.get('data', 'num_classes')
 
         self.bn_type = self.configer.get('network', 'bn_type')
-        self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
+        self.apply_spectral_norm = False # bool(self.configer.get('gcl', 'apply_spectral_norm'))
         self.n_channels = int(self.configer.get('data', 'num_channels'))
 
         self.with_gcl_input = False
