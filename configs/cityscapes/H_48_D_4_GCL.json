@@ -152,8 +152,8 @@
     },
     "gcl": {
       "contrastive_loss": "L1",
-      "apply_spectral_norm": false,
+      "apply_spectral_norm": true,
       "warmup_iters": 100,
-      "loss_weight": 0.2
+      "loss_weight": 0.1
     }    
 }
