@@ -43,7 +43,7 @@ class ConvFinal(nn.Module):
         else:
             self.conv_final = nn.Sequential(
                 nn.Conv2d(n_ch1, n_ch2, kernel_size=1, stride=1, padding=1, padding_mode='reflect', bias=False),
-                ModuleHelper.BNReLU(n_ch2, bn_type=bn_type)(n_ch2),
+                ModuleHelper.BNReLU(bn_type=bn_type)(n_ch2),
             )
 
     def forward(self, x):
@@ -58,7 +58,7 @@ class GCL_Companion(nn.Module):
         self.num_classes = self.configer.get('data', 'num_classes')
 
         self.bn_type = self.configer.get('network', 'bn_type')
-        self.apply_spectral_norm = False # bool(self.configer.get('gcl', 'apply_spectral_norm'))
+        self.apply_spectral_norm = bool(self.configer.get('gcl', 'apply_spectral_norm'))
         self.n_channels = int(self.configer.get('data', 'num_channels'))
 
         self.with_gcl_input = False
