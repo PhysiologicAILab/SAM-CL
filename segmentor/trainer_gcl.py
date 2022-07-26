@@ -347,7 +347,7 @@ class Trainer(object):
                 self.data_time.reset()
                 self.train_losses.reset()
                 if self.with_gcl:
-                    self.train_losses_critic()
+                    self.train_losses_critic.reset()
 
             # save checkpoints for swa
             if 'swa' in self.configer.get('lr', 'lr_policy') and \
