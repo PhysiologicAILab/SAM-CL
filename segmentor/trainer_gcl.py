@@ -226,19 +226,24 @@ class Trainer(object):
             self.train_loader.sampler.set_epoch(self.configer.get('epoch'))
 
         for i, data_dict in enumerate(self.train_loader):
-            
             self.optimizer.zero_grad()
+            if self.configer.get('lr', 'metric') == 'iters':
+                self.scheduler.step(self.configer.get('iters'))
+            else:
+                self.scheduler.step(self.configer.get('epoch'))
 
             if self.configer.get('lr', 'is_warm'):
-                self.module_runner.warm_lr(self.configer.get('iters'), self.scheduler, self.optimizer, backbone_list=[0, ])
+                self.module_runner.warm_lr(
+                    self.configer.get('iters'),
+                    self.scheduler, self.optimizer, backbone_list=[0, ]
+                )
 
             (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
-
             self.data_time.update(time.time() - start_time)
 
             foward_start_time = time.time()
-
-            outputs = self.seg_net(*inputs)
+            with torch.cuda.amp.autocast():
+                outputs = self.seg_net(*inputs)
             
             if self.with_gcl_input:
                 targets, gcl_input = targets
@@ -263,10 +268,8 @@ class Trainer(object):
             self.foward_time.update(time.time() - foward_start_time)
 
             loss_start_time = time.time()
-
             if is_distributed():
                 import torch.distributed as dist
-
                 def reduce_tensor(inp):
                     """
                     Reduce the loss from all processes so that 
@@ -289,12 +292,11 @@ class Trainer(object):
                     display_loss_critic = reduce_tensor(critic_loss) / get_world_size()
 
             else:
-                with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered')) 
-                    critic_loss = self.critic_loss_func(
-                        critic_outputs_real, critic_outputs_fake, critic_outputs_pred, gathered=self.configer.get('network', 'gathered'))
-                    display_loss = backward_loss = loss + self.gcl_loss_weight * critic_loss
-                    display_loss_critic = critic_loss
+                loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered')) 
+                critic_loss = self.critic_loss_func(
+                    critic_outputs_real, critic_outputs_fake, critic_outputs_pred, gathered=self.configer.get('network', 'gathered'))
+                backward_loss = display_loss = loss + self.gcl_loss_weight * critic_loss
+                display_loss_critic = critic_loss
 
             self.train_losses_critic.update(display_loss_critic.item(), batch_size)
             self.train_losses.update(display_loss.item(), batch_size)
@@ -306,7 +308,7 @@ class Trainer(object):
             # nn.utils.clip_grad_value_(self.seg_net.parameters(), 0.1)
             scaler.step(self.optimizer)
             scaler.update()
-            self.scheduler.step()
+
             self.backward_time.update(time.time() - backward_start_time)
 
             # Update the vars of the train phase.
@@ -370,13 +372,39 @@ class Trainer(object):
                 if is_distributed(): dist.barrier()  # Synchronize all processes
                 Log.info('{} images processed\n'.format(j))
 
-
-            (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
+            if self.configer.get('dataset') == 'lip':
+                (inputs, targets, inputs_rev, targets_rev), batch_size = self.data_helper.prepare_data(data_dict,
+                                                                                                       want_reverse=True)
+            else:
+                (inputs, targets), batch_size = self.data_helper.prepare_data(data_dict)
+            
             if self.with_gcl_input:
                 targets, _ = targets
 
             with torch.no_grad():
-                if self.data_helper.conditions.diverse_size:
+                if self.configer.get('dataset') == 'lip':
+                    inputs = torch.cat([inputs[0], inputs_rev[0]], dim=0)
+                    outputs = self.seg_net(inputs)
+                    if not is_distributed():
+                        outputs_ = self.module_runner.gather(outputs)
+                    else:
+                        outputs_ = outputs
+                    if isinstance(outputs_, (list, tuple)):
+                        outputs_ = outputs_[-1]
+                    outputs = outputs_[0:int(outputs_.size(0) / 2), :, :, :].clone()
+                    outputs_rev = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), :, :, :].clone()
+                    if outputs_rev.shape[1] == 20:
+                        outputs_rev[:, 14, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 15, :, :]
+                        outputs_rev[:, 15, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 14, :, :]
+                        outputs_rev[:, 16, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 17, :, :]
+                        outputs_rev[:, 17, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 16, :, :]
+                        outputs_rev[:, 18, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 19, :, :]
+                        outputs_rev[:, 19, :, :] = outputs_[int(outputs_.size(0) / 2):int(outputs_.size(0)), 18, :, :]
+                    outputs_rev = torch.flip(outputs_rev, [3])
+                    outputs = (outputs + outputs_rev) / 2.
+                    self.evaluator.update_score(outputs, data_dict['meta'])
+
+                elif self.data_helper.conditions.diverse_size:
                     if is_distributed():
                         outputs = [self.seg_net(inputs[i]) for i in range(len(inputs))]
                     else:
