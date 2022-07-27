@@ -72,8 +72,7 @@ class ThermalFaceDBLoader(data.Dataset):
                 labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
 
             # Log.info('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
-
-        ori_target = ImageHelper.tonp(labelmap)
+            ori_target = ImageHelper.tonp(labelmap)
 
         if self.aug_transform is not None:
             if self.read_label:
@@ -102,6 +101,11 @@ class ThermalFaceDBLoader(data.Dataset):
         )
         # Log.info('After Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
         if self.read_label:
+            meta = dict(
+                ori_img_size=img_size,
+                border_size=border_size,
+                ori_target=ori_target
+            )
             if self.with_gcl_input:
                 return_dict = dict(
                     img=DataContainer(img, stack=self.is_stack),
@@ -118,11 +122,15 @@ class ThermalFaceDBLoader(data.Dataset):
                     name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
                 )
         else:
-                return_dict = dict(
-                    img=DataContainer(img, stack=self.is_stack),
-                    meta=DataContainer(meta, stack=False, cpu_only=True),
-                    name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
-                )
+            meta = dict(
+                ori_img_size=img_size,
+                border_size=border_size,
+            )
+            return_dict = dict(
+                img=DataContainer(img, stack=self.is_stack),
+                meta=DataContainer(meta, stack=False, cpu_only=True),
+                name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
+            )
 
         # Log.info('return_dict: Labelmap Min Max: {} {}'.format(
         #     return_dict['labelmap'].min(), return_dict['labelmap'].max()))
