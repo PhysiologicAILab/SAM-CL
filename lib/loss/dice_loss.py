@@ -87,7 +87,7 @@ class DiceLoss(_Loss):
         self.log_loss = log_loss
         self.ignore_index = ignore_index
 
-    def forward(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> torch.Tensor:
+    def forward(self, y_pred: torch.Tensor, y_true: torch.Tensor, **kwargs) -> torch.Tensor:
 
         assert y_true.size(0) == y_pred.size(0)
 
