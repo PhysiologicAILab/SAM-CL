@@ -35,7 +35,7 @@
       "batch_size": 16,
       "loader": "thermalFaceDB",
       "mode": "ss_test",
-      "out_dir": "ckpts/thermalFaceDB/HRNET_GCL",
+      "out_dir": "ckpts/thermalFaceDB/UNET",
       "data_transformer": {
         "size_mode": "fix_size",
         "input_size": [320, 256],
@@ -88,30 +88,25 @@
       "norm_mode": 2
     },
     "checkpoints": {
-      "checkpoints_name": "hrnet_gcl_thermalFaceDB_seg",
+      "checkpoints_name": "unet_gcl_thermalFaceDB_seg",
       "checkpoints_dir": "./checkpoints/thermalFaceDB",
       "save_iters": 1000
     },
     "network":{
-      "backbone": "deepbase_resnet101_dilated8",
+      "backbone": "none",
       "multi_grid": [1, 1, 1],
-      "model_name": "hrnet_w48",
+      "model_name": "unet",
       "bn_type": "torchsyncbn",
       "stride": 8,
-      "factors": [[8, 8]],
-      "loss_weights": {
-        "corr_loss": 0.01,
-        "aux_loss": 0.4,
-        "seg_loss": 1.0
-      }
+      "factors": [[8, 8]]
     },
-    "critic":{
+    "critic": {
       "model_name": "gcl_companion"
     },
     "logging": {
       "logfile_level": "info",
       "stdout_level": "info",
-      "log_file": "./log/thermalFaceDB/fs_baseocnet_thermalFaceDB_seg.log",
+      "log_file": "./log/thermalFaceDB/fs_unet_gcl_thermalFaceDB_seg.log",
       "log_format": "%(asctime)s %(levelname)-7s %(message)s",
       "rewrite": true
     },
@@ -166,4 +161,4 @@
       "apply_spectral_norm": false,
       "loss_weight": 0.5
     }
-  }
+}

@@ -10,12 +10,12 @@ ASSET_ROOT=${DATA_ROOT}
 DATA_DIR="${DATA_ROOT}/Processed"
 SAVE_DIR="${SCRATCH_ROOT}/seg_results/thermalFaceDB"
 # BACKBONE="hrnet48"
-BACKBONE="deepbase_resnet101_dilated8"
+BACKBONE="none"
 
-CONFIGS="configs/thermalFaceDB/H_48_D_8_GCL_RMI_Occ.json"
+CONFIGS="configs/thermalFaceDB/U_GCL.json"
 # CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="hrnet_w48"
+MODEL_NAME="unet"
 LOSS_TYPE="rmi_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
