@@ -100,7 +100,7 @@ class UNet(nn.Module):
         self.up4 = Up(128, 64, bilinear)
         self.outc = OutConv(64, self.n_classes)
 
-    def forward(self, x):
+    def forward(self, x, **kwargs):
         x1 = self.inc(x)
         x2 = self.down1(x1)
         x3 = self.down2(x2)
