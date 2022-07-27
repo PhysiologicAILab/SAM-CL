@@ -12,6 +12,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from codecs import ignore_errors
 from copy import deepcopy
 
 import os
@@ -32,7 +33,17 @@ class ThermalFaceDBLoader(data.Dataset):
         self.aug_transform = aug_transform
         self.img_transform = img_transform
         self.label_transform = label_transform
-        self.img_list, self.label_list, self.name_list = self.__list_dirs(root_dir, dataset)
+
+        if self.configer.get('phase') != 'test':
+            self.read_label = True
+        else:
+            self.read_label = False
+
+        if self.read_label:
+            self.img_list, self.label_list, self.name_list = self.__list_dirs(root_dir, dataset)
+        else:
+            self.img_list, self.name_list = self.__list_dirs(root_dir, dataset)
+
         size_mode = self.configer.get(dataset, 'data_transformer')['size_mode']
         self.is_stack = size_mode != 'diverse_size'
         self.with_gcl_input = False
@@ -53,21 +64,25 @@ class ThermalFaceDBLoader(data.Dataset):
             gcl_input = deepcopy(img)
         # Log.info('{}'.format(self.img_list[index]))
         img_size = ImageHelper.get_size(img)
-        labelmap = ImageHelper.read_image(self.label_list[index],
-                                          tool=self.configer.get('data', 'image_tool'), mode='P')
 
-        if self.configer.exists('data', 'remap_classes'):
-            labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
+        if self.read_label:
+            labelmap = ImageHelper.read_image(self.label_list[index], tool=self.configer.get('data', 'image_tool'), mode='P')
 
-        # Log.info('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
+            if self.configer.exists('data', 'remap_classes'):
+                labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
+
+            # Log.info('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
 
         ori_target = ImageHelper.tonp(labelmap)
 
         if self.aug_transform is not None:
-            if self.with_gcl_input:
-                img, labelmap, gcl_input = self.aug_transform(img, labelmap=labelmap, gcl_input=gcl_input)
+            if self.read_label:
+                if self.with_gcl_input:
+                    img, labelmap, gcl_input = self.aug_transform(img, labelmap=labelmap, gcl_input=gcl_input)
+                else:
+                    img, labelmap = self.aug_transform(img, labelmap=labelmap)
             else:
-                img, labelmap = self.aug_transform(img, labelmap=labelmap)
+                img = self.aug_transform(img)
 
         border_size = ImageHelper.get_size(img)
 
@@ -76,8 +91,9 @@ class ThermalFaceDBLoader(data.Dataset):
             if self.with_gcl_input:
                 gcl_input = self.img_transform(gcl_input)
 
-        if self.label_transform is not None:
-            labelmap = self.label_transform(labelmap)
+        if self.read_label:
+            if self.label_transform is not None:
+                labelmap = self.label_transform(labelmap)
 
         meta = dict(
             ori_img_size=img_size,
@@ -85,23 +101,28 @@ class ThermalFaceDBLoader(data.Dataset):
             ori_target=ori_target
         )
         # Log.info('After Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
-        
-        if self.with_gcl_input:
-            return_dict = dict(
-                img=DataContainer(img, stack=self.is_stack),
-                labelmap=DataContainer(labelmap, stack=self.is_stack),
-                gcl_input = DataContainer(gcl_input, stack=self.is_stack),
-                meta=DataContainer(meta, stack=False, cpu_only=True),
-                name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
-            )
+        if self.read_label:
+            if self.with_gcl_input:
+                return_dict = dict(
+                    img=DataContainer(img, stack=self.is_stack),
+                    labelmap=DataContainer(labelmap, stack=self.is_stack),
+                    gcl_input = DataContainer(gcl_input, stack=self.is_stack),
+                    meta=DataContainer(meta, stack=False, cpu_only=True),
+                    name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
+                )
+            else:
+                return_dict = dict(
+                    img=DataContainer(img, stack=self.is_stack),
+                    labelmap=DataContainer(labelmap, stack=self.is_stack),
+                    meta=DataContainer(meta, stack=False, cpu_only=True),
+                    name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
+                )
         else:
-            return_dict = dict(
-                img=DataContainer(img, stack=self.is_stack),
-                labelmap=DataContainer(labelmap, stack=self.is_stack),
-                meta=DataContainer(meta, stack=False, cpu_only=True),
-                name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
-            )
-
+                return_dict = dict(
+                    img=DataContainer(img, stack=self.is_stack),
+                    meta=DataContainer(meta, stack=False, cpu_only=True),
+                    name=DataContainer(self.name_list[index], stack=False, cpu_only=True),
+                )
 
         # Log.info('return_dict: Labelmap Min Max: {} {}'.format(
         #     return_dict['labelmap'].min(), return_dict['labelmap'].max()))
@@ -117,10 +138,13 @@ class ThermalFaceDBLoader(data.Dataset):
 
     def __list_dirs(self, root_dir, dataset):
         img_list = list()
-        label_list = list()
+
+        if self.read_label:
+            label_list = list()
         name_list = list()
         image_dir = os.path.join(root_dir, dataset, 'image')
-        label_dir = os.path.join(root_dir, dataset, 'label')
+        if self.configer.get('phase') != 'test':
+            label_dir = os.path.join(root_dir, dataset, 'label')
 
         img_extension = os.listdir(image_dir)[0].split('.')[-1]
 
@@ -136,18 +160,22 @@ class ThermalFaceDBLoader(data.Dataset):
         for file_name in files:
             image_name = '.'.join(file_name.split('.')[:-1])
             img_path = os.path.join(image_dir, '{}'.format(file_name))
-            label_path = os.path.join(label_dir, image_name + '.png')
-            # Log.info('{} {} {}'.format(image_name, img_path, label_path))
-            if not os.path.exists(label_path) or not os.path.exists(img_path):
-                Log.error('Label Path: {} {} not exists.'.format(label_path, img_path))
-                continue
+            if self.read_label:
+                label_path = os.path.join(label_dir, image_name + '.png')
+                # Log.info('{} {} {}'.format(image_name, img_path, label_path))
+                if not os.path.exists(label_path) or not os.path.exists(img_path):
+                    Log.error('Label Path: {} {} not exists.'.format(label_path, img_path))
+                    continue
 
             img_list.append(img_path)
-            label_list.append(label_path)
+            if self.read_label:
+                label_list.append(label_path)
             name_list.append(image_name)
 
-        return img_list, label_list, name_list
-
+        if self.read_label:
+            return img_list, label_list, name_list
+        else:
+            return img_list, name_list
 
 
 if __name__ == "__main__":
