@@ -163,7 +163,7 @@
       }
     },
     "gcl": {
-      "apply_spectral_norm": true,
-      "loss_weight": 1.0
+      "apply_spectral_norm": false,
+      "loss_weight": 0.5
     }
   }
