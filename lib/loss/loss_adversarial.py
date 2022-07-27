@@ -46,9 +46,6 @@ class GCL_Loss(nn.Module, ABC):
         #     ignore_index = self.configer.get('loss', 'params')[
         #         'ce_ignore_index']
 
-        if self.configer.get('loss', 'loss_type') == 'dice_loss':
-            self.configer.get('loss', 'params')['mode'] = 'multilabel'
-
         # self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = DiceLoss(self.configer))
         self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = RMILoss(self.configer))
         # self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())
@@ -68,8 +65,11 @@ class GCL_Loss(nn.Module, ABC):
         fake_seg_x0, fake_seg_x1, fake_seg_x2, fake_seg_x3 = critic_outputs_fake
         pred_seg_x0, pred_seg_x1, pred_seg_x2, pred_seg_x3 = critic_outputs_pred
 
+        real_seg_x0_label_enc = torch.argmax(real_seg_x0, dim=1)
+        fake_seg_x0_label_enc = torch.argmax(fake_seg_x0, dim=1)
+
         loss = (
-            self.lossObj_x0(pred_seg_x0, real_seg_x0, fake_seg_x0) +
+            self.lossObj_x0(pred_seg_x0, real_seg_x0_label_enc, fake_seg_x0_label_enc) +
             self.lossObj_x1(pred_seg_x1, real_seg_x1, fake_seg_x1) +
             self.lossObj_x2(pred_seg_x2, real_seg_x2, fake_seg_x2) +
             self.lossObj_x3(pred_seg_x3, real_seg_x3, fake_seg_x3)
