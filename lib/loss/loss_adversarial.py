@@ -46,6 +46,9 @@ class GCL_Loss(nn.Module, ABC):
         #     ignore_index = self.configer.get('loss', 'params')[
         #         'ce_ignore_index']
 
+        if self.configer.get('loss', 'loss_type') == 'dice_loss':
+            self.configer.get('loss', 'params')['mode'] = 'multilabel'
+
         # self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = DiceLoss(self.configer))
         self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = RMILoss(self.configer))
         # self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())
