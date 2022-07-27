@@ -24,10 +24,10 @@ class GCL_Loss(nn.Module, ABC):
         super(GCL_Loss, self).__init__()
 
         self.configer = configer
-        self.num_classes = self.configer.get('data', 'num_classes')
-        class_mode = 'multilabel'
-        classes = list(range(self.num_classes))
-        log_loss = True #False #True
+        # self.num_classes = self.configer.get('data', 'num_classes')
+        # class_mode = 'multilabel'
+        # classes = list(range(self.num_classes))
+        # log_loss = True #False #True
 
         # self.ce_loss = FSCELoss(self.configer)
 
@@ -45,7 +45,7 @@ class GCL_Loss(nn.Module, ABC):
         #     ignore_index = self.configer.get('loss', 'params')[
         #         'ce_ignore_index']
 
-        self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = DiceLoss(mode=class_mode, classes=classes, log_loss=log_loss))
+        self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = DiceLoss(self.configer))
         # self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())
         # self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss(weight=weight, ignore_index=ignore_index, reduction=reduction))
         self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())

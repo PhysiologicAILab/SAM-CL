@@ -45,13 +45,7 @@ class DiceLoss(_Loss):
 
     def __init__(
         self,
-        mode: str,
-        classes: Optional[List[int]] = None,
-        log_loss: bool = False,
-        from_logits: bool = True,
-        smooth: float = 0.0,
-        ignore_index: Optional[int] = None,
-        eps: float = 1e-7,
+        configer,
     ):
         """Implementation of Dice loss for image segmentation task.
         It supports binary, multiclass and multilabel cases
@@ -70,6 +64,15 @@ class DiceLoss(_Loss):
         Reference
             https://github.com/BloodAxe/pytorch-toolbelt
         """
+        self.configer = configer
+        mode = self.configer.get('loss', 'params')['mode']
+        classes = self.configer.get('loss', 'params')['classes']
+        log_loss = bool(self.configer.get('loss', 'params')['log_loss'])
+        from_logits = bool(self.configer.get('loss', 'params')['from_logits'])
+        smooth = self.configer.get('loss', 'params')['smooth']
+        ignore_index = self.configer.get('loss', 'params')['ignore_index']
+        eps = float(self.configer.get('loss', 'params')['eps'])
+
         assert mode in {BINARY_MODE, MULTILABEL_MODE, MULTICLASS_MODE}
         super(DiceLoss, self).__init__()
         self.mode = mode

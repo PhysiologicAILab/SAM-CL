@@ -20,6 +20,7 @@ from lib.loss.rmi_loss import RMILoss
 from lib.loss.loss_adversarial import GCL_Loss, GAN_Loss
 from lib.loss.loss_contrast import ContrastAuxCELoss, ContrastCELoss
 from lib.loss.loss_contrast_mem import ContrastCELoss as MemContrastCELoss
+from lib.loss.dice_loss import DiceLoss
 
 from lib.utils.tools.logger import Logger as Log
 from lib.utils.distributed import is_distributed
@@ -40,6 +41,7 @@ SEG_LOSS_DICT = {
     'ms_fs_aux_rmi_loss': MSFSAuxRMILoss,
     'fs_auxce_dsn_loss': FSAuxCELossDSN,
     'mem_contrast_ce_loss': MemContrastCELoss,
+    'dice_loss': DiceLoss
 }
 
 CRITIC_LOSS_DICT = {

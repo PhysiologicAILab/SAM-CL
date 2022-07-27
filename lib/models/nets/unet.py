@@ -80,10 +80,12 @@ class OutConv(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, n_channels, n_classes, bilinear=False):
+    def __init__(self, configer):
+        bilinear = False
+        self.configer = configer
+        self.n_channels = int(self.configer.get('data', 'num_channels'))
+        self.n_classes = int(self.configer.get('data', 'num_classes'))
         super(UNet, self).__init__()
-        self.n_channels = n_channels
-        self.n_classes = n_classes
         self.bilinear = bilinear
 
         self.inc = DoubleConv(n_channels, 64)
