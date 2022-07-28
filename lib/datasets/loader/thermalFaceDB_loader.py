@@ -152,7 +152,7 @@ class ThermalFaceDBLoader(data.Dataset):
             label_list = list()
         name_list = list()
         image_dir = os.path.join(root_dir, dataset, 'image')
-        if self.configer.get('phase') != 'test':
+        if self.read_label:
             label_dir = os.path.join(root_dir, dataset, 'label')
 
         img_extension = os.listdir(image_dir)[0].split('.')[-1]
