@@ -81,7 +81,7 @@ class ThermalFaceDBLoader(data.Dataset):
                 else:
                     img, labelmap = self.aug_transform(img, labelmap=labelmap)
             else:
-                img, _ = self.aug_transform(img)
+                img = self.aug_transform(img)
 
         border_size = ImageHelper.get_size(img)
 
