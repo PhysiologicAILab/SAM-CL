@@ -34,10 +34,12 @@ class ThermalFaceDBLoader(data.Dataset):
         self.img_transform = img_transform
         self.label_transform = label_transform
 
-        if self.configer.get('phase') != 'test':
-            self.read_label = True
-        else:
-            self.read_label = False
+        # if self.configer.get('phase') != 'test':
+        #     self.read_label = True
+        # else:
+        #     self.read_label = False
+
+        self.read_label = True
 
         if self.read_label:
             self.img_list, self.label_list, self.name_list = self.__list_dirs(root_dir, dataset)
@@ -63,7 +65,7 @@ class ThermalFaceDBLoader(data.Dataset):
         if self.with_gcl_input:
             gcl_input = deepcopy(img)
         # Log.info('{}'.format(self.img_list[index]))
-        Log.info('{}'.format(type(img)))
+        # Log.info('{}'.format(type(img)))
         img_size = ImageHelper.get_size(img)
 
         if self.read_label:
@@ -75,8 +77,8 @@ class ThermalFaceDBLoader(data.Dataset):
             # Log.info('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
             ori_target = ImageHelper.tonp(labelmap)
 
-        Log.info('read_label: {}'.format(self.read_label))
-        Log.info('with_gcl_input: {}'.format(self.with_gcl_input))
+        # Log.info('read_label: {}'.format(self.read_label))
+        # Log.info('with_gcl_input: {}'.format(self.with_gcl_input))
         if self.aug_transform is not None:
             if self.read_label:
                 if self.with_gcl_input:
@@ -86,7 +88,7 @@ class ThermalFaceDBLoader(data.Dataset):
             else:
                 img = self.aug_transform(img)
 
-        Log.info('{}'.format(type(img)))
+        # Log.info('{}'.format(type(img)))
         border_size = ImageHelper.get_size(img)
 
         if self.img_transform is not None:
