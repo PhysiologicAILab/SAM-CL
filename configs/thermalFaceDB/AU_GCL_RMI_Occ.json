@@ -1,0 +1,164 @@
+{
+    "dataset": "thermalFaceDB",
+    "method": "fcn_segmentor",
+    "data": {
+      "num_channels": 1,
+      "image_tool": "npy",
+      "input_mode": "therm",
+      "remap_classes": [0, 1, 2, 3, 3, 4, 4, 5],
+      "num_classes": 6,
+      "data_dir": "~/dev/data/ThermalFaceDBx320",
+      "workers": 0,
+      "use_gcl_input": false
+    },
+   "train": {
+      "batch_size": 16,
+      "loader": "thermalFaceDB",
+      "data_transformer": {
+        "size_mode": "fix_size",
+        "input_size": [320, 256],
+        "align_method": "only_pad",
+        "pad_mode": "random"
+      }
+    },
+    "val": {
+      "batch_size": 16,
+      "loader": "thermalFaceDB",
+      "mode": "ss_test",
+      "data_transformer": {
+        "size_mode": "fix_size",
+        "input_size": [320, 256],
+        "align_method": "only_pad"
+      }
+    },
+    "test": {
+      "batch_size": 16,
+      "loader": "thermalFaceDB",
+      "mode": "ss_test",
+      "out_dir": "ckpts/thermalFaceDB/AttUNET",
+      "data_transformer": {
+        "size_mode": "fix_size",
+        "input_size": [320, 256],
+        "align_method": "only_pad"
+      }
+    },
+    "train_trans": {
+      "trans_seq": ["random_hflip", "random_vflip", "random_rotate", "gaussian_blur", 
+      "thermal_noise", "random_thermal_occlusion", "random_resize", "random_crop"],
+      "random_hflip": {
+        "ratio": 0.5
+      },
+      "random_vflip": {
+        "ratio": 0.5
+      },
+      "random_resize": {
+        "ratio": 1.0,
+        "method": "random",
+        "scale_range": [0.5, 2.0],
+        "aspect_range": [0.9, 1.1]
+      },
+      "random_crop":{
+        "ratio": 1.0,
+        "crop_size": [320, 256],
+        "method": "center",
+        "allow_outside_center": false
+      },
+      "random_rotate": {
+        "ratio": 1.0, 
+        "low_limit_angle": 0,
+        "high_limit_angle": 360
+      },
+      "gaussian_blur": {
+        "ratio": 0.5,
+        "blur_sigma_max": 1.2
+      },
+      "thermal_noise": {
+        "ratio": 0.5,
+        "max_noise_equivalent_differential_temperature": 0.1
+      },
+      "random_thermal_occlusion": {
+        "ratio": 0.5,
+        "max_noise_equivalent_differential_temperature": 0.1
+      }
+    },
+    "val_trans": {
+      "trans_seq": []
+    },
+    "normalize": {
+      "norm_mode": 2
+    },
+    "checkpoints": {
+      "checkpoints_name": "attention_unet_thermalFaceDB_seg",
+      "checkpoints_dir": "./checkpoints/thermalFaceDB",
+      "save_iters": 1000
+    },
+    "network":{
+      "backbone": "none",
+      "multi_grid": [1, 1, 1],
+      "model_name": "attention_unet",
+      "bn_type": "torchsyncbn",
+      "stride": 8,
+      "factors": [[8, 8]]
+    },
+    "critic": {
+      "model_name": "gcl_companion"
+    },
+    "logging": {
+      "logfile_level": "info",
+      "stdout_level": "info",
+      "log_file": "./log/thermalFaceDB/fs_attention_unet_thermalFaceDB_seg.log",
+      "log_format": "%(asctime)s %(levelname)-7s %(message)s",
+      "rewrite": true
+    },
+    "lr": {
+      "base_lr": 0.01,
+      "metric": "iters",
+      "lr_policy": "lambda_poly",
+      "step": {
+        "gamma": 0.5,
+        "step_size": 100
+      }
+    },
+    "solver": {
+      "display_iter": 10,
+      "test_interval": 1000,
+      "max_iters": 40000
+    },
+    "optim": {
+      "optim_method": "sgd",
+      "adam": {
+        "betas": [0.9, 0.999],
+        "eps": 1e-08,
+        "weight_decay": 0.0001
+      },
+      "sgd": {
+        "weight_decay": 0.0005,
+        "momentum": 0.9,
+        "nesterov": false
+      },
+      "adamw": {
+        "betas": [0.9, 0.999],
+        "eps": 1e-08,
+        "weight_decay": 0.0001
+      }
+    },
+    "loss": {
+      "loss_type": "rmi_loss",
+      "critic_loss_type": "gcl_loss",
+      "params": {
+        "num_classes": 6,
+        "rmi_radius": 3,
+        "rmi_pool_way": 0,
+        "rmi_pool_size": 3,
+        "rmi_pool_stride": 3,
+        "loss_weight_lambda": 0.5,
+        "loss_weight": 1.0,
+        "lambda_way": 1,
+        "use_sigmoid": false
+      }
+    },
+    "gcl": {
+      "apply_spectral_norm": false,
+      "loss_weight": 0.5
+    }
+}
