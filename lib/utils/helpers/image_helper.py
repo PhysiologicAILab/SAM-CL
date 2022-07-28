@@ -181,7 +181,6 @@ class ImageHelper(object):
 
     @staticmethod
     def get_size(img):
-        print('type of image', type(img))
         if isinstance(img, Image.Image):
             return img.size
 
