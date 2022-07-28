@@ -17,8 +17,6 @@ from __future__ import print_function
 # Our approaches including FCN baseline, HRNet, OCNet, ISA, OCR
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-# from lib.models.modules.unet import UNet
-
 # FCN baseline 
 from lib.models.nets.fcnet import FcnNet
 
@@ -51,6 +49,7 @@ from lib.models.nets.ms_ocrnet import MscaleOCR
 from lib.models.modules.gcl_companion import GCL_Companion
 
 from lib.models.nets.unet import UNet
+from lib.models.nets.attention_unet import AttU_Net
 
 SEG_MODEL_DICT = {
     # SegFix
@@ -86,7 +85,8 @@ SEG_MODEL_DICT = {
     'deeplab_v3_contrast': DeepLabV3Contrast,
     'ms_ocr': MscaleOCR,
     'hrnet_w48_ocr_b_ha': HRNet_W48_OCR_B_HA,
-    'unet': UNet
+    'unet': UNet,
+    'attention_unet': AttU_Net
 }
 
 
