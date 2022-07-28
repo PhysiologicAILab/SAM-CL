@@ -75,6 +75,8 @@ class ThermalFaceDBLoader(data.Dataset):
             # Log.info('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
             ori_target = ImageHelper.tonp(labelmap)
 
+        Log.info('read_label: {}'.format(self.read_label))
+        Log.info('with_gcl_input: {}'.format(self.with_gcl_input))
         if self.aug_transform is not None:
             if self.read_label:
                 if self.with_gcl_input:
