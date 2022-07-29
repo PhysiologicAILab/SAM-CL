@@ -72,8 +72,8 @@ class AttU_Net(nn.Module):
         self.configer = configer
         self.n_channels = int(self.configer.get('data', 'num_channels'))
         self.n_classes = int(self.configer.get('data', 'num_classes'))
-        nf = 64 * [1, 2, 3, 4, 5]
-        # nf = 32 * [1, 2, 3, 4, 5]
+        # nf = 64 * [1, 2, 4, 8, 16]
+        nf = 32 * [1, 2, 4, 8, 16]
 
         self.Maxpool = nn.MaxPool2d(kernel_size=2,stride=2)
 
