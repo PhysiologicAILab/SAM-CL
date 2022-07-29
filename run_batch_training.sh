@@ -1,7 +1,7 @@
 echo "*******************************************"
-echo "Running Training for aunet_gcl_rmi_occ"
+echo "Running Training for aunet_rmi"
 echo "*******************************************"
-bash scripts/thermalFaceDB/aunet/run_aunet_gcl_rmi_train_occ.sh train aunet_gcl_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+bash scripts/thermalFaceDB/aunet/run_aunet_rmi_train.sh train aunet_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 echo "*******************************************"
 echo "Running Training for aunet_rmi_occ"
@@ -12,6 +12,16 @@ echo "*******************************************"
 echo "Running Training for aunet_gcl_rmi"
 echo "*******************************************"
 bash scripts/thermalFaceDB/aunet/run_aunet_gcl_rmi_train.sh train aunet_gcl_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+echo "*******************************************"
+echo "Running Training for aunet_gcl_rmi_occ"
+echo "*******************************************"
+bash scripts/thermalFaceDB/aunet/run_aunet_gcl_rmi_train_occ.sh train aunet_gcl_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+echo "*******************************************"
+echo "Running Validation for aunet_rmi"
+echo "*******************************************"
+bash scripts/thermalFaceDB/aunet/run_aunet_rmi_train.sh train aunet_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 echo "*******************************************"
 echo "Running Validation for aunet_rmi_occ"
@@ -28,15 +38,6 @@ echo "Running Validation for aunet_gcl_rmi_occ"
 echo "*******************************************"
 bash scripts/thermalFaceDB/aunet/run_aunet_gcl_rmi_train_occ.sh train aunet_gcl_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
-echo "*******************************************"
-echo "Running Training for aunet_rmi"
-echo "*******************************************"
-bash scripts/thermalFaceDB/aunet/run_aunet_rmi_train.sh train aunet_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
-
-echo "*******************************************"
-echo "Running Validation for aunet_rmi"
-echo "*******************************************"
-bash scripts/thermalFaceDB/aunet/run_aunet_rmi_train.sh train aunet_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 
 
