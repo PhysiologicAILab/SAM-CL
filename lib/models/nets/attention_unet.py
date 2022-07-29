@@ -99,7 +99,7 @@ class AttU_Net(nn.Module):
         self.Att2 = Attention_block(F_g=nf[0],F_l=nf[0],F_int=32)
         self.Up_conv2 = conv_block(ch_in=nf[1], ch_out=nf[0])
 
-        self.Conv_1x1 = nn.Conv2d(64,self.n_classes,kernel_size=1,stride=1,padding=0)
+        self.Conv_1x1 = nn.Conv2d(nf[0], self.n_classes,kernel_size=1,stride=1,padding=0)
 
     def forward(self, x, **kwargs):
         # encoding path
