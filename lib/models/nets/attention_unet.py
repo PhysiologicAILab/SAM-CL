@@ -72,30 +72,32 @@ class AttU_Net(nn.Module):
         self.configer = configer
         self.n_channels = int(self.configer.get('data', 'num_channels'))
         self.n_classes = int(self.configer.get('data', 'num_classes'))
+        nf = 64 * [1, 2, 3, 4, 5]
+        # nf = 32 * [1, 2, 3, 4, 5]
 
         self.Maxpool = nn.MaxPool2d(kernel_size=2,stride=2)
 
-        self.Conv1 = conv_block(ch_in=self.n_channels, ch_out=64)
-        self.Conv2 = conv_block(ch_in=64,ch_out=128)
-        self.Conv3 = conv_block(ch_in=128,ch_out=256)
-        self.Conv4 = conv_block(ch_in=256,ch_out=512)
-        self.Conv5 = conv_block(ch_in=512,ch_out=1024)
+        self.Conv1 = conv_block(ch_in=self.n_channels, ch_out=nf[0])
+        self.Conv2 = conv_block(ch_in=nf[0],ch_out=nf[1])
+        self.Conv3 = conv_block(ch_in=nf[1],ch_out=nf[2])
+        self.Conv4 = conv_block(ch_in=nf[2],ch_out=nf[3])
+        self.Conv5 = conv_block(ch_in=nf[3],ch_out=nf[4])
 
-        self.Up5 = up_conv(ch_in=1024,ch_out=512)
-        self.Att5 = Attention_block(F_g=512,F_l=512,F_int=256)
-        self.Up_conv5 = conv_block(ch_in=1024, ch_out=512)
+        self.Up5 = up_conv(ch_in=nf[4],ch_out=nf[3])
+        self.Att5 = Attention_block(F_g=nf[3],F_l=nf[3],F_int=nf[2])
+        self.Up_conv5 = conv_block(ch_in=nf[4], ch_out=nf[3])
 
-        self.Up4 = up_conv(ch_in=512,ch_out=256)
-        self.Att4 = Attention_block(F_g=256,F_l=256,F_int=128)
-        self.Up_conv4 = conv_block(ch_in=512, ch_out=256)
+        self.Up4 = up_conv(ch_in=nf[3],ch_out=nf[2])
+        self.Att4 = Attention_block(F_g=nf[2],F_l=nf[2],F_int=nf[1])
+        self.Up_conv4 = conv_block(ch_in=nf[3], ch_out=nf[2])
         
-        self.Up3 = up_conv(ch_in=256,ch_out=128)
-        self.Att3 = Attention_block(F_g=128,F_l=128,F_int=64)
-        self.Up_conv3 = conv_block(ch_in=256, ch_out=128)
+        self.Up3 = up_conv(ch_in=nf[2],ch_out=nf[1])
+        self.Att3 = Attention_block(F_g=nf[1],F_l=nf[1],F_int=nf[0])
+        self.Up_conv3 = conv_block(ch_in=nf[2], ch_out=nf[1])
         
-        self.Up2 = up_conv(ch_in=128,ch_out=64)
-        self.Att2 = Attention_block(F_g=64,F_l=64,F_int=32)
-        self.Up_conv2 = conv_block(ch_in=128, ch_out=64)
+        self.Up2 = up_conv(ch_in=nf[1],ch_out=nf[0])
+        self.Att2 = Attention_block(F_g=nf[0],F_l=nf[0],F_int=32)
+        self.Up_conv2 = conv_block(ch_in=nf[1], ch_out=nf[0])
 
         self.Conv_1x1 = nn.Conv2d(64,self.n_classes,kernel_size=1,stride=1,padding=0)
 
