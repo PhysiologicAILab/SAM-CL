@@ -8,7 +8,7 @@ SCRATCH_ROOT=$4
 ASSET_ROOT=${DATA_ROOT}
 
 DATA_DIR="${DATA_ROOT}/Processed"
-SAVE_DIR="${SCRATCH_ROOT}/seg_results/thermalFaceDB"
+SAVE_DIR="${DATA_ROOT}/seg_results/thermalFaceDB"
 # BACKBONE="hrnet48"
 BACKBONE="none"
 
