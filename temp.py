@@ -135,9 +135,9 @@ pth_label_2 = os.path.join(root_pth, "seg_results", "thermalFaceDB" + "aunet" + 
 lsdir = os.listdir(pth_image)
 
 for i in range(len(lsdir)):
-    img = np.load(os.path.join(pth_image, lsdir[i].replace(".png", ".npy")))
-    pred_mask_1 = cv2.imread(os.path.join(pth_label_1, lsdir[i]), 0)
-    pred_mask_2 = cv2.imread(os.path.join(pth_label_2, lsdir[i]), 0)
+    img = np.load(os.path.join(pth_image, lsdir[i]))
+    pred_mask_1 = cv2.imread(os.path.join(pth_label_1, lsdir[i].replace(".npy", ".png")), 0)
+    pred_mask_2 = cv2.imread(os.path.join(pth_label_2, lsdir[i].replace(".npy", ".png")), 0)
 
     fig, ax = plt.subplots(1, 3)
 
