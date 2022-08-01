@@ -34,12 +34,11 @@ class ThermalFaceDBLoader(data.Dataset):
         self.img_transform = img_transform
         self.label_transform = label_transform
 
-        # if self.configer.get('phase') != 'test':
-        #     self.read_label = True
-        # else:
-        #     self.read_label = False
-
-        self.read_label = True
+        save_dir = self.configer.get('test', 'out_dir')
+        if self.configer.get('phase') != 'test' and '/val/' in save_dir:
+            self.read_label = True
+        else:
+            self.read_label = False
 
         if self.read_label:
             self.img_list, self.label_list, self.name_list = self.__list_dirs(root_dir, dataset)
