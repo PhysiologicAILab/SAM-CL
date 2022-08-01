@@ -146,17 +146,17 @@ for i in range(len(lsdir)):
 
     ax[0].imshow(img, cmap='gray')
     ax[0].axis('off')
-    ax[0].title('Original Image')
+    ax[0].set_title('Original Image')
 
     ax[1].imshow(img, cmap='gray')
     ax[1].imshow(pred_mask_1, cmap='seismic', alpha=0.65)
     ax[1].axis('off')
-    ax[1].title('SOTA')
+    ax[1].set_title('SOTA')
 
     ax[2].imshow(img, cmap='gray')
     ax[2].imshow(pred_mask_2, cmap='seismic', alpha=0.65)
     ax[2].axis('off')
-    ax[2].title('SAM-CL (ours)')
+    ax[2].set_title('SAM-CL (ours)')
 
     # plt.show()
     plt.savefig(save_fname, bbox_inches=0)
