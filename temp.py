@@ -144,9 +144,11 @@ for i in range(len(lsdir)):
     fig, ax = plt.subplots(1, 3)
 
     ax[0].imshow(img, cmap='gray')
+    ax[0].set_axis('off')
 
     ax[1].imshow(img, cmap='gray')
     ax[1].imshow(pred_mask_1, cmap='seismic', alpha=0.65)
+    ax[1].set_axis('off')
 
     ax[2].imshow(img, cmap='gray')
     ax[2].imshow(pred_mask_2, cmap='seismic', alpha=0.65)
