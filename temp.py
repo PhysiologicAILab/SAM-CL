@@ -128,7 +128,7 @@ import cv2
 import numpy as np
 
 # root_pth = "/home/jitesh/dev/data/ThermalFaceDBx320"
-root_pth = "/mnt/0EA7158B0EA7158B/data/thermal_face/YC_Data/DeepBreath/DeepBreath_raw_thermal_image_sequences/all_used_bmvc"
+root_pth = "/mnt/0EA7158B0EA7158B/data/thermal_face/YC_Data/RR_Tracking/RR_Clean"
 
 pth_image = os.path.join(root_pth, "Processed", "test", "image")
 pth_label_1 = os.path.join(root_pth, "seg_results", "thermalFaceDB" + "attention_unet_" + "none_" + "aunet_rmi" + "_test_ss", "label")
