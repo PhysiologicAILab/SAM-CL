@@ -233,7 +233,7 @@ class Tester(object):
                         canvas = FigureCanvas(fig)
                         ax = fig.gca()
                         ax.imshow(inputs[k,0,:,:], cmap='gray')
-                        ax.imshow(label_img_, cmap='seismic', alpha=0.35)
+                        ax.imshow(save_label_img, cmap='seismic', alpha=0.35)
                         ax.set_title(names[k], size=7)
                         ax.set_axis_off()
                         canvas.draw()
