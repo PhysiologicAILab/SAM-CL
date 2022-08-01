@@ -131,6 +131,7 @@ root_pth = "/home/jitesh/dev/data/ThermalFaceDBx320"
 pth_image = os.path.join(root_pth, "Processed", "test", "image")
 pth_label_1 = os.path.join(root_pth, "seg_results", "thermalFaceDB" + "attention_unet_" + "none_" + "aunet_rmi" + "_test_ss", "label")
 pth_label_2 = os.path.join(root_pth, "seg_results", "thermalFaceDB" + "attention_unet_" + "none_" + "aunet_gcl_rmi_occ" + "_test_ss", "label")
+save_dir = os.path.join(root_pth, "seg_results", "thermalFaceDB" + "attention_unet_" + "none_" + "aunet_gcl_rmi_occ" + "_test_ss", "vis")
 
 lsdir = os.listdir(pth_image)
 
@@ -138,6 +139,7 @@ for i in range(len(lsdir)):
     img = np.load(os.path.join(pth_image, lsdir[i]))
     pred_mask_1 = cv2.imread(os.path.join(pth_label_1, lsdir[i].replace(".npy", ".png")), 0)
     pred_mask_2 = cv2.imread(os.path.join(pth_label_2, lsdir[i].replace(".npy", ".png")), 0)
+    save_fname = os.path.join(save_dir, os.path.basename(pred_mask_2))
 
     fig, ax = plt.subplots(1, 3)
 
@@ -148,6 +150,7 @@ for i in range(len(lsdir)):
 
     ax[2].imshow(img, cmap='gray')
     ax[2].imshow(pred_mask_2, cmap='seismic', alpha=0.65)
+    ax[2].set_axis('off')
 
-    plt.axis('off')
-    plt.show()
+    # plt.show()
+    plt.savefig(save_fname, bbox_inches=0)
