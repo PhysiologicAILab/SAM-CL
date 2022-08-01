@@ -42,6 +42,8 @@ from segmentor.tools.optim_scheduler import OptimScheduler
 from scipy import ndimage
 from PIL import Image
 from math import ceil
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 
 class Tester(object):
@@ -219,11 +221,23 @@ class Tester(object):
                         ImageHelper.save(color_img_, save_path=vis_path)
                     else:
                         # label_img = np.asarray(label_img * , dtype=np.uint8)
-                        color_img_ = Image.fromarray(label_img, mode='P')
-                        color_img_.putpalette(colors)
+                        # color_img_ = Image.fromarray(label_img, mode='P')
+                        # color_img_.putpalette(colors)
+                    
                         vis_path = os.path.join(self.save_dir, "vis/", '{}.png'.format(names[k]))
                         FileHelper.make_dirs(vis_path, is_file=True)
-                        ImageHelper.save(color_img_, save_path=vis_path)
+
+                        fig = Figure()
+                        canvas = FigureCanvas(fig)
+                        ax = fig.gca()
+                        ax.imshow(inputs, cmap='gray')
+                        ax.imshow(label_img_, cmap='seismic', alpha=0.35)
+                        ax.set_title(names[k], size=7)
+                        ax.set_axis_off()
+                        canvas.draw()
+                        canvas.print_jpg(vis_path)
+
+                        # ImageHelper.save(color_img_, save_path=vis_path)
 
                     # # visualize
                     # from lib.datasets.tools.transforms import DeNormalize
