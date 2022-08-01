@@ -139,7 +139,7 @@ for i in range(len(lsdir)):
     img = np.load(os.path.join(pth_image, lsdir[i]))
     pred_mask_1 = cv2.imread(os.path.join(pth_label_1, lsdir[i].replace(".npy", ".png")), 0)
     pred_mask_2 = cv2.imread(os.path.join(pth_label_2, lsdir[i].replace(".npy", ".png")), 0)
-    save_fname = os.path.join(save_dir, os.path.basename(pred_mask_2))
+    save_fname = os.path.join(save_dir, os.path.basename(lsdir[i].replace(".npy", ".png")))
 
     fig, ax = plt.subplots(1, 3)
 
