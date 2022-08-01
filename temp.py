@@ -136,7 +136,7 @@ pth_label_2 = os.path.join(root_pth, "seg_results", "thermalFaceDB" + "attention
 save_dir = os.path.join(root_pth, "seg_results", "SOTA_vs_SAM-CL")
 
 if not os.path.exists(save_dir):
-    os.mkdirs(save_dir)
+    os.makedirs(save_dir)
 
 lsdir = os.listdir(pth_image)
 
