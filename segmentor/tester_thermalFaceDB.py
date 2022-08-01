@@ -44,7 +44,7 @@ from PIL import Image
 from math import ceil
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-
+from copy import deepcopy
 
 class Tester(object):
     """
@@ -199,6 +199,8 @@ class Tester(object):
                         label_img_ = self.__relabel(label_img)
                     else:
                         label_img_ = label_img
+
+                    save_label_img = deepcopy(label_img_)
                     label_img_ = Image.fromarray(label_img_, 'P')
                     Log.info('{:4d}/{:4d} label map generated'.format(image_id, self.test_size))
                     if 'subfolder' not in data_dict or len(subfolder[k]) == 0:
@@ -224,7 +226,7 @@ class Tester(object):
                         # color_img_ = Image.fromarray(label_img, mode='P')
                         # color_img_.putpalette(colors)
                     
-                        vis_path = os.path.join(self.save_dir, "vis/", '{}.png'.format(names[k]))
+                        vis_path = os.path.join(self.save_dir, "vis/", '{}.jpg'.format(names[k]))
                         FileHelper.make_dirs(vis_path, is_file=True)
 
                         fig = Figure()
