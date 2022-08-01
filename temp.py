@@ -47,6 +47,7 @@ for fn in flist:
     break
 '''
 
+'''
 from logging import root
 import matplotlib.pyplot as plt
 import os
@@ -114,4 +115,39 @@ for i in range(len(lsdir)):
         ax[1].imshow(img, cmap='gray')
         ax[1].imshow(pred_mask, cmap='seismic', alpha=0.65)
 
+    plt.show()
+
+'''
+
+
+
+from logging import root
+import matplotlib.pyplot as plt
+import os
+import cv2
+import numpy as np
+
+root_pth = "/home/jitesh/dev/data/ThermalFaceDBx320"
+pth_image = os.path.join(root_pth, "Processed", "test")
+pth_label_1 = os.path.join(root_pth, "seg_results", "thermalFaceDB" + "aunet" + "_" + "none_" + "aunet_rmi" + "_test_ss", "label")
+pth_label_2 = os.path.join(root_pth, "seg_results", "thermalFaceDB" + "aunet" + "_" + "none_" + "aunet_gcl_rmi_occ" + "_test_ss", "label")
+
+lsdir = os.listdir(pth_image)
+
+for i in range(len(lsdir)):
+    img = np.load(os.path.join(pth_image, lsdir[i].replace(".png", ".npy")))
+    pred_mask_1 = cv2.imread(os.path.join(pth_label_1, lsdir[i]), 0)
+    pred_mask_2 = cv2.imread(os.path.join(pth_label_2, lsdir[i]), 0)
+
+    fig, ax = plt.subplots(1, 3)
+
+    ax[0].imshow(img, cmap='gray')
+
+    ax[1].imshow(img, cmap='gray')
+    ax[1].imshow(pred_mask_1, cmap='seismic', alpha=0.65)
+
+    ax[2].imshow(img, cmap='gray')
+    ax[2].imshow(pred_mask_2, cmap='seismic', alpha=0.65)
+
+    plt.axis('off')
     plt.show()
