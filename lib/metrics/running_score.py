@@ -190,11 +190,15 @@ class RunningScore(object):
         # print('category-wise mean iou: ', iu)
 
         mean_iu = np.nanmean(iu)
+        std_iu = np.nanstd(iu)
         freq = hist.sum(axis=1) / hist.sum()
         fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
         cls_iu = dict(zip(range(self.n_classes), iu))
 
-        return acc, acc_cls_list, fwavacc, mean_iu, cls_iu
+        return acc, acc_cls_list, fwavacc, mean_iu, std_iu, cls_iu
+
+    def get_std_iou(self):
+        return self._get_scores()[4]
 
     def get_mean_iou(self):
         return self._get_scores()[3]

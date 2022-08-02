@@ -60,8 +60,8 @@ class ThermalFaceDBEvaluator(object):
 
         Log.info('Evaluate {} images'.format(img_cnt))
         Log.info('mIOU: {}'.format(self.seg_running_score.get_mean_iou()))
+        Log.info('IOU-Variance: {}'.format(self.seg_running_score.get_std_iou()))
         Log.info('Pixel ACC: {}'.format(self.seg_running_score.get_pixel_acc()))
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
