@@ -2,6 +2,7 @@ import math
 import numpy as np
 from PIL import Image, ImageDraw
 import random
+from copy import deepcopy
 
 def generatePolygon(ctrX, ctrY, aveRadius, irregularity, spikeyness, numVerts):
     '''
@@ -79,7 +80,7 @@ class ThermOcclusion():
         self.weights_3 = [0.34, 0.33, 0.33]
 
     def gen_occluded_image(self, input_img, low_temp, high_temp, rand_noise_magnitude_1, rand_noise_magnitude_2):
-
+        self.org_input_image = deepcopy(input_img)
         img_width, img_height = input_img.shape
         min_dimension = min(img_width, img_height)
         self.ctr_low = 0.1 * min_dimension
@@ -108,18 +109,18 @@ class ThermOcclusion():
             numVerts=numVerts
         )
 
-        occluded_img = Image.new('L', (img_height, img_width), black) #Note that Pillow Image takes height, width dimension, not width, height
-        draw = ImageDraw.Draw(occluded_img)  # (rand_noise)  # (im)
+        self.occluded_img = Image.new('L', (img_height, img_width), black) #Note that Pillow Image takes height, width dimension, not width, height
+        draw = ImageDraw.Draw(self.occluded_img)  # (rand_noise)  # (im)
         if numVerts > 2:
             draw.polygon(verts1, outline=white, fill=white)
         else:
             line_width = np.random.randint(self.line_width_low, self.line_width_high)
             draw.line(verts1, fill=white, width=line_width)
-        occluded_img = np.float64(occluded_img)
+        self.occluded_img = np.float64(self.occluded_img)
 
         rand_noise1 = (np.random.uniform(low_temp, high_temp)) + (rand_noise_magnitude_1 * (np.random.random(input_img.shape) - 0.5))
-        occluded_img = rand_noise1 * occluded_img
-        occluded_img[(occluded_img == 0)] = input_img[(occluded_img == 0)]
+        self.occluded_img = rand_noise1 * self.occluded_img
+        self.occluded_img[(self.occluded_img == 0)] = input_img[(self.occluded_img == 0)]
 
         if occ_ch == 1:
             pass
@@ -151,8 +152,8 @@ class ThermOcclusion():
 
             im_arr2 = np.float64(im_arr2)
             im_arr2 = rand_noise2 * im_arr2
-            occluded_img[im_arr2 != 0] = im_arr2[im_arr2 != 0]
-            occluded_img[(occluded_img == 0)] = input_img[(occluded_img == 0)]
+            self.occluded_img[im_arr2 != 0] = im_arr2[im_arr2 != 0]
+            self.occluded_img[(self.occluded_img == 0)] = input_img[(self.occluded_img == 0)]
             # '''
 
         else:
@@ -184,7 +185,21 @@ class ThermOcclusion():
             rand_noise2 = (np.random.uniform(low_temp, high_temp)) + (rand_noise_magnitude_2 * (np.random.random(input_img.shape) - 0.5))
 
             im_arr2 = rand_noise2 * im_arr2
-            occluded_img[im_arr2 != 0] = im_arr2[im_arr2 != 0]
-            occluded_img[(occluded_img == 0)] = input_img[(occluded_img == 0)]
+            self.occluded_img[im_arr2 != 0] = im_arr2[im_arr2 != 0]
+            self.occluded_img[(self.occluded_img == 0)] = input_img[(self.occluded_img == 0)]
 
-        return occluded_img
+        return self.occluded_img
+
+    def gen_occluded_label(self, labelmap):
+        # To make a portion of the labelmap class equal to background if the portion has been occluded
+        occluded_labelmap = deepcopy(labelmap)
+        occluded_labelmap[self.occluded_img != self.org_input_image] = 0
+
+        # If occlusion for a specific class is more than 50%, the whole semantic class is \
+        # made to background as learning shape of the occluded region can make the network pick up false positives
+        num_classes = np.max(labelmap)
+        for cls in range(num_classes):
+            if np.size(occluded_labelmap[occluded_labelmap == cls]) / np.size(labelmap[labelmap == cls]) < 0.5:
+                occluded_labelmap[labelmap == cls] = 0
+
+        return occluded_labelmap

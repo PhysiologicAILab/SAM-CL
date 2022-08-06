@@ -433,6 +433,9 @@ class RandomThermalOcclusion(_BaseTransform):
     def _process_img(self, x):
         return self.thermOccObj.gen_occluded_image(x, self.low_temp, self.high_temp, self.nedt_1, self.nedt_2)
 
+    def _process_labelmap(self, x):
+        return self.thermOccObj.gen_occluded_label(x)
+
     def __call__(self, img, **kwargs):
         img, data_dict = super().__call__(img, **kwargs)
         

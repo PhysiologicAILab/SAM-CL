@@ -70,11 +70,11 @@ class ThermalFaceDBLoader(data.Dataset):
         if self.read_label:
             labelmap = ImageHelper.read_image(self.label_list[index], tool=self.configer.get('data', 'image_tool'), mode='P')
 
-            if self.configer.exists('data', 'remap_classes'):
-                labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
+            # if self.configer.exists('data', 'remap_classes'):
+            #     labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
 
-            # Log.info('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
-            ori_target = ImageHelper.tonp(labelmap)
+            # # Log.info('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
+            # ori_target = ImageHelper.tonp(labelmap)
 
         # Log.info('read_label: {}'.format(self.read_label))
         # Log.info('with_gcl_input: {}'.format(self.with_gcl_input))
@@ -86,6 +86,16 @@ class ThermalFaceDBLoader(data.Dataset):
                     img, labelmap = self.aug_transform(img, labelmap=labelmap)
             else:
                 img = self.aug_transform(img)
+
+        if self.read_label:
+            # labelmap = ImageHelper.read_image(self.label_list[index], tool=self.configer.get('data', 'image_tool'), mode='P')
+
+            if self.configer.exists('data', 'remap_classes'):
+                labelmap = self._remap_classes(labelmap, self.configer.get('data', 'remap_classes'))
+
+            # Log.info('Before Transform Labelmap Min Max: {} {}'.format(labelmap.min(), labelmap.max()))
+            ori_target = ImageHelper.tonp(labelmap)
+
 
         # Log.info('{}'.format(type(img)))
         border_size = ImageHelper.get_size(img)
