@@ -190,7 +190,7 @@ class ThermOcclusion():
             self.occluded_img[im_arr2 != 0] = im_arr2[im_arr2 != 0]
             self.occluded_img[(self.occluded_img == 0)] = input_img[(self.occluded_img == 0)]
 
-        Log.info_once(f'Image type: {type(self.occluded_img)}')
+        Log.info(f'Image type: {type(self.occluded_img)}')
         return self.occluded_img
 
     def gen_occluded_label(self, labelmap):
@@ -205,5 +205,5 @@ class ThermOcclusion():
             if np.size(occluded_labelmap[occluded_labelmap == cls]) / np.size(labelmap[labelmap == cls]) < 0.5:
                 occluded_labelmap[labelmap == cls] = 0
 
-        Log.info_once(f'Labelmap type: {type(occluded_labelmap)}')
+        Log.info(f'Labelmap type: {type(occluded_labelmap)}')
         return occluded_labelmap
