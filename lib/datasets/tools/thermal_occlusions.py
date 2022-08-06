@@ -3,6 +3,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 import random
 from copy import deepcopy
+from lib.utils.tools.logger import Logger as Log
+
 
 def generatePolygon(ctrX, ctrY, aveRadius, irregularity, spikeyness, numVerts):
     '''
@@ -188,6 +190,7 @@ class ThermOcclusion():
             self.occluded_img[im_arr2 != 0] = im_arr2[im_arr2 != 0]
             self.occluded_img[(self.occluded_img == 0)] = input_img[(self.occluded_img == 0)]
 
+        Log.info_once(f'Image type: {type(self.occluded_img)}')
         return self.occluded_img
 
     def gen_occluded_label(self, labelmap):
@@ -202,4 +205,5 @@ class ThermOcclusion():
             if np.size(occluded_labelmap[occluded_labelmap == cls]) / np.size(labelmap[labelmap == cls]) < 0.5:
                 occluded_labelmap[labelmap == cls] = 0
 
+        Log.info_once(f'Labelmap type: {type(occluded_labelmap)}')
         return occluded_labelmap
