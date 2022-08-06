@@ -35,6 +35,9 @@ class ThermalFaceDBLoader(data.Dataset):
         self.label_transform = label_transform
 
         save_dir = self.configer.get('test', 'out_dir')
+        Log.info('Phase: {}'.format(self.configer.get('phase')))
+        Log.info('Save_Dir: {}'.format(save_dir))
+
         if self.configer.get('phase') != 'test' and '/val/' in save_dir:
             self.read_label = True
         else:
@@ -68,7 +71,7 @@ class ThermalFaceDBLoader(data.Dataset):
         img_size = ImageHelper.get_size(img)
 
         Log.info('read_label flag: {}'.format(self.read_label))
-        
+
         if self.read_label:
             labelmap = ImageHelper.read_image(self.label_list[index], tool=self.configer.get('data', 'image_tool'), mode='P')
 
