@@ -63,8 +63,8 @@ class ThermalFaceDBLoader(data.Dataset):
 
         if self.with_gcl_input:
             gcl_input = deepcopy(img)
-        # Log.info('{}'.format(self.img_list[index]))
-        # Log.info('{}'.format(type(img)))
+        Log.info('{}'.format(self.img_list[index]))
+        Log.info('{}'.format(type(img)))
         img_size = ImageHelper.get_size(img)
 
         if self.read_label:
