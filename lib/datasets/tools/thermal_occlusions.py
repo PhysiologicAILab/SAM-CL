@@ -202,8 +202,12 @@ class ThermOcclusion():
         # made to background as learning shape of the occluded region can make the network pick up false positives
         num_classes = np.max(labelmap)
         for cls in range(num_classes):
-            if np.size(occluded_labelmap[occluded_labelmap == cls]) / np.size(labelmap[labelmap == cls]) < 0.5:
-                occluded_labelmap[labelmap == cls] = 0
+            size_of_labelmap = np.size(labelmap[labelmap == cls])
+            size_of_occluded_labelmap = np.size(occluded_labelmap[occluded_labelmap == cls])
+
+            if size_of_labelmap > 0 and size_of_occluded_labelmap > 0:
+                if (size_of_occluded_labelmap / size_of_labelmap) < 0.5:
+                    occluded_labelmap[labelmap == cls] = 0
 
         # Log.info(f'Labelmap type: {type(occluded_labelmap)}')
         return occluded_labelmap
