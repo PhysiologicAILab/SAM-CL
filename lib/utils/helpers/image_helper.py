@@ -189,7 +189,7 @@ class ImageHelper(object):
             return [width, height]
 
         else:
-            Log.error('Image type is invalid.')
+            Log.error(f'Image type is invalid: {type(img)}')
             exit(1)
 
     @staticmethod
