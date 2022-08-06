@@ -38,10 +38,10 @@ class ThermalFaceDBLoader(data.Dataset):
         Log.info('Phase: {}'.format(self.configer.get('phase')))
         Log.info('Save_Dir: {}'.format(save_dir))
 
-        if self.configer.get('phase') != 'test' and '/val/' in save_dir:
-            self.read_label = True
-        else:
+        if self.configer.get('phase') == 'test' and '/test/' in save_dir:
             self.read_label = False
+        else:
+            self.read_label = True
 
         if self.read_label:
             self.img_list, self.label_list, self.name_list = self.__list_dirs(root_dir, dataset)
@@ -70,7 +70,7 @@ class ThermalFaceDBLoader(data.Dataset):
         # Log.info('{}'.format(type(img)))
         img_size = ImageHelper.get_size(img)
 
-        Log.info('read_label flag: {}'.format(self.read_label))
+        # Log.info('read_label flag: {}'.format(self.read_label))
 
         if self.read_label:
             labelmap = ImageHelper.read_image(self.label_list[index], tool=self.configer.get('data', 'image_tool'), mode='P')
@@ -102,7 +102,7 @@ class ThermalFaceDBLoader(data.Dataset):
             ori_target = ImageHelper.tonp(labelmap)
 
 
-        Log.info('{}'.format(type(img)))
+        # Log.info('{}'.format(type(img)))
         border_size = ImageHelper.get_size(img)
 
         if self.img_transform is not None:
