@@ -63,10 +63,12 @@ class ThermalFaceDBLoader(data.Dataset):
 
         if self.with_gcl_input:
             gcl_input = deepcopy(img)
-        Log.info('{}'.format(self.img_list[index]))
-        Log.info('{}'.format(type(img)))
+        # Log.info('{}'.format(self.img_list[index]))
+        # Log.info('{}'.format(type(img)))
         img_size = ImageHelper.get_size(img)
 
+        Log.info('read_label flag: {}'.format(self.read_label))
+        
         if self.read_label:
             labelmap = ImageHelper.read_image(self.label_list[index], tool=self.configer.get('data', 'image_tool'), mode='P')
 
@@ -97,7 +99,7 @@ class ThermalFaceDBLoader(data.Dataset):
             ori_target = ImageHelper.tonp(labelmap)
 
 
-        # Log.info('{}'.format(type(img)))
+        Log.info('{}'.format(type(img)))
         border_size = ImageHelper.get_size(img)
 
         if self.img_transform is not None:
