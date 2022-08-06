@@ -433,7 +433,7 @@ class RandomThermalOcclusion(_BaseTransform):
     def _process_img(self, x):
         return self.thermOccObj.gen_occluded_image(x, self.low_temp, self.high_temp, self.nedt_1, self.nedt_2)
 
-    def _process_labelmap(self, x):
+    def _process_labelmap(self, x, *args):
         return self.thermOccObj.gen_occluded_label(x)
 
     def __call__(self, img, **kwargs):
@@ -449,7 +449,6 @@ class RandomThermalOcclusion(_BaseTransform):
         self.nedt_2 = np.random.uniform(0, self.max_nedt)
         
         return self._process(img, data_dict, random.random() > self.ratio)
-
 
 
 class ThermAugCompose(object):
