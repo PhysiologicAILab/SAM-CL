@@ -246,7 +246,7 @@ class AttU_Net_Contrast(nn.Module):
 
         d1 = self.Conv_1x1(d2)
 
-        if is_eval is True or lb_q is None:
+        if is_eval is True or lb_q is None or not with_embed:
             return d1
 
         else:
