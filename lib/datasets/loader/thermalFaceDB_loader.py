@@ -38,7 +38,7 @@ class ThermalFaceDBLoader(data.Dataset):
         Log.info('Phase: {}'.format(self.configer.get('phase')))
         Log.info('Save_Dir: {}'.format(save_dir))
 
-        if self.configer.get('phase') == 'test' and '/test/' in save_dir:
+        if self.configer.get('phase') == 'test' and 'test' in save_dir:
             self.read_label = False
         else:
             self.read_label = True
