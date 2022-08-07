@@ -207,8 +207,7 @@ class AttU_Net_Contrast(nn.Module):
         for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
             param_k.data = param_k.data * self.m + param_q.data * (1. - self.m)
 
-
-    def forward(self, x, **kwargs):
+    def forward(self, x, lb_q=None, with_embed=True, is_eval=False, **kwargs):
         # encoding path
         x1 = self.Conv1(x)
 
@@ -247,5 +246,10 @@ class AttU_Net_Contrast(nn.Module):
 
         d1 = self.Conv_1x1(d2)
 
-        emb = self.proj_head(d2)
-        return {'seg': d1, 'embed': emb}
+        if is_eval is True or lb_q is None:
+            return d1
+
+        else:
+            emb = self.proj_head(d2)
+            # return {'seg': d1, 'embed': emb}
+            return {'seg': d1, 'embed': emb, 'key': emb.detach(), 'lb_key': lb_q.detach()}
