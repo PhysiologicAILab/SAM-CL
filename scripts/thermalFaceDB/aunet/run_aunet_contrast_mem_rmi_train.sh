@@ -15,7 +15,7 @@ BACKBONE="none"
 CONFIGS="configs/thermalFaceDB/AU_Contrast.json"
 # CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="attention_unet"
+MODEL_NAME="attention_unet_contrast"
 LOSS_TYPE="rmi_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2

@@ -95,7 +95,7 @@
     "network":{
       "backbone": "none",
       "multi_grid": [1, 1, 1],
-      "model_name": "attention_unet",
+      "model_name": "attention_unet_contrast",
       "bn_type": "torchsyncbn",
       "stride": 8,
       "factors": [[8, 8]]
