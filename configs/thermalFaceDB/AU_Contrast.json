@@ -143,12 +143,18 @@
       }
     },
     "loss": {
-      "loss_type": "fs_auxce_loss",
+      "loss_type": "fs_rmi_loss",
+      "critic_loss_type": "gcl_loss",
       "params": {
-        "ce_weight": [0.9, 1.0, 1.0, 1.0, 1.0, 1.0],
-        "ce_reduction": "mean",
-        "ohem_minkeep": 100000,
-        "ohem_thresh": 0.9
+        "num_classes": 6,
+        "rmi_radius": 3,
+        "rmi_pool_way": 0,
+        "rmi_pool_size": 3,
+        "rmi_pool_stride": 3,
+        "loss_weight_lambda": 0.5,
+        "loss_weight": 1.0,
+        "lambda_way": 1,
+        "use_sigmoid": false
       }
     },
     "contrast": {
