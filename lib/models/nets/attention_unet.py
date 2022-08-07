@@ -245,11 +245,11 @@ class AttU_Net_Contrast(nn.Module):
         d2 = self.Up_conv2(d2)
 
         d1 = self.Conv_1x1(d2)
+        emb = self.proj_head(d2)
 
         if is_eval is True or lb_q is None or not with_embed:
-            return d1
+            return {'seg': d1, 'embed': emb}
 
         else:
-            emb = self.proj_head(d2)
             # return {'seg': d1, 'embed': emb}
             return {'seg': d1, 'embed': emb, 'key': emb.detach(), 'lb_key': lb_q.detach()}
