@@ -75,7 +75,7 @@ class Trainer(object):
         else:
             self.contrast_warmup_iters = 0
 
-        self.with_memory = self.configer.exists('contrast', 'with_memory')
+        self.with_memory = bool(self.configer.get('contrast', 'with_memory'))
         if self.with_memory:
             self.memory_size = self.configer.get('contrast', 'memory_size')
             self.pixel_update_freq = self.configer.get('contrast', 'pixel_update_freq')
