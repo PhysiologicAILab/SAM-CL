@@ -98,10 +98,12 @@
       "model_name": "attention_unet_contrast_mem",
       "bn_type": "torchsyncbn",
       "stride": 8,
-      "factors": [[8, 8]]
-    },
-    "critic": {
-      "model_name": "gcl_companion"
+      "factors": [[8, 8]],
+      "loss_weights": {
+        "corr_loss": 0.01,
+        "aux_loss": 0.4,
+        "seg_loss": 1.0
+      }
     },
     "logging": {
       "logfile_level": "info",
