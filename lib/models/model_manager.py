@@ -49,7 +49,7 @@ from lib.models.nets.ms_ocrnet import MscaleOCR
 from lib.models.modules.gcl_companion import GCL_Companion
 
 from lib.models.nets.unet import UNet
-from lib.models.nets.attention_unet import AttU_Net, AttU_Net_Contrast
+from lib.models.nets.attention_unet import AttU_Net, AttU_Net_Contrast, AttU_Net_Contrast_Mem
 
 SEG_MODEL_DICT = {
     # SegFix
@@ -87,7 +87,8 @@ SEG_MODEL_DICT = {
     'hrnet_w48_ocr_b_ha': HRNet_W48_OCR_B_HA,
     'unet': UNet,
     'attention_unet': AttU_Net,
-    'attention_unet_contrast': AttU_Net_Contrast
+    'attention_unet_contrast': AttU_Net_Contrast,
+    'attention_unet_contrast_mem': AttU_Net_Contrast_Mem
 }
 
 

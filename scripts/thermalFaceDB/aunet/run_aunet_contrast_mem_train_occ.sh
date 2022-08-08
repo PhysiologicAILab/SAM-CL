@@ -12,10 +12,10 @@ SAVE_DIR="${DATA_ROOT}/seg_results/thermalFaceDB"
 # BACKBONE="hrnet48"
 BACKBONE="none"
 
-CONFIGS="configs/thermalFaceDB/AU_Contrast.json"
+CONFIGS="configs/thermalFaceDB/AU_Contrast_Mem_Occ.json"
 # CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="attention_unet_contrast"
+MODEL_NAME="attention_unet_contrast_mem"
 LOSS_TYPE="mem_contrast_ce_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2

@@ -146,18 +146,13 @@ class AttU_Net(nn.Module):
 
 
 class AttU_Net_Contrast(nn.Module):
-    def __init__(self, configer, dim=64, m=0.999, with_masked_ppm=False):
+    def __init__(self, configer):
         super(AttU_Net_Contrast, self).__init__()
 
         self.configer = configer
         self.n_channels = int(self.configer.get('data', 'num_channels'))
         self.n_classes = int(self.configer.get('data', 'num_classes'))
         self.proj_dim = self.configer.get('contrast', 'proj_dim')
-
-        self.m = m
-        self.r = self.configer.get('contrast', 'memory_size')
-
-        num_classes = self.configer.get('data', 'num_classes')
 
         self.Maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -188,26 +183,8 @@ class AttU_Net_Contrast(nn.Module):
 
         self.proj_head = ProjectionHead(dim_in=64, proj_dim=self.proj_dim)
 
-        self.register_buffer(
-            "segment_queue", torch.randn(num_classes, self.r, dim))
-        self.segment_queue = nn.functional.normalize(
-            self.segment_queue, p=2, dim=2)
-        self.register_buffer("segment_queue_ptr", torch.zeros(
-            num_classes, dtype=torch.long))
 
-        self.register_buffer(
-            "pixel_queue", torch.randn(num_classes, self.r, dim))
-        self.pixel_queue = nn.functional.normalize(
-            self.pixel_queue, p=2, dim=2)
-        self.register_buffer("pixel_queue_ptr", torch.zeros(
-            num_classes, dtype=torch.long))
-
-    @torch.no_grad()
-    def _momentum_update_key_encoder(self):
-        for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
-            param_k.data = param_k.data * self.m + param_q.data * (1. - self.m)
-
-    def forward(self, x, lb_q=None, with_embed=True, is_eval=False, **kwargs):
+    def forward(self, x, with_embed=True, is_eval=False, **kwargs):
         # encoding path
         x1 = self.Conv1(x)
 
@@ -247,9 +224,43 @@ class AttU_Net_Contrast(nn.Module):
         d1 = self.Conv_1x1(d2)
         emb = self.proj_head(d2)
 
-        if is_eval is True or lb_q is None or not with_embed:
-            return {'seg': d1, 'embed': emb}
+        return {'seg': d1, 'embed': emb}
 
-        else:
-            # return {'seg': d1, 'embed': emb}
-            return {'seg': d1, 'embed': emb, 'key': emb.detach(), 'lb_key': lb_q.detach()}
+
+
+class AttU_Net_Contrast_Mem(nn.Module):
+    def __init__(self, configer, dim=64, m=0.999, with_masked_ppm=False):
+        super(AttU_Net_Contrast_Mem, self).__init__()
+        self.configer = configer
+        self.m = m
+        self.r = self.configer.get('contrast', 'memory_size')
+        self.with_masked_ppm = with_masked_ppm
+
+        num_classes = self.configer.get('data', 'num_classes')
+
+        self.encoder_q = AttU_Net_Contrast(configer)
+
+        self.register_buffer("segment_queue", torch.randn(num_classes, self.r, dim))
+        self.segment_queue = nn.functional.normalize(self.segment_queue, p=2, dim=2)
+        self.register_buffer("segment_queue_ptr", torch.zeros(num_classes, dtype=torch.long))
+
+        self.register_buffer("pixel_queue", torch.randn(num_classes, self.r, dim))
+        self.pixel_queue = nn.functional.normalize(self.pixel_queue, p=2, dim=2)
+        self.register_buffer("pixel_queue_ptr", torch.zeros(num_classes, dtype=torch.long))
+
+    @torch.no_grad()
+    def _momentum_update_key_encoder(self):
+        for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
+            param_k.data = param_k.data * self.m + param_q.data * (1. - self.m)
+
+    def forward(self, im_q, lb_q=None, with_embed=True, is_eval=False):
+        if is_eval is True or lb_q is None:
+            ret = self.encoder_q(im_q, with_embed=with_embed)
+            return ret
+
+        ret = self.encoder_q(im_q)
+
+        q = ret['embed']
+        out = ret['seg']
+
+        return {'seg': out, 'embed': q, 'key': q.detach(), 'lb_key': lb_q.detach()}
