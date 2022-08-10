@@ -25,5 +25,5 @@ module load cuda/11.3.1/gnu-10.2.0
 module load cudnn/8.2.1.32/cuda-11.3
 module load pytorch/1.11.0/gpu
 source ~/sw/python/seg/bin/activate
-cd ~/dev/repo/GenCL/
+cd ~/dev/repo/SAM-CL/
 bash scripts/thermalFaceDB/aunet/run_aunet_rmi_train.sh train aunet_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320

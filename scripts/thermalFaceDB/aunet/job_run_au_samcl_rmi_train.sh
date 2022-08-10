@@ -15,7 +15,7 @@
 #$ -l tmpfs=10G
 
 # Set the name of the job.
-#$ -N AU_GCL_Occ
+#$ -N AU_SAMCL
 
 module -f unload compilers mpi gcc-libs
 module load beta-modules
@@ -25,5 +25,5 @@ module load cuda/11.3.1/gnu-10.2.0
 module load cudnn/8.2.1.32/cuda-11.3
 module load pytorch/1.11.0/gpu
 source ~/sw/python/seg/bin/activate
-cd ~/dev/repo/GenCL/
-bash scripts/thermalFaceDB/aunet/run_aunet_gcl_rmi_train_occ.sh train aunet_gcl_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+cd ~/dev/repo/SAM-CL/
+bash scripts/thermalFaceDB/aunet/run_aunet_samcl_rmi_train.sh train aunet_samcl_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320

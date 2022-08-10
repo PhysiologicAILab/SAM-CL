@@ -28,7 +28,7 @@ BATCH_SIZE=16
 BASE_LR=0.01
 
 if [ "$1"x == "train"x ]; then
-  python -u main_GCL.py --configs ${CONFIGS} \
+  python -u main_SAMCL.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered n \
@@ -49,7 +49,7 @@ if [ "$1"x == "train"x ]; then
                        
 
 elif [ "$1"x == "resume"x ]; then
-  python -u main_GCL.py --configs ${CONFIGS} \
+  python -u main_SAMCL.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered y \
@@ -70,7 +70,7 @@ elif [ "$1"x == "resume"x ]; then
                         2>&1 | tee -a ${LOG_FILE}
 
 elif [ "$1"x == "val"x ]; then
-  python -u main_GCL.py --configs ${CONFIGS} --drop_last y \
+  python -u main_SAMCL.py --configs ${CONFIGS} --drop_last y \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_max_performance.pth \
                        --loss_type ${LOSS_TYPE} --test_dir ${DATA_DIR}/val/image \
@@ -101,14 +101,14 @@ elif [ "$1"x == "segfix"x ]; then
 elif [ "$1"x == "test"x ]; then
   if [ "$5"x == "ss"x ]; then
     echo "[single scale] test"
-    python -u main_GCL.py --configs ${CONFIGS} --drop_last y --data_dir ${DATA_DIR} \
+    python -u main_SAMCL.py --configs ${CONFIGS} --drop_last y --data_dir ${DATA_DIR} \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 1 2 3 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_max_performance.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss
   else
     echo "[multiple scale + flip] test"
-    python -u main_GCL.py --configs ${CONFIGS_TEST} --drop_last y \
+    python -u main_SAMCL.py --configs ${CONFIGS_TEST} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 1 2 3 --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_max_performance.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
