@@ -237,7 +237,7 @@ class Trainer(object):
 
             foward_start_time = time.time()
             with torch.cuda.amp.autocast():
-                outputs = self.seg_net(*inputs)
+                outputs = self.seg_net(*inputs)[0]
 
             if self.with_gcl:    
             
