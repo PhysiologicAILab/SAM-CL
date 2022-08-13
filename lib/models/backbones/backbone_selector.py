@@ -21,6 +21,7 @@ from lib.models.backbones.pvt.svt_backbone import SVTBackbone
 from lib.models.backbones.mobilenet.mobilenet_v1 import MobileNetV1Backbone
 from lib.models.backbones.mobilenet.mobilenet_v2 import MobileNetV2Backbone
 from lib.models.backbones.mobilenet.mobilenet_v3 import MobileNetV3Backbone
+from lib.models.backbones.xception.xception_backbone import XceptionBackbone
 
 from lib.utils.tools.logger import Logger as Log
 
@@ -55,6 +56,9 @@ class BackboneSelector(object):
             model = MobileNetV2Backbone(self.configer)(**params)
         elif 'mobilenet_v3' in backbone:
             model = MobileNetV3Backbone(self.configer)(**params)
+
+        elif 'xception' in backbone:
+            model = XceptionBackbone(self.configer)(**params)
 
         else:
             Log.error('Backbone {} is invalid.'.format(backbone))

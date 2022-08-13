@@ -97,8 +97,7 @@ class AlignedXception(nn.Module):
     """
     Modified Alighed Xception
     """
-    def __init__(self, in_channels, output_stride, bn_type='torchsyncbn',
-                 pretrained=True):
+    def __init__(self, in_channels, output_stride, bn_type='torchsyncbn'):
         super(AlignedXception, self).__init__()
 
         if output_stride == 16:
@@ -281,11 +280,40 @@ class AlignedXception(nn.Module):
 
 
 
+class XceptionBackbone(object):
+    def __init__(self, configer):
+        self.configer = configer
+
+    def __call__(self):
+        arch = self.configer.get('network', 'backbone')
+        resume = self.configer.get('network', 'resume')
+        in_channels = self.configer.get('data', 'num_channels')
+
+        if arch == 'xception_16':
+            arch_net = AlignedXception(in_channels=in_channels, output_stride=16, bn_type='torchsyncbn')
+            if resume is None:
+                arch_net = ModuleHelper.load_model(arch_net,
+                                                   pretrained=self.configer.get('network', 'pretrained'),
+                                                   all_match=False,
+                                                   network='xception')
+        elif arch == 'xception_8':
+            arch_net = AlignedXception(in_channels=in_channels, output_stride=8, bn_type='torchsyncbn')
+            if resume is None:
+                arch_net = ModuleHelper.load_model(arch_net,
+                                                   pretrained=self.configer.get('network', 'pretrained'),
+                                                   all_match=False,
+                                                   network='xception')
+
+        else:
+            raise Exception('Architecture undefined!')
+
+        return arch_net
+
+
 if __name__ == "__main__":
     import torch
     # model = AlignedXception(BatchNorm=nn.BatchNorm2d, pretrained=True, output_stride=16)
-    model = AlignedXception(1, bn_type='torchsyncbn',
-                            pretrained=False, output_stride=16)
+    model = AlignedXception(1, output_stride=16, bn_type='torchsyncbn')
     input = torch.rand(1, 1, 512, 512)
     output, low_level_feat = model(input)
     print(output.size())
