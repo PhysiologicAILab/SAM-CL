@@ -239,6 +239,9 @@ class Trainer(object):
             with torch.cuda.amp.autocast():
                 outputs = self.seg_net(*inputs)
 
+            if isinstance(outputs, (list, tuple)):
+                outputs = outputs[-1]
+
             if self.with_gcl:    
             
                 if self.with_gcl_input:
@@ -249,7 +252,7 @@ class Trainer(object):
                 targets[targets < 0] = 0  # Resizing and Crop is causing this to -1 - need to resolve
                 one_hot_target_mask = F.one_hot(targets, num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
                 one_hot_fake_mask = self._generate_fake_segmenation_mask(one_hot_target_mask)
-                pred_seg_mask = self.seg_act(outputs[0]).exp()
+                pred_seg_mask = self.seg_act(outputs).exp()
                 one_hot_pred_seg_mask = F.one_hot(torch.argmax(pred_seg_mask, dim=1), num_classes=self.num_classes).permute(0, 3, 1, 2).to(dtype=torch.float32)
 
                 if self.with_gcl_input:
@@ -280,7 +283,7 @@ class Trainer(object):
                     return reduced_inp
 
                 with torch.cuda.amp.autocast():
-                    loss = self.pixel_loss(outputs[0], targets, is_eval=False)
+                    loss = self.pixel_loss(outputs, targets, is_eval=False)
                     if self.with_gcl:
                         critic_loss = self.critic_loss_func(critic_outputs_real, critic_outputs_fake, critic_outputs_pred)
                         backward_loss = loss + self.gcl_loss_weight * critic_loss
@@ -290,7 +293,7 @@ class Trainer(object):
                     display_loss = reduce_tensor(backward_loss) / get_world_size()
 
             else:
-                loss = self.pixel_loss(outputs[0], targets, is_eval=False, gathered=self.configer.get('network', 'gathered')) 
+                loss = self.pixel_loss(outputs, targets, is_eval=False, gathered=self.configer.get('network', 'gathered')) 
                 if self.with_gcl:
                     critic_loss = self.critic_loss_func(
                         critic_outputs_real, critic_outputs_fake, critic_outputs_pred, gathered=self.configer.get('network', 'gathered'))
@@ -449,6 +452,8 @@ class Trainer(object):
                             outputs = outputs['seg']
                         except:
                             outputs = outputs['pred']
+                    elif isinstance(outputs, (list, tuple)):
+                        outputs = outputs[-1]
                     self.evaluator.update_score(outputs, data_dict['meta'])
 
             self.batch_time.update(time.time() - start_time)
