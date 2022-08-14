@@ -180,7 +180,14 @@ class AlignedXception(nn.Module):
         # if pretrained:
         #     self._load_pretrained_model()
 
+        self.num_features = 2048
+
+    def get_num_features(self):
+        return self.num_features
+
+
     def forward(self, x):
+        tuple_features = list()
         # Entry flow
         x = self.conv1(x)
         x = self.bn1(x)
@@ -193,28 +200,33 @@ class AlignedXception(nn.Module):
         x = self.block1(x)
         # add relu here
         x = self.relu(x)
+        tuple_features.append(x)
         # low_level_feat = x
         x = self.block2(x)
         x = self.block3(x)
 
         # Middle flow
         x = self.block4(x)
+        tuple_features.append(x)
         x = self.block5(x)
         x = self.block6(x)
         x = self.block7(x)
         x = self.block8(x)
         x = self.block9(x)
+        tuple_features.append(x)
         x = self.block10(x)
         x = self.block11(x)
         x = self.block12(x)
         x = self.block13(x)
         x = self.block14(x)
+        tuple_features.append(x)
         x = self.block15(x)
         x = self.block16(x)
         x = self.block17(x)
         x = self.block18(x)
         x = self.block19(x)
-
+        tuple_features.append(x)
+        
         # Exit flow
         x = self.block20(x)
         x = self.relu(x)
@@ -229,8 +241,9 @@ class AlignedXception(nn.Module):
         x = self.conv5(x)
         x = self.bn5(x)
         x = self.relu(x)
+        tuple_features.append(x)
 
-        return x
+        return tuple_features
 
     # def _init_weight(self):
     #     for m in self.modules():
