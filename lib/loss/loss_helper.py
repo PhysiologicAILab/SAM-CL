@@ -407,6 +407,8 @@ class FSRMILoss(nn.Module):
         self.rmi_loss = RMILoss(self.configer)
 
     def forward(self, inputs, targets, **kwargs):
+        if isinstance(inputs, (list, tuple)):
+            inputs = inputs[-1]
         seg_out = inputs
         loss = self.rmi_loss(seg_out, targets)
         return loss

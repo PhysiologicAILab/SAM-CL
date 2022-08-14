@@ -239,6 +239,8 @@ class RMILoss(nn.Module):
                 weight=None,
                 **kwargs):
         label[label < 0] = 255
+        if isinstance(cls_score, (list, tuple)):
+            cls_score = cls_score[-1]
         loss = self.loss_weight * self.forward_sigmoid(cls_score, label)
         label[label == 255] = -1
         # loss = self.forward_softmax_sigmoid(cls_score, label)
