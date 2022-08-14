@@ -331,3 +331,41 @@ if __name__ == "__main__":
     output, low_level_feat = model(input)
     print(output.size())
     print(low_level_feat.size())
+
+
+
+'''
+Current Error while using DeepLabv3 with Xception
+
+    self.__train()                                                                                                                                   [43/1925]
+  File "/home/jitesh/dev/repos/seg/SAM-CL/segmentor/trainer_samcl.py", line 283, in __train                                                                   
+    loss = self.pixel_loss(outputs, targets, is_eval=False)                                                                                                   
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1130, in _call_impl                                                          
+    return forward_call(*input, **kwargs)                                                                                                                     
+  File "/home/jitesh/dev/repos/seg/SAM-CL/lib/loss/rmi_loss.py", line 244, in forward                                                                         
+    loss = self.loss_weight * self.forward_sigmoid(cls_score, label)                                                                                          
+  File "/home/jitesh/dev/repos/seg/SAM-CL/lib/loss/rmi_loss.py", line 310, in forward_sigmoid                                                                 
+    binary_loss = F.binary_cross_entropy_with_logits(logits_flat,                                                                                             
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/functional.py", line 3148, in binary_cross_entropy_with_logits                                        
+    raise ValueError("Target size ({}) must be the same as input size ({})".format(target.size(), input.size()))                                              
+ValueError: Target size (torch.Size([327680, 6])) must be the same as input size (torch.Size([1280, 6]))                                                      
+ERROR:torch.distributed.elastic.multiprocessing.api:failed (exitcode: 1) local_rank: 0 (pid: 204466) of binary: /home/jitesh/sw/venv/dev/bin/python           
+Traceback (most recent call last):                                                                                                                            
+  File "/usr/lib/python3.8/runpy.py", line 194, in _run_module_as_main                                                                                        
+    return _run_code(code, main_globals, None,                                                                                                                
+  File "/usr/lib/python3.8/runpy.py", line 87, in _run_code                                                                                                   
+    exec(code, run_globals)                                                                                                                                   
+  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launch.py", line 193, in <module>                                                            
+    main()                                                                                                                                                    
+  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launch.py", line 189, in main                                                                
+    launch(args)                                                                                                                                              
+  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launch.py", line 174, in launch                                                              
+    run(args)                                                                                                                                                 
+  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/run.py", line 752, in run                                                                    
+    elastic_launch(                                                                                                                                           
+  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launcher/api.py", line 131, in __call__                                                      
+    return launch_agent(self._config, self._entrypoint, list(args))                                                                                           
+  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launcher/api.py", line 245, in launch_agent                                                  
+    raise ChildFailedError(                                                                                                                                   
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError:  
+'''
