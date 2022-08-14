@@ -225,10 +225,10 @@ class AlignedXception(nn.Module):
         x = self.block17(x)
         x = self.block18(x)
         x = self.block19(x)
-        tuple_features.append(x)
         
         # Exit flow
         x = self.block20(x)
+        tuple_features.append(x)
         x = self.relu(x)
         x = self.conv3(x)
         x = self.bn3(x)
