@@ -82,7 +82,15 @@
       }
     },
     "val_trans": {
-      "trans_seq": []
+      "trans_seq": ["thermal_noise", "random_thermal_occlusion"],
+      "thermal_noise": {
+        "ratio": 0.5,
+        "max_noise_equivalent_differential_temperature": 0.1
+      },
+      "random_thermal_occlusion": {
+        "ratio": 0.5,
+        "max_noise_equivalent_differential_temperature": 0.1
+      }
     },
     "normalize": {
       "norm_mode": 2

@@ -227,7 +227,9 @@ class Tester(object):
                         # color_img_.putpalette(colors)
                     
                         vis_path = os.path.join(self.save_dir, "vis/", '{}.jpg'.format(names[k]))
+                        npy_path = os.path.join(self.save_dir, "inputs/", '{}.npy'.format(names[k]))
                         FileHelper.make_dirs(vis_path, is_file=True)
+                        FileHelper.make_dirs(npy_path, is_file=True)
 
                         fig = Figure()
                         canvas = FigureCanvas(fig)
@@ -238,6 +240,9 @@ class Tester(object):
                         ax.set_axis_off()
                         canvas.draw()
                         canvas.print_jpg(vis_path)
+
+                        # saving the input image used for inference
+                        np.save(npy_path, inputs[k, 0, :, :])
 
                         # ImageHelper.save(color_img_, save_path=vis_path)
 
