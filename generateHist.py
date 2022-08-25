@@ -26,13 +26,14 @@ def main(args):
             if in_ext in in_files[i]: # and i < 50:                
 
                 input_img = np.load(in_files[i])
+                input_img = (input_img + 1) * 20
                 # input_img[input_img > 100] = 50
                 # x0, y0, x1, y1 = 32, 0, input_img.shape[0]-32, input_img.shape[1]                
                 # input_img = input_img[x0:x1, y0:y1]
 
                 col = (np.random.random(), np.random.random(), np.random.random())
                 # col = (0.5, 0.5, 0.5)
-                hist_im, bin_edges = np.histogram(input_img, bins=1024, range=(-1, 1))
+                hist_im, bin_edges = np.histogram(input_img, bins=1024, range=(0, 40))
                 plt.plot(bin_edges[0:-1], hist_im, color=col)
 
         except KeyboardInterrupt:
