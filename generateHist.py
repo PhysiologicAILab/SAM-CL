@@ -32,7 +32,7 @@ def main(args):
 
                 col = (np.random.random(), np.random.random(), np.random.random())
                 # col = (0.5, 0.5, 0.5)
-                hist_im, bin_edges = np.histogram(input_img, bins=1024, range=(0, 40))
+                hist_im, bin_edges = np.histogram(input_img, bins=1024, range=(-1, 1))
                 plt.plot(bin_edges[0:-1], hist_im, color=col)
 
         except KeyboardInterrupt:
