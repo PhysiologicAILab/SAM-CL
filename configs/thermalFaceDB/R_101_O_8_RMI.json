@@ -95,7 +95,7 @@
     "network":{
       "backbone": "deepbase_resnet101_dilated8",
       "multi_grid": [1, 1, 1],
-      "model_name": "ocnet",
+      "model_name": "base_ocnet",
       "bn_type": "torchsyncbn",
       "stride": 8,
       "factors": [[8, 8]],
@@ -108,7 +108,7 @@
     "logging": {
       "logfile_level": "info",
       "stdout_level": "info",
-      "log_file": "./log/thermalFaceDB/deeplab_v3_resnet_thermalFaceDB_rmi.log",
+      "log_file": "./log/thermalFaceDB/base_ocnet_resnet_thermalFaceDB_rmi.log",
       "log_format": "%(asctime)s %(levelname)-7s %(message)s",
       "rewrite": true
     },

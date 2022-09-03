@@ -11,10 +11,10 @@ DATA_DIR="${DATA_ROOT}/Processed"
 SAVE_DIR="${SCRATCH_ROOT}/seg_results/thermalFaceDB"
 BACKBONE="deepbase_resnet101_dilated8"
 
-CONFIGS="configs/thermalFaceDB/R_101_D_8_RMI.json"
+CONFIGS="configs/thermalFaceDB/R_101_O_8_RMI.json"
 # CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
 
-MODEL_NAME="ocnet"
+MODEL_NAME="base_ocnet"
 LOSS_TYPE="rmi_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed/"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
