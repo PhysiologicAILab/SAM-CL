@@ -61,4 +61,5 @@ class DeepLabV3(nn.Module):
 
         x = self.decoder(x[-4:])
 
-        return x[1], x[0]
+        return x[0], x[1]
+        # return x[1], x[0]
