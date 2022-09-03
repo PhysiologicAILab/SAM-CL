@@ -61,6 +61,5 @@ class DeepLabV3(nn.Module):
 
         x = self.decoder(x[-4:])
 
-        # return x[0]
         return {'seg_aux': x[1], 'seg': x[0]}
         # return x[1], x[0]

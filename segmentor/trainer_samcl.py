@@ -239,6 +239,14 @@ class Trainer(object):
             with torch.cuda.amp.autocast():
                 outputs = self.seg_net(*inputs)
 
+                if isinstance(outputs, dict):
+                    try:
+                        outputs = outputs['seg']
+                    except:
+                        outputs = outputs['pred']
+                elif isinstance(outputs, (list, tuple)):
+                    outputs = outputs[-1]
+
             if self.with_gcl:    
             
                 if self.with_gcl_input:
