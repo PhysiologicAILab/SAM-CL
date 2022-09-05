@@ -1,31 +1,42 @@
-echo "*******************************************"
-echo "Running Training for unet_contrast_no_occ_oldAnn"
-echo "*******************************************"
-bash scripts/thermalFaceDB/unet/run_unet_contrast_train.sh train unet_contrast_no_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 echo "*******************************************"
-echo "Running Training for unet_contrast_occ_oldAnn"
+echo "Running Training for ocnet_rmi_occ"
 echo "*******************************************"
-bash scripts/thermalFaceDB/unet/run_unet_contrast_train_occ.sh train unet_contrast_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+bash scripts/thermalFaceDB/deeplab/run_r_101_ocnet_train_rmi_occ.sh train ocnet_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 echo "*******************************************"
-echo "Running Training for unet_contrast_mem_no_occ_oldAnn"
+echo "Running Training for ocnet_samcl_rmi_occ"
 echo "*******************************************"
-bash scripts/thermalFaceDB/unet/run_unet_contrast_mem_train.sh train unet_contrast_mem_no_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+bash scripts/thermalFaceDB/deeplab/run_r_101_ocnet_train_samcl_rmi_occ.sh train ocnet_samcl_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
-echo "*******************************************"
-echo "Running Training for unet_contrast_mem_occ_oldAnn"
-echo "*******************************************"
-bash scripts/thermalFaceDB/unet/run_unet_contrast_mem_train_occ.sh train unet_contrast_mem_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# echo "*******************************************"
+# echo "Running Training for unet_contrast_no_occ_oldAnn"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/unet/run_unet_contrast_train.sh train unet_contrast_no_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
-echo "*******************************************"
-echo "Running Validation"
-bash scripts/thermalFaceDB/unet/run_unet_contrast_train.sh val unet_contrast_no_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
-bash scripts/thermalFaceDB/unet/run_unet_contrast_train_occ.sh val unet_contrast_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
-bash scripts/thermalFaceDB/unet/run_unet_contrast_mem_train.sh val unet_contrast_mem_no_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
-bash scripts/thermalFaceDB/unet/run_unet_contrast_mem_train_occ.sh val unet_contrast_mem_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# echo "*******************************************"
+# echo "Running Training for unet_contrast_occ_oldAnn"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/unet/run_unet_contrast_train_occ.sh train unet_contrast_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
-echo "*******************************************"
+# echo "*******************************************"
+# echo "Running Training for unet_contrast_mem_no_occ_oldAnn"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/unet/run_unet_contrast_mem_train.sh train unet_contrast_mem_no_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+# echo "*******************************************"
+# echo "Running Training for unet_contrast_mem_occ_oldAnn"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/unet/run_unet_contrast_mem_train_occ.sh train unet_contrast_mem_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+# echo "*******************************************"
+# echo "Running Validation"
+# bash scripts/thermalFaceDB/unet/run_unet_contrast_train.sh val unet_contrast_no_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# bash scripts/thermalFaceDB/unet/run_unet_contrast_train_occ.sh val unet_contrast_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# bash scripts/thermalFaceDB/unet/run_unet_contrast_mem_train.sh val unet_contrast_mem_no_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# bash scripts/thermalFaceDB/unet/run_unet_contrast_mem_train_occ.sh val unet_contrast_mem_occ_oldAnn ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+# echo "*******************************************"
 
 # echo "*******************************************"
 # echo "Running Training for aunet_contrast_no_occ_oldAnn"
