@@ -44,24 +44,28 @@ def main(args):
     sns.boxplot(x='com_x', y='avg_y', data=df)
     plt.xlabel('Different Datasets')
     plt.ylabel('Average Value')
+    plt.title('Box Plot Analysis')
     plt.savefig(os.path.join(base_dir, 'boxplot_avg.jpg'), bbox_inches=0)
     plt.close()
 
     sns.boxplot(x='com_x', y='std_y', data=df)
     plt.xlabel('Different Datasets')
     plt.ylabel('Standard Deviation')
+    plt.title('Box Plot Analysis')
     plt.savefig(os.path.join(base_dir, 'boxplot_std.jpg'), bbox_inches=0)
     plt.close()
     
     sns.scatterplot(x='com_x', y='avg_y', data=df)
     plt.xlabel('Different Datasets')
     plt.ylabel('Average Value')
+    plt.title('Scatter Plot Analysis')
     plt.savefig(os.path.join(base_dir, 'scatterplot_avg.jpg'), bbox_inches=0)
     plt.close()
 
     sns.scatterplot(x='com_x', y='std_y', data=df)
     plt.xlabel('Different Datasets')
     plt.ylabel('Standard Deviation')
+    plt.title('Scatter Plot Analysis')
     plt.savefig(os.path.join(base_dir, 'scatterplot_std.jpg'), bbox_inches=0)
     plt.close()
 
