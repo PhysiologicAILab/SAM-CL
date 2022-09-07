@@ -33,7 +33,8 @@ def main(args):
             data_dict['std'][data_dirs[i]] = np.load(os.path.join(base_dir, data_dirs[i], 'std_array.npy'))
 
 
-    df = pd.DataFrame.from_dict(data_dict, orient='index')
+    df = pd.DataFrame.from_dict(data_dict)
+    print(df)
 
     df.plot.scatter(data_dict['min'].keys(), data_dict['min'].values())
 
