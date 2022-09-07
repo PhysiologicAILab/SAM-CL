@@ -39,10 +39,13 @@ def main(args):
                 input_img = np.load(in_files[i])
                 if mode == 1:
                     input_img = (input_img + 1) * 20
-                input_img[input_img > 50] = 50
+                elif mode == 2:
+                    input_img = input_img/ 1000.0
+                
+                # input_img[input_img > 50] = 50
                 # x0, y0, x1, y1 = 32, 0, input_img.shape[0]-32, input_img.shape[1]                
                 # input_img = input_img[x0:x1, y0:y1]
-                
+
                 min_list.append(np.min(input_img))
                 avg_list.append(np.mean(input_img))
                 max_list.append(np.max(input_img))

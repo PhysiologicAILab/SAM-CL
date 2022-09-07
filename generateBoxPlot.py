@@ -2,9 +2,8 @@ import numpy as np
 import argparse
 import os
 import matplotlib.pyplot as plt
-
 import pandas as pd
-
+import seaborn as sns
 
 def main(args):
    
@@ -19,33 +18,37 @@ def main(args):
         data_dirs.append(os.path.join(base_dir, dir_name))
 
     data_dict = {}
-    data_dict['min'] = {}
-    data_dict['avg'] = {}
-    data_dict['max'] = {}
-    data_dict['std'] = {}
-
-    # fig, ax = plt.subplots(figsize=(6, 4))
-    # colors = {'short': 'MediumVioletRed', 'long': 'Navy'}
+    data_dict['com_x'] = []
+    data_dict['min_y'] = []
+    data_dict['avg_y'] = []
+    data_dict['max_y'] = []
+    data_dict['std_y'] = []
 
     for i, fn in enumerate(data_dirs):
-        if dir_names[i] not in data_dict['min']:
-            data_dict['min'][dir_names[i]] = np.load(os.path.join(data_dirs[i], 'min_array.npy'))
-            data_dict['avg'][dir_names[i]] = np.load(os.path.join(data_dirs[i], 'avg_array.npy'))
-            data_dict['max'][dir_names[i]] = np.load(os.path.join(data_dirs[i], 'max_array.npy'))
-            data_dict['std'][dir_names[i]] = np.load(os.path.join(data_dirs[i], 'std_array.npy'))
+        min_array = np.load(os.path.join(data_dirs[i], 'min_array.npy'))
+        avg_array = np.load(os.path.join(data_dirs[i], 'avg_array.npy'))
+        max_array = np.load(os.path.join(data_dirs[i], 'max_array.npy'))
+        std_array = np.load(os.path.join(data_dirs[i], 'std_array.npy'))
+
+        for j in range(len(min_array)):
+            data_dict['com_x'].append(dir_names[i])
+            data_dict['min_y'].append(min_array[j])
+            data_dict['avg_y'].append(avg_array[j])
+            data_dict['max_y'].append(max_array[j])
+            data_dict['std_y'].append(std_array[j])
 
 
-    df = pd.DataFrame.from_dict(data_dict, orient='index')
-    print(df)
-
-    df.plot.scatter(data_dict['min'].keys(), data_dict['min'].values())
-
-    # ax.set(xlabel='Waiting', ylabel='Duration')
-    # fig.suptitle('Waiting vs Duration')
+    # plt.scatter(data_dict['com_x'], data_dict['min_y'], c='b')
+    # plt.scatter(data_dict['com_x'], data_dict['max_y'], c='r')
+    # plt.scatter(data_dict['com_x'], data_dict['avg_y'], c='g')
+    # plt.scatter(data_dict['com_x'], data_dict['std_y'], c='m')
     # plt.show()
 
-    # plt.show()
-    plt.savefig(os.path.join(base_dir, 'box_plot.jpg'), bbox_inches=0)
+    df = pd.DataFrame.from_dict(data_dict)
+    sns.boxplot(x='com_x', y='avg_y', data=df)
+    plt.show()    
+
+    # plt.savefig(os.path.join(base_dir, 'box_plot.jpg'), bbox_inches=0)
 
 
 def get_args():
