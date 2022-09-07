@@ -10,10 +10,12 @@ def main(args):
    
     base_dir = args.base_dir    
     data_dirs = []
+    dir_names = []
     base_dir_list = os.listdir(base_dir)
 
     for ff in range(len(base_dir_list)):
         dir_name = base_dir_list[ff]
+        dir_names.append(dir_name)
         data_dirs.append(os.path.join(base_dir, dir_name))
 
     data_dict = {}
@@ -26,11 +28,11 @@ def main(args):
     # colors = {'short': 'MediumVioletRed', 'long': 'Navy'}
 
     for i, fn in enumerate(data_dirs):
-        if data_dirs[i] not in data_dict['min']:
-            data_dict['min'][data_dirs[i]] = np.load(os.path.join(base_dir, data_dirs[i], 'min_array.npy'))
-            data_dict['avg'][data_dirs[i]] = np.load(os.path.join(base_dir, data_dirs[i], 'avg_array.npy'))
-            data_dict['max'][data_dirs[i]] = np.load(os.path.join(base_dir, data_dirs[i], 'max_array.npy'))
-            data_dict['std'][data_dirs[i]] = np.load(os.path.join(base_dir, data_dirs[i], 'std_array.npy'))
+        if dir_names[i] not in data_dict['min']:
+            data_dict['min'][dir_names[i]] = np.load(os.path.join(data_dirs[i], 'min_array.npy'))
+            data_dict['avg'][dir_names[i]] = np.load(os.path.join(data_dirs[i], 'avg_array.npy'))
+            data_dict['max'][dir_names[i]] = np.load(os.path.join(data_dirs[i], 'max_array.npy'))
+            data_dict['std'][dir_names[i]] = np.load(os.path.join(data_dirs[i], 'std_array.npy'))
 
 
     df = pd.DataFrame.from_dict(data_dict)
