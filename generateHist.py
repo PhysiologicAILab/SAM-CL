@@ -7,7 +7,8 @@ def main(args):
    
     test_data_dir = args.img_dir
     save_dir = args.save_dir
-    
+    mode =int(args.mode)
+
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     
@@ -36,11 +37,12 @@ def main(args):
             if in_ext in in_files[i]: # and i < 50:                
 
                 input_img = np.load(in_files[i])
-                input_img = (input_img + 1) * 20
-                # input_img[input_img > 100] = 50
+                if mode == 1:
+                    input_img = (input_img + 1) * 20
+                input_img[input_img > 50] = 50
                 # x0, y0, x1, y1 = 32, 0, input_img.shape[0]-32, input_img.shape[1]                
                 # input_img = input_img[x0:x1, y0:y1]
-
+                
                 min_list.append(np.min(input_img))
                 avg_list.append(np.mean(input_img))
                 max_list.append(np.max(input_img))
@@ -75,6 +77,8 @@ def get_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--img_dir', type=str,
                         help='Image Directory', dest='img_dir')
+    parser.add_argument('-m', '--mode', type=int, default=0,
+                        help='Normalization Mode', dest='mode')
     parser.add_argument('-o', '--out_dir', type=str,
                         help='Output Directory', dest='save_dir')
     return parser.parse_args()
