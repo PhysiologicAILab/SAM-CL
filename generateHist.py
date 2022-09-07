@@ -21,6 +21,11 @@ def main(args):
         fname = test_data_dir_list[ff]
         in_files.append(os.path.join(test_data_dir, fname))
 
+    min_list = []
+    avg_list = []
+    max_list = []
+    std_list = []
+
     for i, fn in enumerate(in_files):
         try:
             if in_ext in in_files[i]: # and i < 50:                
@@ -30,6 +35,11 @@ def main(args):
                 # input_img[input_img > 100] = 50
                 # x0, y0, x1, y1 = 32, 0, input_img.shape[0]-32, input_img.shape[1]                
                 # input_img = input_img[x0:x1, y0:y1]
+
+                min_list.append(np.min(input_img))
+                avg_list.append(np.mean(input_img))
+                max_list.append(np.max(input_img))
+                std_list.append(np.std(input_img))
 
                 col = (np.random.random(), np.random.random(), np.random.random())
                 # col = (0.5, 0.5, 0.5)
@@ -43,6 +53,15 @@ def main(args):
 
     plt.show()
 
+    min_list = np.array(min_list)
+    avg_list = np.array(avg_list)
+    max_list = np.array(max_list)
+    std_list = np.array(std_list)
+
+    np.save('min_array.npy', min_list)
+    np.save('avg_array.npy', avg_list)
+    np.save('max_array.npy', max_list)
+    np.save('std_array.npy', std_list)
 
 def get_args():
     parser = argparse.ArgumentParser(description='Generate the histogram plot of thermal matrix',

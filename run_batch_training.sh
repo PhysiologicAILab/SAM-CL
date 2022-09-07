@@ -9,6 +9,7 @@ echo "Running Training for ocnet_samcl_rmi_occ"
 echo "*******************************************"
 bash scripts/thermalFaceDB/deeplab/run_r_101_ocnet_train_samcl_rmi_occ.sh train ocnet_samcl_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
+bash scripts/thermalFaceDB/deeplab/run_r_101_ocnet_train_rmi_occ.sh val ocnet_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 # echo "*******************************************"
 # echo "Running Training for unet_contrast_no_occ_oldAnn"
 # echo "*******************************************"
