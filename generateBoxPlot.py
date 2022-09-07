@@ -1,3 +1,4 @@
+from genericpath import isdir
 import numpy as np
 import argparse
 import os
@@ -14,8 +15,9 @@ def main(args):
 
     for ff in range(len(base_dir_list)):
         dir_name = base_dir_list[ff]
-        dir_names.append(dir_name)
-        data_dirs.append(os.path.join(base_dir, dir_name))
+        if os.path.isdir(os.path.join(base_dir, dir_name)):
+            dir_names.append(dir_name)
+            data_dirs.append(os.path.join(base_dir, dir_name))
 
     data_dict = {}
     data_dict['com_x'] = []
