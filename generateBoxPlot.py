@@ -1,4 +1,3 @@
-from genericpath import isdir
 import numpy as np
 import argparse
 import os
@@ -40,26 +39,29 @@ def main(args):
             data_dict['std_y'].append(std_array[j])
 
 
-    # plt.scatter(data_dict['com_x'], data_dict['min_y'], c='b')
-    # plt.scatter(data_dict['com_x'], data_dict['max_y'], c='r')
-    # plt.scatter(data_dict['com_x'], data_dict['avg_y'], c='g')
-    # plt.scatter(data_dict['com_x'], data_dict['std_y'], c='m')
-    # plt.show()
-
     df = pd.DataFrame.from_dict(data_dict)
+
     sns.boxplot(x='com_x', y='avg_y', data=df)
+    plt.xlabel('Different Datasets')
+    plt.ylabel('Average Value')
     plt.savefig(os.path.join(base_dir, 'boxplot_avg.jpg'), bbox_inches=0)
     plt.close()
 
     sns.boxplot(x='com_x', y='std_y', data=df)
+    plt.xlabel('Different Datasets')
+    plt.ylabel('Standard Deviation')
     plt.savefig(os.path.join(base_dir, 'boxplot_std.jpg'), bbox_inches=0)
     plt.close()
     
     sns.scatterplot(x='com_x', y='avg_y', data=df)
+    plt.xlabel('Different Datasets')
+    plt.ylabel('Average Value')
     plt.savefig(os.path.join(base_dir, 'scatterplot_avg.jpg'), bbox_inches=0)
     plt.close()
 
     sns.scatterplot(x='com_x', y='std_y', data=df)
+    plt.xlabel('Different Datasets')
+    plt.ylabel('Standard Deviation')
     plt.savefig(os.path.join(base_dir, 'scatterplot_std.jpg'), bbox_inches=0)
     plt.close()
 
