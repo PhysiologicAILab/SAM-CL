@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 def main(args):
    
     test_data_dir = args.img_dir
+    save_dir = args.save_dir
+    
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    
     in_files = []
     in_ext = ['.npy']
 
@@ -51,23 +56,27 @@ def main(args):
 
         # break
 
-    plt.show()
+    # plt.show()
+    plt.savefig(os.path.join(save_dir, 'histogram.jpg'), bbox_inches=0)
 
     min_list = np.array(min_list)
     avg_list = np.array(avg_list)
     max_list = np.array(max_list)
     std_list = np.array(std_list)
 
-    np.save('min_array.npy', min_list)
-    np.save('avg_array.npy', avg_list)
-    np.save('max_array.npy', max_list)
-    np.save('std_array.npy', std_list)
+    np.save(os.path.join(save_dir, 'min_array.npy'), min_list)
+    np.save(os.path.join(save_dir, 'avg_array.npy'), avg_list)
+    np.save(os.path.join(save_dir, 'max_array.npy'), max_list)
+    np.save(os.path.join(save_dir, 'std_array.npy'), std_list)
+
 
 def get_args():
     parser = argparse.ArgumentParser(description='Generate the histogram plot of thermal matrix',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--img_dir', type=str,
                         help='Image Directory', dest='img_dir')
+    parser.add_argument('-o', '--out_dir', type=str,
+                        help='Output Directory', dest='save_dir')
     return parser.parse_args()
 
 if __name__ == '__main__':
