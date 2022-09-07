@@ -46,9 +46,9 @@ def main(args):
 
     df = pd.DataFrame.from_dict(data_dict)
     sns.boxplot(x='com_x', y='avg_y', data=df)
-    plt.show()    
+    # plt.show()
 
-    # plt.savefig(os.path.join(base_dir, 'box_plot.jpg'), bbox_inches=0)
+    plt.savefig(os.path.join(base_dir, 'box_plot.jpg'), bbox_inches=0)
 
 
 def get_args():
