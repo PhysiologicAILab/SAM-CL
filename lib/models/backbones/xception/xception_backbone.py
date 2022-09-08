@@ -174,7 +174,7 @@ class AlignedXception(nn.Module):
         self.bn5 = ModuleHelper.BatchNorm2d(bn_type=bn_type)(2048)
 
         # Init weights
-        self._init_weight()
+        self._init_weight(bn_type)
 
         self.num_features = 2048
 
@@ -241,13 +241,14 @@ class AlignedXception(nn.Module):
 
         return tuple_features
 
-    def _init_weight(self):
+    def _init_weight(self, bn_type):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
                 m.weight.data.normal_(0, math.sqrt(2. / n))
-
-
+            elif isinstance(m, ModuleHelper.BatchNorm2d(bn_type=bn_type, ret_cls=True)):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
 
 
 class XceptionBackbone(object):
