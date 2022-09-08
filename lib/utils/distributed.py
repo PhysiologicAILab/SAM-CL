@@ -63,17 +63,17 @@ def handle_distributed(args, main_file):
 
     command_args = command_args[main_index+1:]
     print(command_args)
-    # command_args = [
-    #     python_exec, '-u',
-    #     '-m', 'torch.distributed.launch',
-    #     '--nproc_per_node', str(world_size),
-    #     '--master_port', str(29961),
-    #     main_file,
-    # ] + command_args
-
     command_args = [
-        'torchrun', '--nproc_per_node', str(world_size), '--master_port', str(29961), main_file,
+        python_exec, '-u',
+        '-m', 'torch.distributed.launch',
+        '--nproc_per_node', str(world_size),
+        '--master_port', str(29961),
+        main_file,
     ] + command_args
+
+    # command_args = [
+    #     'torchrun', '--nproc_per_node', str(world_size), '--master_port', str(29961), main_file,
+    # ] + command_args
 
     process = subprocess.Popen(command_args, env=current_env)
     process.wait()
