@@ -6,7 +6,6 @@ from lib.models.modules.decoder_block import DeepLabHead
 from lib.models.modules.projection import ProjectionHead
 
 # from lib.models.modules.sync_batchnorm.batchnorm import SynchronizedBatchNorm2d
-from lib.models.tools.module_helper import ModuleHelper
 
 from lib.models.modules.deeplab_aspp import build_aspp
 from lib.models.modules.deeplab_decoder import build_decoder
