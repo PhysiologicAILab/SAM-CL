@@ -48,8 +48,8 @@ class Decoder(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 torch.nn.init.kaiming_normal_(m.weight)
-            m.weight.data.fill_(1)
-            m.bias.data.zero_()
+            # m.weight.data.fill_(1)
+            # m.bias.data.zero_()
 
 
 def build_decoder(configer):
