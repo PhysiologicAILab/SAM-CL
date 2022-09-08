@@ -28,14 +28,25 @@ class _ASPPModule(nn.Module):
             m.bias.data.zero_()
 
 class ASPP(nn.Module):
-    def __init__(self, backbone, output_stride):
+    def __init__(self, configer):
         super(ASPP, self).__init__()
-        if 'drn' in backbone:
+
+        self.configer = configer
+        backbone_name = self.configer.get('network', 'backbone')
+        self.bn_type = self.configer.get('network', 'bn_type')
+
+        if 'drn' in backbone_name:
+            output_stride = 8
+        else:
+            output_stride = 16
+
+        if 'drn' in backbone_name:
             inplanes = 512
-        elif 'mobilenet' in backbone:
+        elif 'mobilenet' in backbone_name:
             inplanes = 320
         else:
             inplanes = 2048
+
         if output_stride == 16:
             dilations = [1, 6, 12, 18]
         elif output_stride == 8:
@@ -50,11 +61,9 @@ class ASPP(nn.Module):
 
         self.global_avg_pool = nn.Sequential(nn.AdaptiveAvgPool2d((1, 1)),
                                              nn.Conv2d(inplanes, 256, 1, stride=1, bias=False),
-                                             ModuleHelper.BatchNorm2d(256),
-                                             nn.ReLU())
+                                             ModuleHelper.BNReLU(256, bn_type=self.bn_type))
         self.conv1 = nn.Conv2d(1280, 256, 1, bias=False)
-        self.bn1 = ModuleHelper.BatchNorm2d(256)
-        self.relu = nn.ReLU()
+        self.bn1 = ModuleHelper.BNReLU(256, bn_type=self.bn_type)
         self.dropout = nn.Dropout(0.5)
         self._init_weight()
 
@@ -69,7 +78,6 @@ class ASPP(nn.Module):
 
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.relu(x)
 
         return self.dropout(x)
 
@@ -83,5 +91,5 @@ class ASPP(nn.Module):
             m.bias.data.zero_()
 
 
-def build_aspp(backbone, output_stride):
-    return ASPP(backbone, output_stride)
+def build_aspp(configer):
+    return ASPP(configer)

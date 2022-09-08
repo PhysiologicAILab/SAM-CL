@@ -60,15 +60,9 @@ class DeepLabV3(nn.Module):
         self.n_classes = self.configer.get('data', 'num_classes')
         self.n_features = 256+48    #304
 
-        backbone_name = self.configer.get('network', 'backbone')
-        if 'drn' in backbone_name:
-            output_stride = 8
-        else:
-            output_stride = 16
-
         self.backbone = BackboneSelector(configer).get_backbone()
-        self.aspp = build_aspp(backbone_name, output_stride)
-        self.decoder = build_decoder(self.n_classes, backbone_name)
+        self.aspp = build_aspp(self.configer)
+        self.decoder = build_decoder(self.configer)
         self.freeze_bn = False
 
     def forward(self, input):

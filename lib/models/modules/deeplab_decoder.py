@@ -5,29 +5,32 @@ import torch.nn.functional as F
 from lib.models.tools.module_helper import ModuleHelper
 
 class Decoder(nn.Module):
-    def __init__(self, num_classes, backbone):
+    def __init__(self, configer):
         super(Decoder, self).__init__()
-        if 'resnet' in backbone or 'drn' in backbone:
+
+        self.configer = configer
+        self.num_classes = self.configer.get('data', 'num_classes')
+        backbone_name = self.configer.get('network', 'backbone')
+
+        if 'resnet' in backbone_name or 'drn' in backbone_name:
             low_level_inplanes = 256
-        elif 'xception' in backbone:
+        elif 'xception' in backbone_name:
             low_level_inplanes = 128
-        elif 'mobilenet' in backbone:
+        elif 'mobilenet' in backbone_name:
             low_level_inplanes = 24
         else:
             raise NotImplementedError
 
+        self.bn_type = self.configer.get('network', 'bn_type')
         self.conv1 = nn.Conv2d(low_level_inplanes, 48, 1, bias=False)
-        self.bn1 = ModuleHelper.BatchNorm2d(48)
-        self.relu = nn.ReLU()
+        self.bn1 = ModuleHelper.BNReLU(48, bn_type=self.bn_type)
         self.last_conv = nn.Sequential(nn.Conv2d(304, 256, kernel_size=3, stride=1, padding=1, bias=False),
-                                       ModuleHelper.BatchNorm2d(256),
-                                       nn.ReLU(),
+                                       ModuleHelper.BNReLU(256, bn_type=self.bn_type),
                                        nn.Dropout(0.5),
                                        nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
-                                       ModuleHelper.BatchNorm2d(256),
-                                       nn.ReLU(),
+                                       ModuleHelper.BNReLU(256, bn_type=self.bn_type),
                                        nn.Dropout(0.1),
-                                       nn.Conv2d(256, num_classes, kernel_size=1, stride=1))
+                                       nn.Conv2d(256, self.num_classes, kernel_size=1, stride=1))
         self._init_weight()
 
 
@@ -49,5 +52,5 @@ class Decoder(nn.Module):
             m.bias.data.zero_()
 
 
-def build_decoder(num_classes, backbone):
-    return Decoder(num_classes, backbone)
+def build_decoder(configer):
+    return Decoder(configer)
