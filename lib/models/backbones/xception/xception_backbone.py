@@ -173,12 +173,8 @@ class AlignedXception(nn.Module):
         self.conv5 = SeparableConv2d(1536, 2048, 3, stride=1, dilation=exit_block_dilations[1], bn_type=bn_type)
         self.bn5 = ModuleHelper.BatchNorm2d(bn_type=bn_type)(2048)
 
-        # # Init weights
-        # self._init_weight()
-
-        # # Load pretrained model
-        # if pretrained:
-        #     self._load_pretrained_model()
+        # Init weights
+        self._init_weight()
 
         self.num_features = 2048
 
@@ -245,51 +241,12 @@ class AlignedXception(nn.Module):
 
         return tuple_features
 
-    # def _init_weight(self):
-    #     for m in self.modules():
-    #         if isinstance(m, nn.Conv2d):
-    #             n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-    #             m.weight.data.normal_(0, math.sqrt(2. / n))
-    #         elif isinstance(m, SynchronizedBatchNorm2d):
-    #             m.weight.data.fill_(1)
-    #             m.bias.data.zero_()
-    #         elif isinstance(m, nn.BatchNorm2d):
-    #             m.weight.data.fill_(1)
-    #             m.bias.data.zero_()
+    def _init_weight(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                m.weight.data.normal_(0, math.sqrt(2. / n))
 
-
-    # def _load_pretrained_model(self):
-    #     pretrain_dict = model_zoo.load_url('http://data.lip6.fr/cadene/pretrainedmodels/xception-b5690688.pth')
-    #     model_dict = {}
-    #     state_dict = self.state_dict()
-
-    #     for k, v in pretrain_dict.items():
-    #         if k in state_dict:
-    #             if 'pointwise' in k:
-    #                 v = v.unsqueeze(-1).unsqueeze(-1)
-    #             if k.startswith('block11'):
-    #                 model_dict[k] = v
-    #                 model_dict[k.replace('block11', 'block12')] = v
-    #                 model_dict[k.replace('block11', 'block13')] = v
-    #                 model_dict[k.replace('block11', 'block14')] = v
-    #                 model_dict[k.replace('block11', 'block15')] = v
-    #                 model_dict[k.replace('block11', 'block16')] = v
-    #                 model_dict[k.replace('block11', 'block17')] = v
-    #                 model_dict[k.replace('block11', 'block18')] = v
-    #                 model_dict[k.replace('block11', 'block19')] = v
-    #             elif k.startswith('block12'):
-    #                 model_dict[k.replace('block12', 'block20')] = v
-    #             elif k.startswith('bn3'):
-    #                 model_dict[k] = v
-    #                 model_dict[k.replace('bn3', 'bn4')] = v
-    #             elif k.startswith('conv4'):
-    #                 model_dict[k.replace('conv4', 'conv5')] = v
-    #             elif k.startswith('bn4'):
-    #                 model_dict[k.replace('bn4', 'bn5')] = v
-    #             else:
-    #                 model_dict[k] = v
-    #     state_dict.update(model_dict)
-    #     self.load_state_dict(state_dict)
 
 
 
@@ -331,41 +288,3 @@ if __name__ == "__main__":
     output, low_level_feat = model(input)
     print(output.size())
     print(low_level_feat.size())
-
-
-
-'''
-Current Error while using DeepLabv3 with Xception
-
-    self.__train()                                                                                                                                   [43/1925]
-  File "/home/jitesh/dev/repos/seg/SAM-CL/segmentor/trainer_samcl.py", line 283, in __train                                                                   
-    loss = self.pixel_loss(outputs, targets, is_eval=False)                                                                                                   
-  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1130, in _call_impl                                                          
-    return forward_call(*input, **kwargs)                                                                                                                     
-  File "/home/jitesh/dev/repos/seg/SAM-CL/lib/loss/rmi_loss.py", line 244, in forward                                                                         
-    loss = self.loss_weight * self.forward_sigmoid(cls_score, label)                                                                                          
-  File "/home/jitesh/dev/repos/seg/SAM-CL/lib/loss/rmi_loss.py", line 310, in forward_sigmoid                                                                 
-    binary_loss = F.binary_cross_entropy_with_logits(logits_flat,                                                                                             
-  File "/usr/local/lib/python3.8/dist-packages/torch/nn/functional.py", line 3148, in binary_cross_entropy_with_logits                                        
-    raise ValueError("Target size ({}) must be the same as input size ({})".format(target.size(), input.size()))                                              
-ValueError: Target size (torch.Size([327680, 6])) must be the same as input size (torch.Size([1280, 6]))                                                      
-ERROR:torch.distributed.elastic.multiprocessing.api:failed (exitcode: 1) local_rank: 0 (pid: 204466) of binary: /home/jitesh/sw/venv/dev/bin/python           
-Traceback (most recent call last):                                                                                                                            
-  File "/usr/lib/python3.8/runpy.py", line 194, in _run_module_as_main                                                                                        
-    return _run_code(code, main_globals, None,                                                                                                                
-  File "/usr/lib/python3.8/runpy.py", line 87, in _run_code                                                                                                   
-    exec(code, run_globals)                                                                                                                                   
-  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launch.py", line 193, in <module>                                                            
-    main()                                                                                                                                                    
-  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launch.py", line 189, in main                                                                
-    launch(args)                                                                                                                                              
-  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launch.py", line 174, in launch                                                              
-    run(args)                                                                                                                                                 
-  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/run.py", line 752, in run                                                                    
-    elastic_launch(                                                                                                                                           
-  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launcher/api.py", line 131, in __call__                                                      
-    return launch_agent(self._config, self._entrypoint, list(args))                                                                                           
-  File "/usr/local/lib/python3.8/dist-packages/torch/distributed/launcher/api.py", line 245, in launch_agent                                                  
-    raise ChildFailedError(                                                                                                                                   
-torch.distributed.elastic.multiprocessing.errors.ChildFailedError:  
-'''
