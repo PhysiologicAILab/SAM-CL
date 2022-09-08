@@ -41,8 +41,8 @@ class ASPP(nn.Module):
             inplanes = 512
         elif 'mobilenet' in backbone_name:
             inplanes = 320
-        elif 'xception' in backbone_name:
-            inplanes = 1024
+        # elif 'xception' in backbone_name:
+        #     inplanes = 1024
         else:
             inplanes = 2048
 

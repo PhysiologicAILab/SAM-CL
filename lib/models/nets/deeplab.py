@@ -67,8 +67,8 @@ class DeepLabV3(nn.Module):
     def forward(self, input):
         # x, low_level_feat = self.backbone(input)
         x = self.backbone(input)
-        low_level_feat = self.aspp(x[-2])
-        x, feat_map = self.decoder(x[-1], low_level_feat)
+        aspp_feat = self.aspp(x[-1])
+        x, feat_map = self.decoder(aspp_feat, x[0])
 
         x = F.interpolate(x, size=input.size()[2:], mode='bilinear', align_corners=True)
         feat_map = F.interpolate(feat_map, size=input.size()[2:], mode='bilinear', align_corners=True)
