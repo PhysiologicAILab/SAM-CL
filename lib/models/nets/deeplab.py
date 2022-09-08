@@ -63,6 +63,8 @@ class DeepLabV3(nn.Module):
         backbone_name = self.configer.get('network', 'backbone')
         if 'drn' in backbone_name:
             output_stride = 8
+        else:
+            output_stride = 16
 
         self.backbone = BackboneSelector(configer).get_backbone()
         self.aspp = build_aspp(backbone_name, output_stride)
