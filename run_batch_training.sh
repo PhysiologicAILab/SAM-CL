@@ -1,7 +1,22 @@
 echo "*******************************************"
-echo "Running Training for ocnet_rmi"
+echo "Running Training for ResNet101_16Dilation_RMI"
 echo "*******************************************"
-bash scripts/thermalFaceDB/deeplab/run_r_101_ocnet_train_rmi.sh train ocnet_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+bash scripts/thermalFaceDB/deeplab/run_r101_16_deeplabv3_train.sh train r101_16_base ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+echo "*******************************************"
+echo "Running Training for ResNet101_16Dilation_RMI_Occ"
+echo "*******************************************"
+bash scripts/thermalFaceDB/deeplab/run_r101_16_deeplabv3_train_occ.sh train r101_16_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+echo "*******************************************"
+echo "Running Training for ResNet101_16Dilation_RMI_SAMCL_Occ"
+echo "*******************************************"
+bash scripts/thermalFaceDB/deeplab/run_r101_16_deeplabv3_train_samcl_occ.sh train r101_16_samcl_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+# echo "*******************************************"
+# echo "Running Training for ocnet_rmi"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_r_101_ocnet_train_rmi.sh train ocnet_rmi ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 # echo "*******************************************"
 # echo "Running Training for ocnet_rmi_occ"
