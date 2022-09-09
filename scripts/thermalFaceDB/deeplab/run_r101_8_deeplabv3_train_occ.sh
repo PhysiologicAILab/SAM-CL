@@ -11,8 +11,8 @@ DATA_DIR="${DATA_ROOT}/Processed"
 SAVE_DIR="${DATA_ROOT}/seg_results/thermalFaceDB"
 BACKBONE="resnet101_dilated16"
 
-CONFIGS="configs/thermalFaceDB/R101_16_SAMCL_Occ.json"
-CONFIGS_TEST="configs/thermalFaceDB/R101_16_SAMCL_Occ.json"
+CONFIGS="configs/thermalFaceDB/R101_8_Occ.json"
+CONFIGS_TEST="configs/thermalFaceDB/R101_8_Occ.json"
 
 MODEL_NAME="deeplab_v3"
 LOSS_TYPE="rmi_loss"
