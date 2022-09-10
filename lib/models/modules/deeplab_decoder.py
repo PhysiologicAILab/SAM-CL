@@ -12,13 +12,10 @@ class Decoder(nn.Module):
         self.num_classes = self.configer.get('data', 'num_classes')
         backbone_name = self.configer.get('network', 'backbone')
 
-        # if 'resnet' in backbone_name or 'drn' in backbone_name:
-        if 'drn' in backbone_name:
+        if 'resnet' in backbone_name or 'drn' in backbone_name:
             low_level_inplanes = 256
         elif 'xception' in backbone_name:
             low_level_inplanes = 128
-        elif 'resnet' in backbone_name:
-            low_level_inplanes = 64
         elif 'mobilenet' in backbone_name:
             low_level_inplanes = 24
         else:
