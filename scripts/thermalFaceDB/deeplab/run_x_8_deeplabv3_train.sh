@@ -9,10 +9,10 @@ ASSET_ROOT=${DATA_ROOT}
 
 DATA_DIR="${DATA_ROOT}/Processed"
 SAVE_DIR="${DATA_ROOT}/seg_results/thermalFaceDB"
-BACKBONE="xception_16"
+BACKBONE="xception_8"
 
-CONFIGS="configs/thermalFaceDB/X_16_SAMCL_Occ.json"
-CONFIGS_TEST="configs/thermalFaceDB/X_16_SAMCL_Occ.json"
+CONFIGS="configs/thermalFaceDB/X_8_Base.json"
+CONFIGS_TEST="configs/thermalFaceDB/X_8_Base.json"
 
 MODEL_NAME="deeplab_v3"
 LOSS_TYPE="rmi_loss"
