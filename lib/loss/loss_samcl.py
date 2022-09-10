@@ -70,7 +70,7 @@ class SAMCL_Loss_2(nn.Module, ABC):
 
         self.configer = configer
         self.lossObj_x0 = nn.TripletMarginWithDistanceLoss(distance_function = RMILoss(self.configer))
-        self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function = RMILoss(self.configer))
+        self.lossObj_x1 = nn.TripletMarginWithDistanceLoss(distance_function = nn.CrossEntropyLoss())
 
     def forward(self, critic_outputs_real, critic_outputs_fake, critic_outputs_pred, **kwargs):
 
