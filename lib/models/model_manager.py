@@ -46,7 +46,7 @@ from lib.models.nets.deeplab import DeepLabV3, DeepLabV3Contrast
 
 from lib.models.nets.ms_ocrnet import MscaleOCR
 
-from lib.models.modules.gcl_companion import GCL_Companion
+from lib.models.modules.samcl_auxiliary import SAMCL_Auxiliary_2, SAMCL_Auxiliary_4
 
 from lib.models.nets.unet import UNet, UNet_Contrast, UNet_Contrast_Mem
 from lib.models.nets.attention_unet import AttU_Net, AttU_Net_Contrast, AttU_Net_Contrast_Mem
@@ -95,7 +95,8 @@ SEG_MODEL_DICT = {
 
 
 CRITIC_MODEL_DICT = {
-    'gcl_companion': GCL_Companion,
+    'samcl_auxiliary_2': SAMCL_Auxiliary_2,
+    'samcl_auxiliary_4': SAMCL_Auxiliary_4,
 }
 
 class ModelManager(object):

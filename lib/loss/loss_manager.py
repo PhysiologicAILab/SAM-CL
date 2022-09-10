@@ -17,7 +17,8 @@ from lib.loss.loss_helper import FSAuxOhemCELoss, FSOhemCELoss, FSRMILoss
 from lib.loss.loss_helper import FSCELoss, FSAuxCELoss, FSAuxRMILoss, FSCELOVASZLoss, MSFSAuxRMILoss, FSAuxCELossDSN
 from lib.loss.loss_helper import SegFixLoss
 from lib.loss.rmi_loss import RMILoss
-from lib.loss.loss_adversarial import GCL_Loss, GAN_Loss
+from lib.loss.loss_adversarial import GAN_Loss
+from lib.loss.loss_samcl import SAMCL_Loss_2, SAMCL_Loss_4
 from lib.loss.loss_contrast import ContrastAuxCELoss, ContrastCELoss
 from lib.loss.loss_contrast_mem import ContrastCELoss as MemContrastCELoss
 from lib.loss.dice_loss import DiceLoss
@@ -45,7 +46,8 @@ SEG_LOSS_DICT = {
 }
 
 CRITIC_LOSS_DICT = {
-    'gcl_loss': GCL_Loss,
+    'samcl_loss_2': SAMCL_Loss_2,
+    'samcl_loss_4': SAMCL_Loss_4,
     'gan_loss': GAN_Loss,
 }
 
