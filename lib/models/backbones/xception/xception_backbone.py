@@ -188,34 +188,35 @@ class AlignedXception(nn.Module):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
-
+        tuple_features.append(x)
+        
         x = self.conv2(x)
         x = self.bn2(x)
         x = self.relu(x)
+        tuple_features.append(x)
 
         x = self.block1(x)
-        # add relu here
         x = self.relu(x)
-        tuple_features.append(x)
-        # low_level_feat = x
         x = self.block2(x)
+        tuple_features.append(x)
         x = self.block3(x)
 
         # Middle flow
         x = self.block4(x)
-        tuple_features.append(x)
         x = self.block5(x)
         x = self.block6(x)
         x = self.block7(x)
         x = self.block8(x)
-        x = self.block9(x)
         tuple_features.append(x)
+        
+        x = self.block9(x)
         x = self.block10(x)
         x = self.block11(x)
         x = self.block12(x)
         x = self.block13(x)
-        x = self.block14(x)
         tuple_features.append(x)
+
+        x = self.block14(x)
         x = self.block15(x)
         x = self.block16(x)
         x = self.block17(x)
