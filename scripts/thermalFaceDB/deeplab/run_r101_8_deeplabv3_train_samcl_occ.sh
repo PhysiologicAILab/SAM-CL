@@ -9,7 +9,7 @@ ASSET_ROOT=${DATA_ROOT}
 
 DATA_DIR="${DATA_ROOT}/Processed"
 SAVE_DIR="${DATA_ROOT}/seg_results/thermalFaceDB"
-BACKBONE="resnet101_dilated16"
+BACKBONE="resnet101_dilated8"
 
 CONFIGS="configs/thermalFaceDB/R101_8_SAMCL_Occ.json"
 CONFIGS_TEST="configs/thermalFaceDB/R101_8_SAMCL_Occ.json"

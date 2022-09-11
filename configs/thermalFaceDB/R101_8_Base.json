@@ -35,7 +35,7 @@
       "batch_size": 16,
       "loader": "thermalFaceDB",
       "mode": "ss_test",
-      "out_dir": "ckpts/thermalFaceDB/AttUNET",
+      "out_dir": "ckpts/thermalFaceDB/DeepLabV3_ResNet101_8",
       "data_transformer": {
         "size_mode": "fix_size",
         "input_size": [320, 256],

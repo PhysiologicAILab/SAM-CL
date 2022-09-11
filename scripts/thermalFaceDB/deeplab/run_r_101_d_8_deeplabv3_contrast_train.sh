@@ -8,8 +8,8 @@ SCRATCH_ROOT=$4
 ASSET_ROOT=${DATA_ROOT}
 
 DATA_DIR="${DATA_ROOT}/Processed"
-SAVE_DIR="${SCRATCH_ROOT}/seg_results/thermalFaceDB"
-BACKBONE="deepbase_resnet101_dilated8"
+SAVE_DIR="${DATA_ROOT}/seg_results/thermalFaceDB"
+BACKBONE="resnet101_dilated8"
 
 CONFIGS="configs/thermalFaceDB/R_101_D_8.json"
 CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
