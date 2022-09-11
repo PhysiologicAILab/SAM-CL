@@ -1,7 +1,7 @@
 echo "*******************************************"
 echo "Running Training for DeepLabV3-ResNet101_Dilation8_CL"
 echo "*******************************************"
-bash scripts/thermalFaceDB/deeplab/run_r101_8_deeplabv3_train_cl train r101_8_cl ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+bash scripts/thermalFaceDB/deeplab/run_r101_8_deeplabv3_train_cl.sh train r101_8_cl ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 echo "*******************************************"
 echo "Running Training for DeepLabV3-Xception_RMI"
