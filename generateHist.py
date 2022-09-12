@@ -1,42 +1,49 @@
 import numpy as np
+import cv2
 import argparse
 import os
 import matplotlib.pyplot as plt
 
 def main(args):
    
-    test_data_dir = args.img_dir
+    data_dir = args.img_dir
+    label_dir = args.label_dir
     save_dir = args.save_dir
     mode =int(args.mode)
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     
-    in_files = []
-    in_ext = ['.npy']
+    img_files = []
+    label_files = []
+    img_ext = ['.npy']
 
-    test_data_dir_list = os.listdir(test_data_dir)
-    # random.shuffle(test_data_dir_list)
-    print("test_data_dir_list[0]", test_data_dir_list[0])
-    print("in_ext[[d in test_data_dir_list[0] for d in in_ext]", [d in test_data_dir_list[0] for d in in_ext])
+    data_dir_list = os.listdir(data_dir)
+    # random.shuffle(data_dir_list)
+    print("data_dir_list[0]", data_dir_list[0])
+    print("img_ext[[d in data_dir_list[0] for d in img_ext]", [d in data_dir_list[0] for d in img_ext])
 
-    in_ext = in_ext[[d in test_data_dir_list[0] for d in in_ext].index(True)]
+    img_ext = img_ext[[d in data_dir_list[0] for d in img_ext].index(True)]
 
-    for ff in range(len(test_data_dir_list)):
-        # fname = "frm_" + str(ff) + in_ext
-        fname = test_data_dir_list[ff]
-        in_files.append(os.path.join(test_data_dir, fname))
+    for ff in range(len(data_dir_list)):
+        # fname = "frm_" + str(ff) + img_ext
+        fname = data_dir_list[ff]
+        img_files.append(os.path.join(data_dir, fname))
+        label_files.append(os.path.join(label_dir, fname))
 
     min_list = []
     avg_list = []
     max_list = []
     std_list = []
+    fg_avg_list = []
+    bg_avg_list = []
 
-    for i, fn in enumerate(in_files):
+    for i, fn in enumerate(img_files):
         try:
-            if in_ext in in_files[i]: # and i < 50:                
+            if img_ext in img_files[i]: # and i < 50:                
 
-                input_img = np.load(in_files[i])
+                input_img = np.load(img_files[i])
+                label_img = cv2.imread(label_files[i], 0)
                 if mode == 1:
                     input_img = (input_img + 1) * 20
                 elif mode == 2:
@@ -50,7 +57,12 @@ def main(args):
                 avg_list.append(np.mean(input_img))
                 max_list.append(np.max(input_img))
                 std_list.append(np.std(input_img))
-
+                
+                fg_avg_temp = np.mean(input_img[label_img > 0])
+                bg_avg_temp = np.mean(input_img[label_img == 0])
+                fg_avg_list.append(fg_avg_temp)
+                bg_avg_list.append(bg_avg_temp)
+                
                 col = (np.random.random(), np.random.random(), np.random.random())
                 # col = (0.5, 0.5, 0.5)
                 hist_im, bin_edges = np.histogram(input_img, bins=1024, range=(0, 40))
@@ -68,11 +80,16 @@ def main(args):
     avg_list = np.array(avg_list)
     max_list = np.array(max_list)
     std_list = np.array(std_list)
+    fg_avg_list = np.array(fg_avg_list)
+    bg_avg_list = np.array(bg_avg_list)
 
     np.save(os.path.join(save_dir, 'min_array.npy'), min_list)
     np.save(os.path.join(save_dir, 'avg_array.npy'), avg_list)
     np.save(os.path.join(save_dir, 'max_array.npy'), max_list)
     np.save(os.path.join(save_dir, 'std_array.npy'), std_list)
+
+    np.save(os.path.join(save_dir, 'fg_avg_array.npy'), fg_avg_list)
+    np.save(os.path.join(save_dir, 'bg_avg_array.npy'), bg_avg_list)
 
 
 def get_args():
@@ -80,6 +97,8 @@ def get_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--img_dir', type=str,
                         help='Image Directory', dest='img_dir')
+    parser.add_argument('-l', '--label_dir', type=str,
+                        help='Label Directory', dest='label_dir')
     parser.add_argument('-m', '--mode', type=int, default=0,
                         help='Normalization Mode', dest='mode')
     parser.add_argument('-o', '--out_dir', type=str,
