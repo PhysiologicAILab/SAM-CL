@@ -18,14 +18,29 @@ def main(args):
             dir_names.append(dir_name)
             data_dirs.append(os.path.join(base_dir, dir_name))
 
-    data_dict = {}
-    data_dict['com_x'] = []
-    data_dict['min_y'] = []
-    data_dict['avg_y'] = []
-    data_dict['max_y'] = []
-    data_dict['std_y'] = []
-    data_dict['fg_avg_y'] = []
-    data_dict['bg_avg_y'] = []
+    data_dict_min = {}
+    data_dict_min['x'] = []
+    data_dict_min['y'] = []
+
+    data_dict_avg = {}
+    data_dict_avg['x'] = []
+    data_dict_avg['y'] = []
+    
+    data_dict_max = {}
+    data_dict_max['x'] = []
+    data_dict_max['y'] = []
+
+    data_dict_std = {}
+    data_dict_std['x'] = []
+    data_dict_std['y'] = []
+    
+    data_dict_fg_avg = {}
+    data_dict_fg_avg['x'] = []
+    data_dict_fg_avg['y'] = []
+
+    data_dict_bg_avg = {}
+    data_dict_bg_avg['x'] = []
+    data_dict_bg_avg['y'] = []
 
     for i, fn in enumerate(data_dirs):
         min_array = None
@@ -74,25 +89,34 @@ def main(args):
             instance_count = len(bg_avg_array)
 
         for j in range(instance_count):
-            data_dict['com_x'].append(dir_names[i])
             if np.all(min_array) != None:
-                data_dict['min_y'].append(min_array[j])
+                data_dict_min['x'].append(dir_names[i])
+                data_dict_min['y'].append(min_array[j])
             if np.all(avg_array) != None:
-                data_dict['avg_y'].append(avg_array[j])
+                data_dict_avg['x'].append(dir_names[i])
+                data_dict_avg['y'].append(avg_array[j])
             if np.all(max_array) != None:
-                data_dict['max_y'].append(max_array[j])
+                data_dict_max['x'].append(dir_names[i])
+                data_dict_max['y'].append(max_array[j])
             if np.all(std_array) != None:
-                data_dict['std_y'].append(std_array[j])
+                data_dict_std['x'].append(dir_names[i])
+                data_dict_std['y'].append(std_array[j])
             if np.all(fg_avg_array) != None:
-                data_dict['fg_avg_y'].append(fg_avg_array[j])
+                data_dict_fg_avg['x'].append(dir_names[i])
+                data_dict_fg_avg['y'].append(fg_avg_array[j])
             if np.all(bg_avg_array) != None:
-                data_dict['bg_avg_y'].append(bg_avg_array[j])
+                data_dict_bg_avg['x'].append(dir_names[i])
+                data_dict_bg_avg['y'].append(bg_avg_array[j])
 
+    # df_min = pd.DataFrame.from_dict(data_dict_min)
+    # df_max = pd.DataFrame.from_dict(data_dict_max)
+    df_avg = pd.DataFrame.from_dict(data_dict_avg)
+    df_std = pd.DataFrame.from_dict(data_dict_std)
+    df_fg_avg = pd.DataFrame.from_dict(data_dict_fg_avg)
+    df_bg_avg = pd.DataFrame.from_dict(data_dict_bg_avg)
 
-    df = pd.DataFrame.from_dict(data_dict)
-
-    if len(data_dict['avg_y']) > 0:
-        sns.boxplot(x='com_x', y='avg_y', data=df)
+    if len(data_dict_avg['y']) > 0:
+        sns.boxplot(x='x', y='y', data=df_avg)
         plt.xlabel('Different Datasets')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
@@ -100,47 +124,49 @@ def main(args):
         plt.close()
 
 
-    if len(data_dict['std_y']) > 0:
-        sns.boxplot(x='com_x', y='std_y', data=df)
+    if len(data_dict_std['y']) > 0:
+        sns.boxplot(x='x', y='y', data=df_std)
         plt.xlabel('Different Datasets')
         plt.ylabel('Standard Deviation')
         plt.title('Box Plot Analysis')
         plt.savefig(os.path.join(base_dir, 'boxplot_std.jpg'), bbox_inches=0)
         plt.close()
     
-    if len(data_dict['fg_avg_y']) > 0:
-        sns.boxplot(x='com_x', y='fg_avg_y', data=df)
-        sns.boxplot(x='com_x', y='bg_avg_y', data=df)
+    if len(data_dict_fg_avg['y']) > 0:
+        sns.boxplot(x='x', y='y', data=df_fg_avg)
+        if len(data_dict_bg_avg['y']) > 0:
+            sns.boxplot(x='x', y='y', data=df_bg_avg)
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
         plt.savefig(os.path.join(base_dir, 'boxplot_foreground_background_avg.jpg'), bbox_inches=0)
         plt.close()
 
-    if len(data_dict['avg_y']) > 0:
-        sns.scatterplot(x='com_x', y='avg_y', data=df)
+    if len(data_dict_avg['y']) > 0:
+        sns.scatterplot(x='x', y='y', data=df_avg)
         plt.xlabel('Different Datasets')
         plt.ylabel('Average Value')
         plt.title('Scatter Plot Analysis')
         plt.savefig(os.path.join(base_dir, 'scatterplot_avg.jpg'), bbox_inches=0)
         plt.close()
 
-    if len(data_dict['std_y']) > 0:
-        sns.scatterplot(x='com_x', y='std_y', data=df)
+    if len(data_dict_std['y']) > 0:
+        sns.scatterplot(x='x', y='y', data=df_std)
         plt.xlabel('Different Datasets')
         plt.ylabel('Standard Deviation')
         plt.title('Scatter Plot Analysis')
         plt.savefig(os.path.join(base_dir, 'scatterplot_std.jpg'), bbox_inches=0)
         plt.close()
 
-    if len(data_dict['fg_avg_y']) > 0:
-        sns.scatterplot(x='com_x', y='fg_avg_y', data=df)
-        sns.scatterplot(x='com_x', y='bg_avg_y', data=df)
+    if len(data_dict_fg_avg['y']) > 0:
+        sns.scatterplot(x='x', y='y', data=df_fg_avg)
+        if len(data_dict_bg_avg['y']) > 0:
+            sns.scatterplot(x='x', y='y', data=df_bg_avg)
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Scatter Plot Analysis')
         plt.savefig(os.path.join(base_dir, 'scatterplot_foreground_background_avg.jpg'), bbox_inches=0)
-    plt.close()
+        plt.close()
 
     # plt.show()
 
