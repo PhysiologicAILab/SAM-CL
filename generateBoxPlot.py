@@ -59,7 +59,21 @@ def main(args):
         if os.path.exists(fs_bg_avg):
             bg_avg_array = np.load(fs_bg_avg)
 
-        for j in range(len(fg_avg_array)):
+        instance_count = 0
+        if min_array != None:
+            instance_count = len(min_array)
+        elif avg_array != None:
+            instance_count = len(avg_array)
+        elif std_array != None:
+            instance_count = len(std_array)
+        elif max_array != None:
+            instance_count = len(max_array)
+        elif fg_avg_array != None:
+            instance_count = len(fg_avg_array)
+        elif bg_avg_array != None:
+            instance_count = len(bg_avg_array)
+
+        for j in range(instance_count):
             data_dict['com_x'].append(dir_names[i])
             if min_array != None:
                 data_dict['min_y'].append(min_array[j])
