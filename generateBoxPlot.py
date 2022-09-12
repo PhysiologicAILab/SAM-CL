@@ -116,9 +116,10 @@ def main(args):
     df_bg_avg = pd.DataFrame.from_dict(data_dict_bg_avg)
 
     data_dict_fgbg_diff = {}
-    data_dict_fgbg_diff['x'] = data_dict_bg_avg['x']
+    data_dict_fgbg_diff['x'] = []
     data_dict_fgbg_diff['y'] = []
     for i in range(len(data_dict_fg_avg['y'])):
+        data_dict_fgbg_diff['x'].append(data_dict_fg_avg['x'][i])
         data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_bg_avg['y'][i])
     df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fgbg_diff)
 
