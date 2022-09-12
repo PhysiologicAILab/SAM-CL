@@ -134,12 +134,12 @@ def main(args):
     data_dict_fgbg_diff['y'] = []
     for i in range(len(data_dict_fg_avg['y'])):
         data_dict_fgbg_diff['x'].append(data_dict_fg_avg['x'][i])
-        data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_bg_avg['y'][i])
+        data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_bg_avg['y'][i] - 1)
     df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fgbg_diff)
     # df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fg_max_diff)
 
     if len(data_dict_avg['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_avg, whis=2.0)
+        sns.boxplot(x='x', y='y', data=df_avg, whis=3.0)
         plt.xlabel('Different Datasets')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
@@ -147,7 +147,7 @@ def main(args):
         plt.close()
 
     if len(data_dict_std['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_std, whis=2.0)
+        sns.boxplot(x='x', y='y', data=df_std, whis=3.0)
         plt.xlabel('Different Datasets')
         plt.ylabel('Standard Deviation')
         plt.title('Box Plot Analysis')
@@ -155,9 +155,9 @@ def main(args):
         plt.close()
     
     if len(data_dict_fg_avg['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_fg_avg, whis=2.0)
+        sns.boxplot(x='x', y='y', data=df_fg_avg, whis=3.0)
         if len(data_dict_bg_avg['y']) > 0:
-            sns.boxplot(x='x', y='y', data=df_bg_avg, whis=2.0)
+            sns.boxplot(x='x', y='y', data=df_bg_avg, whis=3.0)
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
@@ -165,7 +165,7 @@ def main(args):
         plt.close()
 
     if len(data_dict_fg_max_diff['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_fgbg_diff, whis=2.0)
+        sns.boxplot(x='x', y='y', data=df_fgbg_diff, whis=3.0)
         plt.xlabel('Use of Augmentation Technique - TiAug')
         plt.ylabel('Difference in Foreground-Background Temperature')
         plt.title('Box Plot Analysis')
