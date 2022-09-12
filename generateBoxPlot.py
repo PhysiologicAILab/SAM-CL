@@ -60,32 +60,32 @@ def main(args):
             bg_avg_array = np.load(fs_bg_avg)
 
         instance_count = 0
-        if min_array != None:
+        if np.all(min_array) != None:
             instance_count = len(min_array)
-        elif avg_array != None:
+        elif np.all(avg_array) != None:
             instance_count = len(avg_array)
-        elif std_array != None:
+        elif np.all(std_array) != None:
             instance_count = len(std_array)
-        elif max_array != None:
+        elif np.all(max_array) != None:
             instance_count = len(max_array)
-        elif fg_avg_array != None:
+        elif np.all(fg_avg_array) != None:
             instance_count = len(fg_avg_array)
-        elif bg_avg_array != None:
+        elif np.all(bg_avg_array) != None:
             instance_count = len(bg_avg_array)
 
         for j in range(instance_count):
             data_dict['com_x'].append(dir_names[i])
-            if min_array != None:
+            if np.all(min_array) != None:
                 data_dict['min_y'].append(min_array[j])
-            if avg_array != None:
+            if np.all(avg_array) != None:
                 data_dict['avg_y'].append(avg_array[j])
-            if max_array != None:
+            if np.all(max_array) != None:
                 data_dict['max_y'].append(max_array[j])
-            if std_array != None:
+            if np.all(std_array) != None:
                 data_dict['std_y'].append(std_array[j])
-            if fg_avg_array != None:
+            if np.all(fg_avg_array) != None:
                 data_dict['fg_avg_y'].append(fg_avg_array[j])
-            if bg_avg_array != None:
+            if np.all(bg_avg_array) != None:
                 data_dict['bg_avg_y'].append(bg_avg_array[j])
 
 
