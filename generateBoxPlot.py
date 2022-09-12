@@ -115,6 +115,13 @@ def main(args):
     df_fg_avg = pd.DataFrame.from_dict(data_dict_fg_avg)
     df_bg_avg = pd.DataFrame.from_dict(data_dict_bg_avg)
 
+    data_dict_fgbg_diff = {}
+    data_dict_fgbg_diff['x'] = data_dict_bg_avg['x']
+    data_dict_fgbg_diff['y'] = []
+    for i in range(len(data_dict_fg_avg['y'])):
+        data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_bg_avg['y'][i])
+    df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fgbg_diff)
+
     if len(data_dict_avg['y']) > 0:
         sns.boxplot(x='x', y='y', data=df_avg)
         plt.xlabel('Different Datasets')
@@ -122,7 +129,6 @@ def main(args):
         plt.title('Box Plot Analysis')
         plt.savefig(os.path.join(base_dir, 'boxplot_avg.jpg'), bbox_inches=0)
         plt.close()
-
 
     if len(data_dict_std['y']) > 0:
         sns.boxplot(x='x', y='y', data=df_std)
@@ -140,6 +146,14 @@ def main(args):
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
         plt.savefig(os.path.join(base_dir, 'boxplot_foreground_background_avg.jpg'), bbox_inches=0)
+        plt.close()
+
+    if len(data_dict_fgbg_diff['y']) > 0:
+        sns.boxplot(x='x', y='y', data=df_fgbg_diff)
+        plt.xlabel('Use of Augmentation Technique - TiAug')
+        plt.ylabel('Difference in Foreground-Background Temperature')
+        plt.title('Box Plot Analysis')
+        plt.savefig(os.path.join(base_dir, 'boxplot_foreground_background_diff.jpg'), bbox_inches=0)
         plt.close()
 
     if len(data_dict_avg['y']) > 0:
@@ -168,6 +182,13 @@ def main(args):
         plt.savefig(os.path.join(base_dir, 'scatterplot_foreground_background_avg.jpg'), bbox_inches=0)
         plt.close()
 
+    if len(data_dict_fgbg_diff['y']) > 0:
+        sns.scatterplot(x='x', y='y', data=df_fgbg_diff)
+        plt.xlabel('Use of Augmentation Technique - TiAug')
+        plt.ylabel('Difference in Foreground-Background Temperature')
+        plt.title('Box Plot Analysis')
+        plt.savefig(os.path.join(base_dir, 'scatterplot_foreground_background_diff.jpg'), bbox_inches=0)
+        plt.close()
     # plt.show()
 
 
