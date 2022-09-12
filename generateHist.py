@@ -38,6 +38,7 @@ def main(args):
     std_list = []
     fg_avg_list = []
     bg_avg_list = []
+    fg_max_diff_list = []
 
     for i, fn in enumerate(img_files):
         try:
@@ -65,7 +66,7 @@ def main(args):
                 bg_avg_temp = np.mean(input_img[label_img == 0])
                 fg_avg_list.append(fg_avg_temp)
                 bg_avg_list.append(bg_avg_temp)
-                
+                fg_max_diff_list.append(fg_avg_temp - np.max(input_img))
                 col = (np.random.random(), np.random.random(), np.random.random())
                 # col = (0.5, 0.5, 0.5)
                 hist_im, bin_edges = np.histogram(input_img, bins=1024, range=(0, 40))
@@ -85,6 +86,7 @@ def main(args):
     std_list = np.array(std_list)
     fg_avg_list = np.array(fg_avg_list)
     bg_avg_list = np.array(bg_avg_list)
+    fg_max_diff_list = np.array(fg_max_diff_list)
 
     np.save(os.path.join(save_dir, 'min_array.npy'), min_list)
     np.save(os.path.join(save_dir, 'avg_array.npy'), avg_list)
@@ -93,6 +95,7 @@ def main(args):
 
     np.save(os.path.join(save_dir, 'fg_avg_array.npy'), fg_avg_list)
     np.save(os.path.join(save_dir, 'bg_avg_array.npy'), bg_avg_list)
+    np.save(os.path.join(save_dir, 'fg_max_diff_array.npy'), bg_avg_list)
 
 
 def get_args():

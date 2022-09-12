@@ -42,6 +42,10 @@ def main(args):
     data_dict_bg_avg['x'] = []
     data_dict_bg_avg['y'] = []
 
+    data_dict_fg_max_diff = {}
+    data_dict_fg_max_diff['x'] = []
+    data_dict_fg_max_diff['y'] = []
+
     for i, fn in enumerate(data_dirs):
         min_array = None
         avg_array = None
@@ -74,6 +78,10 @@ def main(args):
         if os.path.exists(fs_bg_avg):
             bg_avg_array = np.load(fs_bg_avg)
 
+        fs_fg_max_diff = os.path.join(data_dirs[i], 'fg_max_diff_array.npy')
+        if os.path.exists(fs_fg_max_diff):
+            fg_max_diff_array = np.load(fs_fg_max_diff)
+
         instance_count = 0
         if np.all(min_array) != None:
             instance_count = len(min_array)
@@ -87,6 +95,8 @@ def main(args):
             instance_count = len(fg_avg_array)
         elif np.all(bg_avg_array) != None:
             instance_count = len(bg_avg_array)
+        elif np.all(fg_max_diff_array) != None:
+            instance_count = len(fg_max_diff_array)
 
         for j in range(instance_count):
             if np.all(min_array) != None:
@@ -107,6 +117,9 @@ def main(args):
             if np.all(bg_avg_array) != None:
                 data_dict_bg_avg['x'].append(dir_names[i])
                 data_dict_bg_avg['y'].append(bg_avg_array[j])
+            if np.all(fg_max_diff_array) != None:
+                data_dict_fg_max_diff['x'].append(dir_names[i])
+                data_dict_fg_max_diff['y'].append(fg_max_diff_array[j])
 
     # df_min = pd.DataFrame.from_dict(data_dict_min)
     # df_max = pd.DataFrame.from_dict(data_dict_max)
@@ -115,13 +128,14 @@ def main(args):
     df_fg_avg = pd.DataFrame.from_dict(data_dict_fg_avg)
     df_bg_avg = pd.DataFrame.from_dict(data_dict_bg_avg)
 
-    data_dict_fgbg_diff = {}
-    data_dict_fgbg_diff['x'] = []
-    data_dict_fgbg_diff['y'] = []
-    for i in range(len(data_dict_fg_avg['y'])):
-        data_dict_fgbg_diff['x'].append(data_dict_fg_avg['x'][i])
-        data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_max['y'][i])
-    df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fgbg_diff)
+    # data_dict_fgbg_diff = {}
+    # data_dict_fgbg_diff['x'] = []
+    # data_dict_fgbg_diff['y'] = []
+    # for i in range(len(data_dict_fg_avg['y'])):
+    #     data_dict_fgbg_diff['x'].append(data_dict_fg_avg['x'][i])
+    #     data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_max['y'][i])
+    # df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fgbg_diff)
+    df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fg_max_diff)
 
     if len(data_dict_avg['y']) > 0:
         sns.boxplot(x='x', y='y', data=df_avg)
@@ -149,7 +163,7 @@ def main(args):
         plt.savefig(os.path.join(base_dir, 'boxplot_foreground_background_avg.jpg'), bbox_inches=0)
         plt.close()
 
-    if len(data_dict_fgbg_diff['y']) > 0:
+    if len(data_dict_fg_max_diff['y']) > 0:
         sns.boxplot(x='x', y='y', data=df_fgbg_diff)
         plt.xlabel('Use of Augmentation Technique - TiAug')
         plt.ylabel('Difference in Foreground-Background Temperature')
@@ -183,7 +197,7 @@ def main(args):
         plt.savefig(os.path.join(base_dir, 'scatterplot_foreground_background_avg.jpg'), bbox_inches=0)
         plt.close()
 
-    if len(data_dict_fgbg_diff['y']) > 0:
+    if len(data_dict_fg_max_diff['y']) > 0:
         sns.scatterplot(x='x', y='y', data=df_fgbg_diff)
         plt.xlabel('Use of Augmentation Technique - TiAug')
         plt.ylabel('Difference in Foreground-Background Temperature')
