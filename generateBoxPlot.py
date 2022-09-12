@@ -157,7 +157,7 @@ def main(args):
     if len(data_dict_fg_avg['y']) > 0:
         sns.boxplot(x='x', y='y', data=df_fg_avg, whis=2.0)
         if len(data_dict_bg_avg['y']) > 0:
-            sns.boxplot(x='x', y='y', data=df_bg_avg, label='background', whis=2.0)
+            sns.boxplot(x='x', y='y', data=df_bg_avg, whis=2.0)
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
