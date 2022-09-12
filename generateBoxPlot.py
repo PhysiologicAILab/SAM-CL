@@ -139,7 +139,7 @@ def main(args):
     # df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fg_max_diff)
 
     if len(data_dict_avg['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_avg, whis=4.0)
+        sns.boxplot(x='x', y='y', data=df_avg, whis=4.0, fliersize=20)
         plt.xlabel('Different Datasets')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
@@ -147,7 +147,7 @@ def main(args):
         plt.close()
 
     if len(data_dict_std['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_std, whis=4.0)
+        sns.boxplot(x='x', y='y', data=df_std, whis=4.0, fliersize=20)
         plt.xlabel('Different Datasets')
         plt.ylabel('Standard Deviation')
         plt.title('Box Plot Analysis')
@@ -155,9 +155,9 @@ def main(args):
         plt.close()
     
     if len(data_dict_fg_avg['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_fg_avg, whis=4.0)
+        sns.boxplot(x='x', y='y', data=df_fg_avg, whis=4.0, fliersize=20)
         if len(data_dict_bg_avg['y']) > 0:
-            sns.boxplot(x='x', y='y', data=df_bg_avg, whis=4.0)
+            sns.boxplot(x='x', y='y', data=df_bg_avg, whis=4.0, fliersize=20)
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
@@ -165,7 +165,7 @@ def main(args):
         plt.close()
 
     if len(data_dict_fg_max_diff['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_fgbg_diff, whis=4.0)
+        sns.boxplot(x='x', y='y', data=df_fgbg_diff, whis=4.0, fliersize=20)
         plt.xlabel('Use of Augmentation Technique - TiAug')
         plt.ylabel('Difference in Foreground-Background Temperature')
         plt.title('Box Plot Analysis')
