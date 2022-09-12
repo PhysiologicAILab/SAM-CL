@@ -17,7 +17,7 @@ def main(args):
     img_files = []
     label_files = []
     img_ext = ['.npy']
-    label_ext = ['.png']
+    label_ext = '.png'
 
     data_dir_list = os.listdir(data_dir)
     # random.shuffle(data_dir_list)
