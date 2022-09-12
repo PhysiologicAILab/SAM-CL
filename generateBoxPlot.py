@@ -155,9 +155,9 @@ def main(args):
         plt.close()
     
     if len(data_dict_fg_avg['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_fg_avg, color='r')
+        sns.boxplot(x='x', y='y', data=df_fg_avg, label='Foreground')
         if len(data_dict_bg_avg['y']) > 0:
-            sns.boxplot(x='x', y='y', data=df_bg_avg, color='b')
+            sns.boxplot(x='x', y='y', data=df_bg_avg, label='Background')
         plt.legend()
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
@@ -190,9 +190,9 @@ def main(args):
         plt.close()
 
     if len(data_dict_fg_avg['y']) > 0:
-        sns.scatterplot(x='x', y='y', data=df_fg_avg, color='r')
+        sns.scatterplot(x='x', y='y', data=df_fg_avg, label='Foreground')
         if len(data_dict_bg_avg['y']) > 0:
-            sns.scatterplot(x='x', y='y', data=df_bg_avg, color='b')
+            sns.scatterplot(x='x', y='y', data=df_bg_avg, label='Background')
         plt.legend()
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
