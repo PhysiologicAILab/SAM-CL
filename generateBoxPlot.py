@@ -134,7 +134,7 @@ def main(args):
     data_dict_fgbg_diff['y'] = []
     for i in range(len(data_dict_fg_avg['y'])):
         data_dict_fgbg_diff['x'].append(data_dict_fg_avg['x'][i])
-        data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_bg_avg['y'][i] - 0.5)
+        data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_bg_avg['y'][i] - 0.75)
     df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fgbg_diff)
     # df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fg_max_diff)
 
