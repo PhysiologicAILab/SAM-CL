@@ -1,3 +1,4 @@
+from turtle import color
 import numpy as np
 import argparse
 import os
@@ -138,7 +139,7 @@ def main(args):
     # df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fg_max_diff)
 
     if len(data_dict_avg['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_avg, fliersize=10)
+        sns.boxplot(x='x', y='y', data=df_avg)
         plt.xlabel('Different Datasets')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
@@ -146,7 +147,7 @@ def main(args):
         plt.close()
 
     if len(data_dict_std['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_std, fliersize=10)
+        sns.boxplot(x='x', y='y', data=df_std)
         plt.xlabel('Different Datasets')
         plt.ylabel('Standard Deviation')
         plt.title('Box Plot Analysis')
@@ -154,9 +155,10 @@ def main(args):
         plt.close()
     
     if len(data_dict_fg_avg['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_fg_avg, fliersize=10)
+        sns.boxplot(x='x', y='y', data=df_fg_avg, color='r')
         if len(data_dict_bg_avg['y']) > 0:
-            sns.boxplot(x='x', y='y', data=df_bg_avg, fliersize=10)
+            sns.boxplot(x='x', y='y', data=df_bg_avg, color='b')
+        plt.legend()
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
@@ -164,7 +166,7 @@ def main(args):
         plt.close()
 
     if len(data_dict_fg_max_diff['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_fgbg_diff, fliersize=10)
+        sns.boxplot(x='x', y='y', data=df_fgbg_diff)
         plt.xlabel('Use of Augmentation Technique - TiAug')
         plt.ylabel('Difference in Foreground-Background Temperature')
         plt.title('Box Plot Analysis')
@@ -188,9 +190,10 @@ def main(args):
         plt.close()
 
     if len(data_dict_fg_avg['y']) > 0:
-        sns.scatterplot(x='x', y='y', data=df_fg_avg)
+        sns.scatterplot(x='x', y='y', data=df_fg_avg, color='r')
         if len(data_dict_bg_avg['y']) > 0:
-            sns.scatterplot(x='x', y='y', data=df_bg_avg)
+            sns.scatterplot(x='x', y='y', data=df_bg_avg, color='b')
+        plt.legend()
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Scatter Plot Analysis')
