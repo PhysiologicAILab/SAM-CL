@@ -17,6 +17,7 @@ def main(args):
     img_files = []
     label_files = []
     img_ext = ['.npy']
+    label_ext = ['.png']
 
     data_dir_list = os.listdir(data_dir)
     # random.shuffle(data_dir_list)
@@ -29,7 +30,7 @@ def main(args):
         # fname = "frm_" + str(ff) + img_ext
         fname = data_dir_list[ff]
         img_files.append(os.path.join(data_dir, fname))
-        label_files.append(os.path.join(label_dir, fname))
+        label_files.append(os.path.join(label_dir, fname.replace(img_ext, label_ext)))
 
     min_list = []
     avg_list = []
@@ -58,8 +59,8 @@ def main(args):
                 max_list.append(np.max(input_img))
                 std_list.append(np.std(input_img))
                 
-                print('type of input_img', type(input_img), type(input_img[0, 0]))
-                print('type of label_img', type(label_img), type(label_img[0, 0]))
+                # print('type of input_img', type(input_img), type(input_img[0, 0]))
+                # print('type of label_img', type(label_img), type(label_img[0, 0]))
                 fg_avg_temp = np.mean(input_img[label_img > 0])
                 bg_avg_temp = np.mean(input_img[label_img == 0])
                 fg_avg_list.append(fg_avg_temp)
