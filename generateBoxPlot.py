@@ -20,46 +20,46 @@ def main(args):
 
     data_dict = {}
     data_dict['com_x'] = []
-    data_dict['min_y'] = []
-    data_dict['avg_y'] = []
-    data_dict['max_y'] = []
-    data_dict['std_y'] = []
+    # data_dict['min_y'] = []
+    # data_dict['avg_y'] = []
+    # data_dict['max_y'] = []
+    # data_dict['std_y'] = []
     data_dict['fg_avg_y'] = []
     data_dict['bg_avg_y'] = []
 
     for i, fn in enumerate(data_dirs):
-        min_array = np.load(os.path.join(data_dirs[i], 'min_array.npy'))
-        avg_array = np.load(os.path.join(data_dirs[i], 'avg_array.npy'))
-        max_array = np.load(os.path.join(data_dirs[i], 'max_array.npy'))
-        std_array = np.load(os.path.join(data_dirs[i], 'std_array.npy'))
+        # min_array = np.load(os.path.join(data_dirs[i], 'min_array.npy'))
+        # avg_array = np.load(os.path.join(data_dirs[i], 'avg_array.npy'))
+        # max_array = np.load(os.path.join(data_dirs[i], 'max_array.npy'))
+        # std_array = np.load(os.path.join(data_dirs[i], 'std_array.npy'))
         fg_avg_array = np.load(os.path.join(data_dirs[i], 'fg_avg_array.npy'))
         bg_avg_array = np.load(os.path.join(data_dirs[i], 'bg_avg_array.npy'))
 
-        for j in range(len(min_array)):
+        for j in range(len(fg_avg_array)):
             data_dict['com_x'].append(dir_names[i])
-            data_dict['min_y'].append(min_array[j])
-            data_dict['avg_y'].append(avg_array[j])
-            data_dict['max_y'].append(max_array[j])
-            data_dict['std_y'].append(std_array[j])
+            # data_dict['min_y'].append(min_array[j])
+            # data_dict['avg_y'].append(avg_array[j])
+            # data_dict['max_y'].append(max_array[j])
+            # data_dict['std_y'].append(std_array[j])
             data_dict['fg_avg_y'].append(fg_avg_array[j])
             data_dict['bg_avg_y'].append(bg_avg_array[j])
 
 
     df = pd.DataFrame.from_dict(data_dict)
 
-    sns.boxplot(x='com_x', y='avg_y', data=df)
-    plt.xlabel('Different Datasets')
-    plt.ylabel('Average Value')
-    plt.title('Box Plot Analysis')
-    plt.savefig(os.path.join(base_dir, 'boxplot_avg.jpg'), bbox_inches=0)
-    plt.close()
+    # sns.boxplot(x='com_x', y='avg_y', data=df)
+    # plt.xlabel('Different Datasets')
+    # plt.ylabel('Average Value')
+    # plt.title('Box Plot Analysis')
+    # plt.savefig(os.path.join(base_dir, 'boxplot_avg.jpg'), bbox_inches=0)
+    # plt.close()
 
-    sns.boxplot(x='com_x', y='std_y', data=df)
-    plt.xlabel('Different Datasets')
-    plt.ylabel('Standard Deviation')
-    plt.title('Box Plot Analysis')
-    plt.savefig(os.path.join(base_dir, 'boxplot_std.jpg'), bbox_inches=0)
-    plt.close()
+    # sns.boxplot(x='com_x', y='std_y', data=df)
+    # plt.xlabel('Different Datasets')
+    # plt.ylabel('Standard Deviation')
+    # plt.title('Box Plot Analysis')
+    # plt.savefig(os.path.join(base_dir, 'boxplot_std.jpg'), bbox_inches=0)
+    # plt.close()
     
     sns.boxplot(x='com_x', y='fg_avg_y', data=df)
     sns.boxplot(x='com_x', y='bg_avg_y', data=df)
@@ -69,19 +69,19 @@ def main(args):
     plt.savefig(os.path.join(base_dir, 'boxplot_foreground_background_avg.jpg'), bbox_inches=0)
     plt.close()
 
-    sns.scatterplot(x='com_x', y='avg_y', data=df)
-    plt.xlabel('Different Datasets')
-    plt.ylabel('Average Value')
-    plt.title('Scatter Plot Analysis')
-    plt.savefig(os.path.join(base_dir, 'scatterplot_avg.jpg'), bbox_inches=0)
-    plt.close()
+    # sns.scatterplot(x='com_x', y='avg_y', data=df)
+    # plt.xlabel('Different Datasets')
+    # plt.ylabel('Average Value')
+    # plt.title('Scatter Plot Analysis')
+    # plt.savefig(os.path.join(base_dir, 'scatterplot_avg.jpg'), bbox_inches=0)
+    # plt.close()
 
-    sns.scatterplot(x='com_x', y='std_y', data=df)
-    plt.xlabel('Different Datasets')
-    plt.ylabel('Standard Deviation')
-    plt.title('Scatter Plot Analysis')
-    plt.savefig(os.path.join(base_dir, 'scatterplot_std.jpg'), bbox_inches=0)
-    plt.close()
+    # sns.scatterplot(x='com_x', y='std_y', data=df)
+    # plt.xlabel('Different Datasets')
+    # plt.ylabel('Standard Deviation')
+    # plt.title('Scatter Plot Analysis')
+    # plt.savefig(os.path.join(base_dir, 'scatterplot_std.jpg'), bbox_inches=0)
+    # plt.close()
 
     sns.scatterplot(x='com_x', y='fg_avg_y', data=df)
     sns.scatterplot(x='com_x', y='bg_avg_y', data=df)
