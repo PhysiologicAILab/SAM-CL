@@ -155,10 +155,10 @@ def main(args):
         plt.close()
     
     if len(data_dict_fg_avg['y']) > 0:
-        sns.boxplot(x='x', y='y', data=df_fg_avg, label='Foreground')
+        arr1 = sns.boxplot(x='x', y='y', data=df_fg_avg)
         if len(data_dict_bg_avg['y']) > 0:
-            sns.boxplot(x='x', y='y', data=df_bg_avg, label='Background')
-        plt.legend()
+            arr2 = sns.boxplot(x='x', y='y', data=df_bg_avg)
+        plt.legend([arr1, arr2], ['Foreground', 'Background'])
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Box Plot Analysis')
@@ -190,10 +190,10 @@ def main(args):
         plt.close()
 
     if len(data_dict_fg_avg['y']) > 0:
-        sns.scatterplot(x='x', y='y', data=df_fg_avg, label='Foreground')
+        arr1 = sns.scatterplot(x='x', y='y', data=df_fg_avg)
         if len(data_dict_bg_avg['y']) > 0:
-            sns.scatterplot(x='x', y='y', data=df_bg_avg, label='Background')
-        plt.legend()
+            arr2 = sns.scatterplot(x='x', y='y', data=df_bg_avg)
+        plt.legend([arr1, arr2], ['Foreground', 'Background'])
         plt.xlabel('Average Foreground and Background Temperature')
         plt.ylabel('Average Value')
         plt.title('Scatter Plot Analysis')
