@@ -128,14 +128,14 @@ def main(args):
     df_fg_avg = pd.DataFrame.from_dict(data_dict_fg_avg)
     df_bg_avg = pd.DataFrame.from_dict(data_dict_bg_avg)
 
-    # data_dict_fgbg_diff = {}
-    # data_dict_fgbg_diff['x'] = []
-    # data_dict_fgbg_diff['y'] = []
-    # for i in range(len(data_dict_fg_avg['y'])):
-    #     data_dict_fgbg_diff['x'].append(data_dict_fg_avg['x'][i])
-    #     data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_max['y'][i])
-    # df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fgbg_diff)
-    df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fg_max_diff)
+    data_dict_fgbg_diff = {}
+    data_dict_fgbg_diff['x'] = []
+    data_dict_fgbg_diff['y'] = []
+    for i in range(len(data_dict_fg_avg['y'])):
+        data_dict_fgbg_diff['x'].append(data_dict_fg_avg['x'][i])
+        data_dict_fgbg_diff['y'].append(data_dict_fg_avg['y'][i] - data_dict_bg_avg['y'][i])
+    df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fgbg_diff)
+    # df_fgbg_diff = pd.DataFrame.from_dict(data_dict_fg_max_diff)
 
     if len(data_dict_avg['y']) > 0:
         sns.boxplot(x='x', y='y', data=df_avg)
