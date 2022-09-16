@@ -156,6 +156,7 @@
         "lambda_way": 1,
         "use_sigmoid": false,
         "mode": "multiclass",
+        "classes": [0,1,2,3,4,5],
         "log_loss": true,
         "from_logits": true,
         "smooth": 0.0,
