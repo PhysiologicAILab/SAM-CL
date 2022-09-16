@@ -12,11 +12,11 @@ SAVE_DIR="${DATA_ROOT}/seg_results/thermalFaceDB"
 # BACKBONE="hrnet48"
 BACKBONE="none"
 
-CONFIGS="configs/thermalFaceDB/AU_SAMCL_RMI_Occ.json"
-# CONFIGS_TEST="configs/thermalFaceDB/R_101_D_8_TEST.json"
+CONFIGS="configs/thermalFaceDB/AU_SAMCL_DICE_Occ.json"
+# CONFIGS_TEST="configs/thermalFaceDB/AU_SAMCL_DICE_Occ.json"
 
 MODEL_NAME="attention_unet"
-LOSS_TYPE="rmi_loss"
+LOSS_TYPE="dice_loss"
 CHECKPOINTS_ROOT="${SCRATCH_ROOT}/Processed"
 CHECKPOINTS_NAME="${MODEL_NAME}_${BACKBONE}_"$2
 LOG_FILE="${SCRATCH_ROOT}/logs/Processed/${CHECKPOINTS_NAME}.log"

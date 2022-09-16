@@ -71,6 +71,8 @@ class DiceLoss(_Loss):
         from_logits = bool(self.configer.get('loss', 'params')['from_logits'])
         smooth = self.configer.get('loss', 'params')['smooth']
         ignore_index = self.configer.get('loss', 'params')['ignore_index']
+        if ignore_index == 'none':
+            ignore_index = None
         eps = float(self.configer.get('loss', 'params')['eps'])
 
         assert mode in {BINARY_MODE, MULTILABEL_MODE, MULTICLASS_MODE}

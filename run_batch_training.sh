@@ -1,17 +1,32 @@
-echo "*******************************************"
-echo "Running Training for DeepLabV3-Xception_16_RMI"
-echo "*******************************************"
-bash scripts/thermalFaceDB/deeplab/run_x_16_deeplabv3_train.sh train x_16_base ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_8_RMI"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train.sh train x_8_base ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
-echo "*******************************************"
-echo "Running Training for DeepLabV3-Xception_16_RMI_Occ"
-echo "*******************************************"
-bash scripts/thermalFaceDB/deeplab/run_x_16_deeplabv3_train_occ.sh train x_16_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_8_RMI_Occ"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_occ.sh train x_8_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
-echo "*******************************************"
-echo "Running Training for DeepLabV3-Xception_16_RMI_SAMCL_Occ"
-echo "*******************************************"
-bash scripts/thermalFaceDB/deeplab/run_x_16_deeplabv3_train_samcl_occ.sh train x_16_samcl_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_8_RMI_SAMCL_Occ"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh train x_8_samcl_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_16_RMI"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_16_deeplabv3_train.sh train x_16_base ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_16_RMI_Occ"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_16_deeplabv3_train_occ.sh train x_16_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_16_RMI_SAMCL_Occ"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_16_deeplabv3_train_samcl_occ.sh train x_16_samcl_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 # echo "*******************************************"
 # echo "Running Training for DeepLabV3-ResNet101_Dilation8_CL"
