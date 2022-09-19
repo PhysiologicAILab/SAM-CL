@@ -11,13 +11,13 @@ Reliable segmentation of thermal facial images in unconstrained settings such as
 
 ### **Thermal Image Augmentation:**
 <p align="left">
-    <img src="images/Thermal%20Augmentation%20Module.png" alt="Thermal Image Augmentation Module" width="600"/>
+    <img src="images/Thermal%20Augmentation%20Module.png" alt="Thermal Image Augmentation Module" width="500"/>
 </p>
 
 
 ### **Demo:**
 <p align="left">
-    <img src="images/SAM-CL_Demo.gif" alt="Demo of SAM-CL Framework" width="800"/>
+    <img src="images/SAM-CL_Demo.gif" alt="Demo of SAM-CL Framework" width="600"/>
 </p>
 
 ## **Installation**
