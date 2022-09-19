@@ -23,24 +23,24 @@ Reliable segmentation of thermal facial images in unconstrained settings such as
 ## **Installation**
 This implementation is built on [openseg.pytorch](https://github.com/openseg-group/openseg.pytorch) as well as [ContrastiveSeg](https://github.com/tfzhou/ContrastiveSeg).
 
-Please follow the Getting Started of openseg.pytorch for installation and dataset preparation
+Please follow the Getting Started of [openseg.pytorch](https://github.com/openseg-group/openseg.pytorch) for installation and dataset preparation
 
 ## **Training**
 ### **Illustrative command for training segmentation network:**
 
- Replace the actual paths for all the fields within square brackets (e.g. --config [~/dev/data/ThermalFaceDB])
+ Replace all the fields within square brackets with actual path and appropriate experiment name (e.g. --config [~/dev/data/ThermalFaceDB])
 
 ``` bash
-bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh train x_8_samcl_occ ~/dev/data/ThermalFaceDB ~/dev/data/ThermalFaceDB
+bash [scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh] train [x_8_samcl_occ] [~/dev/data/ThermalFaceDB] [~/dev/data/ThermalFaceDB]
 ```
 
 ## **Inference/ Validation**
 ### **Illustrative command for running validation:**
 
- Replace the actual paths for all the fields within square brackets (e.g. --config [~/dev/data/ThermalFaceDB])
+ Replace all the fields within square brackets with actual path and appropriate experiment name (e.g. --config [~/dev/data/ThermalFaceDB])
 
 ``` bash
-bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh val x_8_samcl_occ ~/dev/data/ThermalFaceDB ~/dev/data/ThermalFaceDB
+bash [scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh] val [x_8_samcl_occ] [~/dev/data/ThermalFaceDB] [~/dev/data/ThermalFaceDB]
 ```
 
 ### **Performance Evaluation:**
