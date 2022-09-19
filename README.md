@@ -50,5 +50,10 @@ bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh val x_8_
 
 ### **Ablation Study:**
 <p align="left">
-    <img src="images/Ablation%20Study%20for%20TiAug%20and%20SAM-CL%20Loss.png" alt="Ablation Study for TiAug and SAM-CL Loss" width="400"/>
+    <img src="images/Ablation%20Study%20for%20TiAug%20and%20SAM-CL%20Loss.png" alt="Ablation Study for TiAug and SAM-CL Loss" width="500"/>
+</p>
+
+### **Qualitative Analysis  on Different Datasets:**
+<p align="left">
+    <img src="images/Qualitative%20Outcome%20Combined.png" alt="Qualitative Analysis on Different Datasets" width="800"/>
 </p>
