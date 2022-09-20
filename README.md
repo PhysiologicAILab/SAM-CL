@@ -18,7 +18,7 @@ Reliable segmentation of thermal facial images in unconstrained settings such as
 * You may use pip install -r requirements.txt to install the dependencies.
 
 ### **Data Preparation**
-Thermal Face Database can be requested from the authors of [Thermal Face Project](https://github.com/marcinkopaczka/thermalfaceproject). From the data that is obtained from authors, please note the folder path of "FaceDB_Snapshot_complete".
+We thank the authors of the [Thermal Face Project](https://github.com/marcinkopaczka/thermalfaceproject) for providing the data. Thermal Face Database can be requested from the authors of [Thermal Face Project](https://github.com/marcinkopaczka/thermalfaceproject). From the data that is obtained, please note the path of "FaceDB_Snapshot_complete" directory.
 
 We arrange images and labels in a specific way. You could preprocess the files by running following command with the paths in square-bracket, specified as per the paths on your local PC:
 
@@ -37,7 +37,7 @@ and finally, the dataset directory should look like below under the DATA_ROOT di
     │   │   ├── image
     │   │   └── label
 
-Note: This implementation is built on [openseg.pytorch](https://github.com/openseg-group/openseg.pytorch) as well as [ContrastiveSeg](https://github.com/tfzhou/ContrastiveSeg).
+Note: This implementation is built on [openseg.pytorch](https://github.com/openseg-group/openseg.pytorch) as well as [ContrastiveSeg](https://github.com/tfzhou/ContrastiveSeg). We would like to thank the developers of both these repositories for providing the source code.
 
 ## **Training**
 ### **Illustrative command for training segmentation network:**
