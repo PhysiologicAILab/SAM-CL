@@ -10,7 +10,6 @@ Reliable segmentation of thermal facial images in unconstrained settings such as
 </p>
 
 ## **Installation**
-This implementation is built on [openseg.pytorch](https://github.com/openseg-group/openseg.pytorch) as well as [ContrastiveSeg](https://github.com/tfzhou/ContrastiveSeg).
 
 ### **Requirements**
 * Linux (Ubuntu ≥ 18.04) with Python ≥ 3.6
@@ -37,6 +36,8 @@ and finally, the dataset directory should look like below under the DATA_ROOT di
     │   ├── val
     │   │   ├── image
     │   │   └── label
+
+Note: This implementation is built on [openseg.pytorch](https://github.com/openseg-group/openseg.pytorch) as well as [ContrastiveSeg](https://github.com/tfzhou/ContrastiveSeg).
 
 ## **Training**
 ### **Illustrative command for training segmentation network:**
