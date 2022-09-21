@@ -6,7 +6,7 @@ Reliable segmentation of thermal facial images in unconstrained settings such as
 
 ### **Demo:**
 <p align="left">
-    <img src="images/SAM-CL_Demo.gif" alt="Demo of SAM-CL Framework" width="800"/>
+    <video src="images/SAM-CL_Demo.mp4" alt="Demo of SAM-CL Framework" width="1200"/>
 </p>
 
 ## **Installation**
