@@ -14,18 +14,16 @@ from __future__ import division
 from __future__ import print_function
 
 import argparse
-import json
 import os
 import random
 import time
-import pdb
+import sys
 
 import torch
 import torch.backends.cudnn as cudnn
 
 from lib.utils.tools.logger import Logger as Log
 from lib.utils.tools.configer import Configer
-import sys
 
 def str2bool(v):
     """ Usage:
