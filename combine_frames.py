@@ -31,6 +31,7 @@ Generate .mp4 from many image frames
     ffmpeg -pattern_type glob -i '*.jpg' -c:v libx264 -framerate 30 -filter:v "setpts=PTS/4" SAM-CL_Demo.mp4
 
 Generate .gif from .mp4
+    palette="/tmp/palette.png"
     filters="fps=15,scale=1200:-1:flags=lanczos"
     ffmpeg -i SAM-CL_Demo.mp4 -vf "$filters,palettegen" -y $palette
     ffmpeg -i SAM-CL_Demo.mp4 -i $palette -lavfi "$filters [x]; [x][1:v] paletteuse" -y SAM-CL_Demo.gif
