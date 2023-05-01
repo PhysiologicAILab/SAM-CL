@@ -85,19 +85,14 @@ bash [scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh] val [x
     <img src="images/Thermal%20Augmentation%20Module.png" alt="Thermal Image Augmentation Module" width="600"/>
 </p>
 
-### ** Citation: **
+### **Citation:**
+```json
 @inproceedings{Joshi_2022_BMVC,
-
 author    = {Jitesh N Joshi and Nadia Berthouze and Youngjun Cho},
-
 title     = {Self-adversarial Multi-scale Contrastive Learning for Semantic Segmentation of Thermal Facial Images},
-
 booktitle = {33rd British Machine Vision Conference 2022, {BMVC} 2022, London, UK, November 21-24, 2022},
-
 publisher = {{BMVA} Press},
-
 year      = {2022},
-
 url       = {https://bmvc2022.mpi-inf.mpg.de/0864.pdf}
-
 }
+```
