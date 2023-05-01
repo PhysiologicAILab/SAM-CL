@@ -3,6 +3,8 @@
 ## **Abstract**
 Reliable segmentation of thermal facial images in unconstrained settings such as thermal ambience and occlusions is challenging as facial features lack salience. Limited availability of datasets from such settings further makes it difficult to train segmentation networks. To address the challenge, we propose Self-Adversarial Multi-scale Contrastive Learning (**SAM-CL**) as a generic learning framework to train segmentation networks. **SAM-CL framework** constitutes **SAM-CL loss** function and a thermal image augmentation (**TiAug**) as a domain-specific augmentation technique to simulate unconstrained settings based upon existing datasets collected from controlled settings. We use the Thermal-Face-Database to demonstrate  effectiveness of our approach. Experiments conducted on the existing segmentation networks- UNET, Attention-UNET, DeepLabV3 and HRNetv2 evidence the consistent performance gain from the SAM-CL framework. Further, we present a qualitative analysis with UBComfort and DeepBreath datasets to discuss how our proposed methods perform in handling unconstrained situations.
 
+This work has been published at [British Machine Vision Conference, 2022](https://bmvc2022.mpi-inf.mpg.de/864/).
+
 ## **Demo**
 <p align="left">
     <img src="images/SAM-CL_Demo.gif" alt="Demo of SAM-CL Framework" width="1200"/>
@@ -82,3 +84,20 @@ bash [scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh] val [x
 <p align="left">
     <img src="images/Thermal%20Augmentation%20Module.png" alt="Thermal Image Augmentation Module" width="600"/>
 </p>
+
+### ** Citation: **
+@inproceedings{Joshi_2022_BMVC,
+
+author    = {Jitesh N Joshi and Nadia Berthouze and Youngjun Cho},
+
+title     = {Self-adversarial Multi-scale Contrastive Learning for Semantic Segmentation of Thermal Facial Images},
+
+booktitle = {33rd British Machine Vision Conference 2022, {BMVC} 2022, London, UK, November 21-24, 2022},
+
+publisher = {{BMVA} Press},
+
+year      = {2022},
+
+url       = {https://bmvc2022.mpi-inf.mpg.de/0864.pdf}
+
+}
