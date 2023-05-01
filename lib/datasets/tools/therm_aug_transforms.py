@@ -154,7 +154,7 @@ class RandomRotate(_BaseTransform):
 
     def _rotate_map(self, x, rotation_angle):
         rotated_x = np.zeros(x.shape)
-        x = x.astype(np.float)
+        x = x.astype(float)
         num_classes = int(np.max(x)) + 1
         for i in range(1, num_classes):
             cls_mask = np.zeros(x.shape)

@@ -8,6 +8,9 @@ Reliable segmentation of thermal facial images in unconstrained settings such as
     <img src="images/SAM-CL_Demo.gif" alt="Demo of SAM-CL Framework" width="1200"/>
 </p>
 
+## **Inference**
+While this repository provides the main SAM-CL code for training and validation of thermal datasets, the inference only code along with pre-trained model is available [on this repo](https://github.com/PhysiologicAILab/SAMCL_Inference).
+
 ## **Installation**
 
 ### **Requirements**
@@ -16,7 +19,7 @@ Reliable segmentation of thermal facial images in unconstrained settings such as
 * torchvision that matches the PyTorch installation. You can install them together at pytorch.org to make sure of this.
 * You may use pip install -r requirements.txt to install the dependencies.
 
-### **Data Preparation**
+### **Training Data Preparation**
 We thank the authors of the [Thermal Face Project](https://github.com/marcinkopaczka/thermalfaceproject) for providing the data. Thermal Face Database can be requested from the authors of [Thermal Face Project](https://github.com/marcinkopaczka/thermalfaceproject). From the data that is obtained, please note the path of "FaceDB_Snapshot_complete" directory.
 
 We arrange images and labels in a specific way. You could preprocess the files by running following command with the paths in square-bracket, specified as per the paths on your local PC:
@@ -46,7 +49,8 @@ Replace all the fields within square brackets with actual path and appropriate e
 bash [scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh] train [x_8_samcl_occ] [~/dev/data/ThermalFaceDB] [~/dev/data/ThermalFaceDB]
 ```
 
-## **Inference/ Validation**
+
+## **Validation**
 ### **Illustrative command for running validation:**
 Replace all the fields within square brackets with actual path and appropriate experiment name (e.g. --config [~/dev/data/ThermalFaceDB])
 
