@@ -1,9 +1,12 @@
 # Self-adversarial Multi-scale Contrastive Learning for Semantic Segmentation of Thermal Facial Images
+Authors: Jitesh Joshi, Nadia Berthouze, and Youngjun Cho <br> 
+Contact: Physiological Computing and Artificial Intelligence lab @ GDIH - WHO Collaboration Centre for Assistive Technology, UCL Computer Science  (youngjun.cho@ucl.ac.uk)
+
 
 ## **Abstract**
 Reliable segmentation of thermal facial images in unconstrained settings such as thermal ambience and occlusions is challenging as facial features lack salience. Limited availability of datasets from such settings further makes it difficult to train segmentation networks. To address the challenge, we propose Self-Adversarial Multi-scale Contrastive Learning (**SAM-CL**) as a generic learning framework to train segmentation networks. **SAM-CL framework** constitutes **SAM-CL loss** function and a thermal image augmentation (**TiAug**) as a domain-specific augmentation technique to simulate unconstrained settings based upon existing datasets collected from controlled settings. We use the Thermal-Face-Database to demonstrate  effectiveness of our approach. Experiments conducted on the existing segmentation networks- UNET, Attention-UNET, DeepLabV3 and HRNetv2 evidence the consistent performance gain from the SAM-CL framework. Further, we present a qualitative analysis with UBComfort and DeepBreath datasets to discuss how our proposed methods perform in handling unconstrained situations.
 
-This work has been published at [British Machine Vision Conference, 2022](https://bmvc2022.mpi-inf.mpg.de/864/).
+This work was published at [British Machine Vision Conference, 2022](https://bmvc2022.mpi-inf.mpg.de/864/).
 
 ## **Demo**
 <p align="left">
