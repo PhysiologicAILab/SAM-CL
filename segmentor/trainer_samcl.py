@@ -1,6 +1,6 @@
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Created by: Jitesh N. Joshi
-## University College London
+## Department of Computer Science, University College London
 ## jitesh.joshi.20@ucl.ac.uk
 ## Copyright (c) 2022
 ##
