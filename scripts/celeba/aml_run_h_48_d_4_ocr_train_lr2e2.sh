@@ -29,7 +29,7 @@ PRETRAINED_MODEL="./pretrained_model/hrnetv2_w48_imagenet_pretrained.pth"
 MAX_ITERS=200000
 
 if [ "$3"x == "train"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --base_lr 0.02 \
                        --drop_last y \
                        --phase train \
@@ -48,7 +48,7 @@ if [ "$3"x == "train"x ]; then
 
 
 elif [ "$3"x == "resume"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered n \
@@ -67,7 +67,7 @@ elif [ "$3"x == "resume"x ]; then
 
 
 elif [ "$3"x == "val"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS_TEST} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS_TEST} \
                        --data_dir ${DATA_DIR} \
                        --backbone ${BACKBONE} \
                        --model_name ${MODEL_NAME} \
@@ -88,14 +88,14 @@ elif [ "$3"x == "val"x ]; then
 elif [ "$3"x == "test"x ]; then
   if [ "$5"x == "ss"x ]; then
     echo "[single scale] test"
-    ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+    ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 1 2 3 --resume ./checkpoints/coco_stuff/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss
   else
     echo "[multiple scale + flip] test"
-    ${PYTHON} -u main.py --configs ${CONFIGS_TEST} --drop_last y \
+    ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS_TEST} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 1 2 3 --resume ./checkpoints/coco_stuff/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \

@@ -28,7 +28,7 @@ BATCHSIZE=32
 
 
 if [ "$1"x == "train"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered n \
@@ -46,7 +46,7 @@ if [ "$1"x == "train"x ]; then
                        
 
 elif [ "$1"x == "resume"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered n \
@@ -65,7 +65,7 @@ elif [ "$1"x == "resume"x ]; then
 
 
 elif [ "$1"x == "val"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test --gpu 0 1 2 3 --resume ./checkpoints/lip/${CHECKPOINTS_NAME}_latest.pth \
                        --loss_type ${LOSS_TYPE} --test_dir ${DATA_DIR}/val/image \
@@ -79,14 +79,14 @@ elif [ "$1"x == "val"x ]; then
 elif [ "$1"x == "test"x ]; then
   if [ "$3"x == "ss"x ]; then
     echo "[single scale] test"
-    ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+    ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 1 2 3 --resume ./checkpoints/lip/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss
   else
     echo "[multiple scale + flip] test"
-    ${PYTHON} -u main.py --configs ${CONFIGS_TEST} --drop_last y \
+    ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS_TEST} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 1 2 3 --resume ./checkpoints/lip/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \

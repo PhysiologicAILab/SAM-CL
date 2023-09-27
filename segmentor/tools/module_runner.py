@@ -271,7 +271,7 @@ class ModuleRunner(object):
     def warm_lr(self, iters, scheduler, optimizer, backbone_list=(0, )):
         """Sets the learning rate
         # Adapted from PyTorch Imagenet example:
-        # https://github.com/pytorch/examples/blob/master/imagenet/main.py
+        # https://github.com/pytorch/examples/blob/master/imagenet/main_benchmarking.py
         """
         if not self.configer.exists('lr', 'is_warm') or not self.configer.get('lr', 'is_warm'):
             return

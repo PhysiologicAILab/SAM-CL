@@ -29,7 +29,7 @@ MAX_ITERS=500000
 BATCH_SIZE=16
 
 if [ "$1"x == "train"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --drop_last y \
                        --phase train \
                        --gathered n \
@@ -50,7 +50,7 @@ if [ "$1"x == "train"x ]; then
 
 
 elif [ "$1"x == "resume"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --drop_last y \
                        --include_val y  \
                        --phase train \

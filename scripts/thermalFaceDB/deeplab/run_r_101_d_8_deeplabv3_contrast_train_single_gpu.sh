@@ -97,14 +97,14 @@ elif [ "$1"x == "segfix"x ]; then
 elif [ "$1"x == "test"x ]; then
   if [ "$5"x == "ss"x ]; then
     echo "[single scale] test"
-    python -u main.py --configs ${CONFIGS} --drop_last y --data_dir ${DATA_DIR} \
+    python -u main_benchmarking.py --configs ${CONFIGS} --drop_last y --data_dir ${DATA_DIR} \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 --resume ${CHECKPOINTS_ROOT}/checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss
   else
     echo "[multiple scale + flip] test"
-    python -u main.py --configs ${CONFIGS_TEST} --drop_last y \
+    python -u main_benchmarking.py --configs ${CONFIGS_TEST} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 --resume ./checkpoints/thermalFaceDB/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \

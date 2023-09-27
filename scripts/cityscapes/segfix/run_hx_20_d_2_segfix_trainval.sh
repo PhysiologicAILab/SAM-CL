@@ -50,7 +50,7 @@ PRETRAINED_MODEL="./pretrained_model/hr_rnet_bt_w20_imagenet_pretrained.pth"
 
 
 if [ "$1"x == "train"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y --test_interval 2000 \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y --test_interval 2000 \
                        --include_val y \
                        --phase train --gathered n --loss_balance y --log_to_file n \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --gpu 0 1 2 3 \
@@ -60,7 +60,7 @@ if [ "$1"x == "train"x ]; then
                        2>&1 | tee ${LOG_FILE} 
 
 elif [ "$1"x == "resume"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y --test_interval 2000 \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y --test_interval 2000 \
                        --include_val y \
                        --phase train --gathered n --loss_balance y --log_to_file n \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --max_iters ${MAX_ITERS} \
@@ -79,7 +79,7 @@ elif [ "$1"x == "segfix_pred_val"x ]; then
     CKPT=$3
   fi
 
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --data_dir ${DATA_DIR} \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test_offset --gpu 0 1 2 3 --resume $CKPT \
@@ -98,7 +98,7 @@ elif [ "$1"x == "segfix_pred_test"x ]; then
     CKPT=$3
   fi
 
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --data_dir ${DATA_DIR} \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test_offset --gpu 0 1 2 3 --resume $CKPT \
@@ -118,7 +118,7 @@ elif [ "$1"x == "segfix_simple_pred_val"x ]; then
     CKPT=$3
   fi
 
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --data_dir ${DATA_DIR} \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test_offset --gpu 0 1 2 3 --resume $CKPT \
@@ -138,7 +138,7 @@ elif [ "$1"x == "segfix_simple_pred_test"x ]; then
     CKPT=$3
   fi
 
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --data_dir ${DATA_DIR} \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test_offset --gpu 0 1 2 3 --resume $CKPT \

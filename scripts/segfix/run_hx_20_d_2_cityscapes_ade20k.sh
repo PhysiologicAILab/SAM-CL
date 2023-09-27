@@ -51,7 +51,7 @@ DATA_DIR="${DATA_ROOT}/cityscapes ${DATA_ROOT}/ade20k"
 CHILD_CONFIGS="['configs/cityscapes/H_SEGFIX.json', 'configs/ade20k/H_SEGFIX.json']"
 
 if [ "$1"x == "train"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --drop_last y \
                        --base_lr $LR \
                        --train_batch_size $BATCH_SIZE \
@@ -76,7 +76,7 @@ if [ "$1"x == "train"x ]; then
                        
 
 elif [ "$1"x == "resume"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --drop_last y \
                        --train_batch_size $BATCH_SIZE \
                        --val_batch_size $BATCH_SIZE \
@@ -112,7 +112,7 @@ elif [ "$1"x == "test_offset"x ]; then
   CONFIGS="configs/cityscapes/H_48_D_4_DT_OFFSET.json"
 
 
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test_offset --gpu 0 1 2 3 --resume .${CKPT} \
                       --log_to_file n --out_dir ${OUT_DIR} \
@@ -127,7 +127,7 @@ elif [ "$1"x == "test_offset"x ]; then
   DATA_DIR="/msravcshare/dataset/ade20k"
   CONFIGS="configs/ade20k/H_48_D_4_DT_OFFSET.json"
 
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test_offset --gpu 0 1 2 3 --resume ${CKPT} \
                        --log_to_file n --out_dir ${OUT_DIR} \

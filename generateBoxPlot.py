@@ -1,3 +1,12 @@
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Created by: Jitesh Joshi
+## Department of Computer Science, University College London 
+## jitesh.joshi.20@ucl.ac.uk
+## Copyright (c) 2022
+## This source code is licensed under the MIT-style license found in the
+## LICENSE file in the root directory of this source tree 
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 from turtle import color
 import numpy as np
 import argparse

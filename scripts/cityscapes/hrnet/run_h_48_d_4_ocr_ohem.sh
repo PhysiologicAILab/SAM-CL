@@ -27,7 +27,7 @@ PRETRAINED_MODEL="./pretrained_model/hrnetv2_w48_imagenet_pretrained.pth"
 
 
 if [ "$1"x == "train"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE}\
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE}\
                        --phase train --gathered n --loss_balance y --log_to_file n \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --gpu 0 1 2 3 \
                        --data_dir ${DATA_DIR} --loss_type ${LOSS_TYPE} --max_iters ${MAX_ITERS} \
@@ -37,7 +37,7 @@ if [ "$1"x == "train"x ]; then
                        
 
 elif [ "$1"x == "resume"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE} \
                        --phase train --gathered n --loss_balance y --log_to_file n \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --max_iters ${MAX_ITERS} \
                        --data_dir ${DATA_DIR} --loss_type ${LOSS_TYPE} --gpu 0 1 2 3 \
@@ -46,11 +46,11 @@ elif [ "$1"x == "resume"x ]; then
                         2>&1 | tee -a ${LOG_FILE}
 
 elif [ "$1"x == "debug"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --phase debug --gpu 0 --log_to_file n  2>&1 | tee ${LOG_FILE}
 
 elif [ "$1"x == "val"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE} --data_dir ${DATA_DIR} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE} --data_dir ${DATA_DIR} \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test --gpu 0 --resume ./checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
                        --test_dir ${DATA_DIR}/val/image --log_to_file n --out_dir val 2>&1 | tee -a ${LOG_FILE}
@@ -59,7 +59,7 @@ elif [ "$1"x == "val"x ]; then
                                        --gt_dir ${DATA_DIR}/val/label  >> "../../"${LOG_FILE} 2>&1
 
 elif [ "$1"x == "test"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test --gpu 0 --resume ./checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
                        --test_dir ${DATA_DIR}/test --log_to_file n --out_dir test 2>&1 | tee -a ${LOG_FILE}

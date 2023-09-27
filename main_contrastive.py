@@ -1,3 +1,14 @@
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Created by: Donny You and RainbowSecret, JingyiXie, LangHuang
+## Microsoft Research
+## Modified by: Jitesh Joshi
+## Department of Computer Science, University College London 
+## jitesh.joshi.20@ucl.ac.uk
+## Copyright (c) 2022
+## This source code is licensed under the MIT-style license found in the
+## LICENSE file in the root directory of this source tree 
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

@@ -28,7 +28,7 @@ mkdir -p `dirname $LOG_FILE`
 PRETRAINED_MODEL="./checkpoints/cityscapes/hrnet_w48_ocr_b_hrnet48__8_120000_trainval_ohem_mapillary_miou_508_1_latest.pth" # miou=83.63 on test.
 
 if [ "$1"x == "train"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} \
                        --drop_last y \
                        --train_batch_size ${BATCH_SIZE} \
                        --only_coarse y \
@@ -46,7 +46,7 @@ if [ "$1"x == "train"x ]; then
 
 
 elif [ "$1"x == "resume"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE} --only_coarse y \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE} --only_coarse y \
                        --phase train --gathered n --loss_balance y --log_to_file n \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --max_iters ${MAX_ITERS} \
                        --data_dir ${DATA_DIR} --loss_type ${LOSS_TYPE} --gpu 0 1 2 3 \
@@ -57,7 +57,7 @@ elif [ "$1"x == "resume"x ]; then
 
 
 elif [ "$1"x == "val"x ]; then
-  ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE} \
+  ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y --train_batch_size ${BATCH_SIZE} \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --phase test --gpu 0 --resume ./checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
                        --test_dir ${DATA_DIR}/val/image --log_to_file n --out_dir val 2>&1 | tee -a ${LOG_FILE}
@@ -68,14 +68,14 @@ elif [ "$1"x == "val"x ]; then
 elif [ "$1"x == "test"x ]; then
   if [ "$3"x == "ss"x ]; then
     echo "[single scale] test"
-    ${PYTHON} -u main.py --configs ${CONFIGS} --drop_last y \
+    ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 1 2 3 --resume ./checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \
                          --out_dir ${SAVE_DIR}${CHECKPOINTS_NAME}_test_ss
   else
     echo "[multiple scale + flip] test"
-    ${PYTHON} -u main.py --configs ${CONFIGS_TEST} --drop_last y \
+    ${PYTHON} -u main_benchmarking.py --configs ${CONFIGS_TEST} --drop_last y \
                          --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                          --phase test --gpu 0 1 2 3 --resume ./checkpoints/cityscapes/${CHECKPOINTS_NAME}_latest.pth \
                          --test_dir ${DATA_DIR}/test --log_to_file n \

@@ -59,7 +59,7 @@ def handle_distributed(args, main_file):
         try:
             main_index = command_args.index('main_contrastive.py')
         except:
-            main_index = command_args.index('main.py')
+            main_index = command_args.index('main_benchmarking.py')
 
     command_args = command_args[main_index+1:]
     print(command_args)

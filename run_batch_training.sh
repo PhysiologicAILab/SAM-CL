@@ -1,17 +1,26 @@
-echo "*******************************************"
-echo "Running Training for DeepLabV3-Xception_8_RMI"
-echo "*******************************************"
-bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train.sh train x_8_base ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## Created by: Jitesh Joshi
+## Department of Computer Science, University College London 
+## jitesh.joshi.20@ucl.ac.uk
+## Copyright (c) 2022
+## This source code is licensed under the MIT-style license found in the
+## LICENSE file in the root directory of this source tree 
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-echo "*******************************************"
-echo "Running Training for DeepLabV3-Xception_8_RMI_Occ"
-echo "*******************************************"
-bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_occ.sh train x_8_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_8_RMI"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train.sh train x_8_base ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
-echo "*******************************************"
-echo "Running Training for DeepLabV3-Xception_8_RMI_SAMCL_Occ"
-echo "*******************************************"
-bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh train x_8_samcl_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_8_RMI_Occ"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_occ.sh train x_8_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
+
+# echo "*******************************************"
+# echo "Running Training for DeepLabV3-Xception_8_RMI_SAMCL_Occ"
+# echo "*******************************************"
+# bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh train x_8_samcl_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
 
 # echo "*******************************************"
 # echo "Running Training for DeepLabV3-Xception_16_RMI"
@@ -168,8 +177,6 @@ bash scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh train x_
 # echo "Running Validation for aunet_gcl_rmi_occ"
 # echo "*******************************************"
 # bash scripts/thermalFaceDB/aunet/run_aunet_gcl_rmi_train_occ.sh val aunet_gcl_rmi_occ ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
-
-
 
 
 # bash scripts/thermalFaceDB/hrnet/run_h_48_d_8_hrnet_rmi_train.sh train hrnet_rmi_final ~/dev/data/ThermalFaceDBx320 ~/dev/data/ThermalFaceDBx320
