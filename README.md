@@ -86,7 +86,7 @@ bash [scripts/thermalFaceDB/deeplab/run_x_8_deeplabv3_train_samcl_occ.sh] val [x
 </p>
 
 ### **Citation:**
-```
+```bib
 @inproceedings{Joshi_2022_BMVC,
 author    = {Jitesh N Joshi and Nadia Berthouze and Youngjun Cho},
 title     = {Self-adversarial Multi-scale Contrastive Learning for Semantic Segmentation of Thermal Facial Images},
